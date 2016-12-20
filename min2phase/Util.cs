@@ -158,8 +158,82 @@ namespace cs.min2phase
         internal static bool[,] ckmv2 = new bool[11, 10];
 
         //TODO:
-        //toCubieCube
-        //toFaceCube
+        internal static void toCubieCube(sbyte[] f, CubieCube ccRet)
+        {
+            sbyte ori;
+            for (int i = 0; i < 8; i++)
+                ccRet.cp[i] = 0;// invalidate corners
+            for (int i = 0; i < 12; i++)
+                ccRet.ep[i] = 0;// and edges
+            sbyte col1, col2;
+            for (sbyte i = 0; i < 8; i++)
+            {
+                // get the colors of the cubie at corner i, starting with U/D
+                for (ori = 0; ori < 3; ori++)
+                    if (f[cornerFacelet[i, ori]] == U || f[cornerFacelet[i, ori]] == D)
+                        break;
+                col1 = f[cornerFacelet[i, (ori + 1) % 3]];
+                col2 = f[cornerFacelet[i, (ori + 2) % 3]];
+
+                for (sbyte j = 0; j < 8; j++)
+                {
+                    if (col1 == cornerFacelet[j, 1] / 9 && col2 == cornerFacelet[j, 2] / 9)
+                    {
+                        // in cornerposition i we have cornercubie j
+                        ccRet.cp[i] = j;
+                        ccRet.co[i] = (sbyte)(ori % 3);
+                        break;
+                    }
+                }
+            }
+            for (sbyte i = 0; i < 12; i++)
+            {
+                for (sbyte j = 0; j < 12; j++)
+                {
+                    if (f[edgeFacelet[i, 0]] == edgeFacelet[j, 0] / 9
+                            && f[edgeFacelet[i, 1]] == edgeFacelet[j, 1] / 9)
+                    {
+                        ccRet.ep[i] = j;
+                        ccRet.eo[i] = 0;
+                        break;
+                    }
+                    if (f[edgeFacelet[i, 0]] == edgeFacelet[j, 1] / 9
+                            && f[edgeFacelet[i, 1]] == edgeFacelet[j, 0] / 9)
+                    {
+                        ccRet.ep[i] = j;
+                        ccRet.eo[i] = 1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        internal static string toFaceCube(CubieCube cc)
+        {
+            char[] f = new char[54];
+            char[] ts = { 'U', 'R', 'F', 'D', 'L', 'B' };
+            for (int i = 0; i < 54; i++)
+            {
+                f[i] = ts[i / 9];
+            }
+            for (sbyte c = 0; c < 8; c++)
+            {
+                sbyte j = cc.cp[c];// cornercubie with index j is at
+                                   // cornerposition with index c
+                sbyte ori = cc.co[c];// Orientation of this cubie
+                for (sbyte n = 0; n < 3; n++)
+                    f[cornerFacelet[c, (n + ori) % 3]] = ts[cornerFacelet[j, n] / 9];
+            }
+            for (sbyte e = 0; e < 12; e++)
+            {
+                sbyte j = cc.ep[e];// edgecubie with index j is at edgeposition
+                                   // with index e
+                sbyte ori = cc.eo[e];// Orientation of this cubie
+                for (sbyte n = 0; n < 2; n++)
+                    f[edgeFacelet[e, (n + ori) % 2]] = ts[edgeFacelet[j, n] / 9];
+            }
+            return new string(f);
+        }
 
         internal static int binarySearch(char[] arr, int key)
         {
