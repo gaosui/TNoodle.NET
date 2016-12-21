@@ -78,6 +78,16 @@ namespace cs.min2phase
             return randomCube(r);
         }
 
+        /**
+         * Generates a random cube.<br>
+         *
+         * The random source can be set by {@link cs.min2phase.Tools#setRandomSource(java.util.Random)}
+         *
+         * @return A random cube in the string representation. Each cube of the cube space has almost (depends on randomSource) the same probability.
+         *
+         * @see cs.min2phase.Tools#setRandomSource(java.util.Random)
+         * @see cs.min2phase.Search#solution(java.lang.String facelets, int maxDepth, long timeOut, long timeMin, int verbose)
+         */
         public static string randomCube(Random gen)
         {
             return randomState(STATE_RANDOM, STATE_RANDOM, STATE_RANDOM, STATE_RANDOM, gen);

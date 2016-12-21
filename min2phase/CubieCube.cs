@@ -290,7 +290,7 @@ namespace cs.min2phase
             co[7] = (sbyte)((15 - twst) % 3);
         }
 
-        int getTwistSym()
+        internal int getTwistSym()
         {
             if (TwistR2S != null)
             {
