@@ -529,18 +529,19 @@ namespace cs.min2phase
                 for (int s = 0; s < 16; s++)
                 {
                     CornConjugate(moveCube[j], SymInv[s], c);
-                CONTINUE:
                     for (int m = 0; m < 18; m++)
                     {
                         for (int i = 0; i < 8; i += 2)
                         {
                             if (c.cp[i] != moveCube[m].cp[i])
                             {
+
                                 goto CONTINUE;
                             }
                         }
                         SymMove[s, j] = m;
                         break;
+                    CONTINUE: { }
                     }
                 }
             }
