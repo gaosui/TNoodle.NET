@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace cs.min2phase
 {
@@ -14,6 +10,11 @@ namespace cs.min2phase
 
         private static int[] initState = new int[2];
         private static int[] require = { 0x0, 0x1, 0x2, 0x2, 0x2, 0x7, 0xa, 0x3, 0x13, 0x13, 0x3, 0x6e, 0xca, 0xa6, 0x612, 0x512 };
+
+        private static readonly Random r = new Random();
+
+        public static readonly sbyte[] STATE_RANDOM = null;
+        public static readonly sbyte[] STATE_SOLVED = new sbyte[0];
 
         private static void initIdx(int idx)
         {
@@ -49,20 +50,11 @@ namespace cs.min2phase
             {
                 return;
             }
-            /**
-             * Can be replaced by:
-             *     new Tools().run();
-             */
-            //initParallel(Runtime.getRuntime().availableProcessors());
-            //initParallel(1);
-
-            // This linear init is something gwt can deal with,
-            // unlike the threading madness above.
+            
             for (int i = 0; i <= 15; i++)
             {
                 initIdx(i);
             }
-
 
             inited = true;
         }
@@ -72,7 +64,6 @@ namespace cs.min2phase
             return inited;
         }
 
-        private static readonly Random r = new Random();
         public static string randomCube()
         {
             return randomCube(r);
@@ -184,9 +175,6 @@ namespace cs.min2phase
             }
             return p;
         }
-
-        public static readonly sbyte[] STATE_RANDOM = null;
-        public static readonly sbyte[] STATE_SOLVED = new sbyte[0];
 
         protected internal static string randomState(sbyte[] cp, sbyte[] co, sbyte[] ep, sbyte[] eo, Random gen)
         {

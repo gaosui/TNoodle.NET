@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace cs.min2phase
 {
@@ -164,7 +160,6 @@ namespace cs.min2phase
             bool inv;
             int select;
             int check;
-            //		TwistFlipPrun = new int[N_FLIP_SYM * N_TWIST_SYM * 8 / 8];
             for (int i = 0; i < N_FLIP_SYM * N_TWIST_SYM * 8 / 8; i++)
             {
                 TwistFlipPrun[i] = -1;
@@ -186,17 +181,14 @@ namespace cs.min2phase
                         int twist = i / 2688;
                         int flip = i % 2688;
                         int fsym = i & 7;
-                        //flip >>>= 3;
                         flip = (int)((uint)flip >> 3);
                         for (int m = 0; m < N_MOVES; m++)
                         {
                             int twistx = TwistMove[twist, m];
                             int tsymx = twistx & 7;
-                            //twistx >>>= 3;
                             twistx = (int)((uint)twistx >> 3);
                             int flipx = FlipMove[flip, CubieCube.Sym8Move[fsym, m]];
                             int fsymx = CubieCube.Sym8MultInv[CubieCube.Sym8Mult[flipx & 7, fsym], tsymx];
-                            //flipx >>>= 3;
                             flipx = (int)((uint)flipx >> 3);
                             int idx = ((twistx * 336 + flipx) << 3 | fsymx);
                             if (getPruning(TwistFlipPrun, idx) == check)
@@ -239,10 +231,7 @@ namespace cs.min2phase
                         }
                     }
                 }
-                //			System.out.println(String.format("%2d%10d", depth, done));
             }
-
-
         }
 
         internal static void initRawSymPrun(int[] PrunTable, int INV_DEPTH,
@@ -290,7 +279,6 @@ namespace cs.min2phase
                             {
                                 int symx = SymMove[sym, moveMap == null ? m : moveMap[m]];
                                 int rawx = RawConj[RawMove[raw, m] & 0x1ff, symx & SYM_MASK];
-                                //symx >>>= SYM_SHIFT;
                                 symx = (int)((uint)symx >> SYM_SHIFT);
                                 int idx = symx * N_RAW + rawx;
                                 if (getPruning(PrunTable, idx) == check)
@@ -322,10 +310,9 @@ namespace cs.min2phase
                         }
                     }
                 }
-                //			System.out.println(String.format("%2d%10d", depth, done));
             }
-
         }
+
         internal static void initSliceTwistPrun()
         {
             initRawSymPrun(UDSliceTwistPrun, 6,

@@ -293,11 +293,11 @@ namespace cs.min2phase
         }
 
         /**
- * @return
- * 		0: Found or Timeout
- * 		1: Try Next Power
- * 		2: Try Next Axis
- */
+         * @return
+         * 		0: Found or Timeout
+         * 		1: Try Next Power
+         * 		2: Try Next Axis
+         */
         private int phase1(int twist, int tsym, int flip, int fsym, int slice, int maxl, int lastAxis)
         {
             if (twist == 0 && flip == 0 && slice == 0 && maxl < 5)
@@ -317,7 +317,6 @@ namespace cs.min2phase
                     int slicex = CoordCube.UDSliceMove[slice, m] & 0x1ff;
                     int twistx = CoordCube.TwistMove[twist, CubieCube.Sym8Move[tsym, m]];
                     int tsymx = CubieCube.Sym8Mult[twistx & 7, tsym];
-                    //twistx >>>= 3;
                     twistx = (int)((uint)twistx >> 3);
                     int prun = CoordCube.getPruning(CoordCube.UDSliceTwistPrun,
                         twistx * 495 + CoordCube.UDSliceConj[slicex, tsymx]);
@@ -331,7 +330,6 @@ namespace cs.min2phase
                     }
                     int flipx = CoordCube.FlipMove[flip, CubieCube.Sym8Move[fsym, m]];
                     int fsymx = CubieCube.Sym8Mult[flipx & 7, fsym];
-                    //flipx >>>= 3;
                     flipx = (int)((uint)flipx >> 3);
                     if (Tools.USE_TWIST_FLIP_PRUN)
                     {
@@ -369,11 +367,11 @@ namespace cs.min2phase
         }
 
         /**
- * @return
- * 		0: Found or Timeout
- * 		1: Try Next Power
- * 		2: Try Next Axis
- */
+         * @return
+         * 		0: Found or Timeout
+         * 		1: Try Next Power
+         * 		2: Try Next Axis
+         */
         private int initPhase2()
         {
             if (currentTimeMillis() >= (_solution == null ? timeOut : timeMin))
@@ -388,7 +386,6 @@ namespace cs.min2phase
                 int m = move[i];
                 cidx = CoordCube.CPermMove[cidx, CubieCube.SymMove[csym, m]];
                 csym = CubieCube.SymMult[cidx & 0xf, csym];
-                //cidx >>>= 4;
                 cidx = (int)((uint)cidx >> 4);
                 corn[i + 1] = cidx << 4 | csym;
 
@@ -421,7 +418,6 @@ namespace cs.min2phase
 
             int edge = CubieCube.MtoEPerm[494 - (u4e & 0x1ff) + ((int)((uint)u4e >> 9)) * 70 + ((int)((uint)d4e >> 9)) * 1680];
             int esym = edge & 15;
-            //edge >>>= 4;
             edge = (int)((uint)edge >> 4);
 
             prun = Math.Max(CoordCube.getPruning(CoordCube.MEPermPrun, edge * 24 + CoordCube.MPermConj[mid, esym]), prun);
@@ -460,7 +456,6 @@ namespace cs.min2phase
                         return false;
                     }
                 }
-                // Is the cube solved?
                 return eidx == 0 && cidx == 0 && mid == 0;
             }
             for (int m = 0; m < 10; m++)
@@ -472,7 +467,6 @@ namespace cs.min2phase
                 int midx = CoordCube.MPermMove[mid, m];
                 int cidxx = CoordCube.CPermMove[cidx, CubieCube.SymMove[csym, Util.ud2std[m]]];
                 int csymx = CubieCube.SymMult[cidxx & 15, csym];
-                //cidxx >>>= 4;
                 cidxx = (int)((uint)cidxx >> 4);
                 if (CoordCube.getPruning(CoordCube.MCPermPrun,
                         cidxx * 24 + CoordCube.MPermConj[midx, csymx]) >= maxl)
@@ -481,7 +475,6 @@ namespace cs.min2phase
                 }
                 int eidxx = CoordCube.EPermMove[eidx, CubieCube.SymMoveUD[esym, m]];
                 int esymx = CubieCube.SymMult[eidxx & 15, esym];
-                //eidxx >>>= 4;
                 eidxx = (int)((uint)eidxx >> 4);
                 if (CoordCube.getPruning(CoordCube.MEPermPrun,
                         eidxx * 24 + CoordCube.MPermConj[midx, esymx]) >= maxl)
@@ -538,12 +531,10 @@ namespace cs.min2phase
             return sb.ToString();
         }
 
-
         private static DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private static long currentTimeMillis()
         {
             return (long)((DateTime.UtcNow - Jan1st1970).TotalMilliseconds);
         }
-
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace cs.min2phase
 {
@@ -92,18 +88,49 @@ namespace cs.min2phase
         internal static readonly sbyte L = 4;
         internal static readonly sbyte B = 5;
 
-        internal static readonly sbyte[,] cornerFacelet = { { U9, R1, F3 }, { U7, F1, L3 }, { U1, L1, B3 }, { U3, B1, R3 },
-            { D3, F9, R7 }, { D1, L9, F7 }, { D7, B9, L7 }, { D9, R9, B7 } };
+        internal static readonly sbyte[,] cornerFacelet =
+        {
+            { U9, R1, F3 },
+            { U7, F1, L3 },
+            { U1, L1, B3 },
+            { U3, B1, R3 },
+            { D3, F9, R7 },
+            { D1, L9, F7 },
+            { D7, B9, L7 },
+            { D9, R9, B7 }
+        };
 
-        internal static readonly sbyte[,] edgeFacelet = { { U6, R2 }, { U8, F2 }, { U4, L2 }, { U2, B2 }, { D6, R8 }, { D2, F8 },
-            { D4, L8 }, { D8, B8 }, { F6, R4 }, { F4, L6 }, { B6, L4 }, { B4, R6 } };
+        internal static readonly sbyte[,] edgeFacelet =
+        {
+            { U6, R2 },
+            { U8, F2 },
+            { U4, L2 },
+            { U2, B2 },
+            { D6, R8 },
+            { D2, F8 },
+            { D4, L8 },
+            { D8, B8 },
+            { F6, R4 },
+            { F4, L6 },
+            { B6, L4 },
+            { B4, R6 }
+        };
 
         internal static int[,] Cnk = new int[12, 12];
         internal static int[] fact = new int[13];
         internal static int[,] permMult = new int[24, 24];
-        internal static string[] move2str = {"U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'",
-                                "D", "D2", "D'", "L", "L2", "L'", "B", "B2", "B'"};
+        internal static string[] move2str =
+        {
+            "U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'",
+            "D", "D2", "D'", "L", "L2", "L'", "B", "B2", "B'"
+        };
         internal static Dictionary<string, int> str2move = new Dictionary<string, int>();
+
+        internal static int[] ud2std = { Ux1, Ux2, Ux3, Rx2, Fx2, Dx1, Dx2, Dx3, Lx2, Bx2 };
+        internal static int[] std2ud = new int[18];
+
+        internal static bool[,] ckmv2 = new bool[11, 10];
+
         static Util()
         {
             for (int i = 0; i < move2str.Length; i++)
@@ -152,12 +179,7 @@ namespace cs.min2phase
                 }
             }
         }
-        internal static int[] ud2std = { Ux1, Ux2, Ux3, Rx2, Fx2, Dx1, Dx2, Dx3, Lx2, Bx2 };
-        internal static int[] std2ud = new int[18];
 
-        internal static bool[,] ckmv2 = new bool[11, 10];
-
-        //TODO:
         internal static void toCubieCube(sbyte[] f, CubieCube ccRet)
         {
             sbyte ori;
