@@ -42,6 +42,7 @@
     <Compile Include="min2phase\Search.cs" />
     <Compile Include="min2phase\Tools.cs" />
     <Compile Include="min2phase\Util.cs" />
+    <Compile Include="Scrambles\Puzzle.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
