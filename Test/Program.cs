@@ -12,7 +12,9 @@ namespace Test
         public static void Main(string[] args)
         {
             Search s = new Search();
-            Console.WriteLine(s.solution(Tools.randomCube(), 30, 10000, 1, 0));
+            //string state = Tools.randomCube();
+            //Console.WriteLine(state);
+            Console.WriteLine(s.solution("LFBFUBURBRLLFRBBLFRBUUFRLRRDDDDDURLUFDFRLFFBBULDUBULDD", 30, 10000, 1, 0));
         }
     }
 }

@@ -71,7 +71,7 @@ namespace cs.min2phase
         internal static sbyte[][] urfMoveInv = new sbyte[urfMove.Length][];
         static CubieCube()
         {
-            for (int urfIdx = 0; urfIdx < urfMove.Length; urfIdx++)
+            for (int urfIdx = 0; urfIdx < urfMove.GetLength(0); urfIdx++)
             {
                 sbyte[] urfMoveArr = urfMove[urfIdx];
                 sbyte[] urfMoveArrInv = new sbyte[urfMoveArr.Length];

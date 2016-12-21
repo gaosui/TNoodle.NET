@@ -252,8 +252,8 @@ namespace cs.min2phase
         {
 
             int SYM_MASK = (1 << SYM_SHIFT) - 1;
-            int N_RAW = RawMove.Length;
-            int N_SYM = SymMove.Length;
+            int N_RAW = RawMove.GetLength(0);
+            int N_SYM = SymMove.GetLength(0);
             int N_SIZE = N_RAW * N_SYM;
             int N_MOVES = RawMove.GetLength(1);
 
