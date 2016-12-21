@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace cs.min2phase
+namespace TNoodle.min2phase
 {
     internal class Util
     {

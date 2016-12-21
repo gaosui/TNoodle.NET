@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace cs.min2phase
+namespace TNoodle.min2phase
 {
     public class Tools
     {

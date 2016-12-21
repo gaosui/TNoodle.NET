@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace cs.min2phase
+namespace TNoodle.min2phase
 {
     public class Search
     {

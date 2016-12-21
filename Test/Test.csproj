@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\min2phase\min2phase.csproj">
+    <ProjectReference Include="..\TNoodle\TNoodle.csproj">
       <Project>{8c589f48-b927-4807-9e23-6bb342b9be09}</Project>
-      <Name>min2phase</Name>
+      <Name>TNoodle</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

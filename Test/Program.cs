@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using cs.min2phase;
+using TNoodle.min2phase;
 
 namespace Test
 {
