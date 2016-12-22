@@ -52,6 +52,7 @@
     <Compile Include="Core\InvalidScrambleException.cs" />
     <Compile Include="Core\MergingMode.cs" />
     <Compile Include="Core\PuzzleStateAndGenerator.cs" />
+    <Compile Include="Solvers\TwoByTwoSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MissingFeatures.txt" />
