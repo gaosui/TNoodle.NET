@@ -36,10 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Core\Bucket.cs" />
     <Compile Include="Core\Puzzle.cs" />
-    <Compile Include="Core\PuzzleState.cs" />
-    <Compile Include="Core\SortedBuckets.cs" />
     <Compile Include="Core\LinkedHashMap.cs" />
     <Compile Include="min2phase\CoordCube.cs" />
     <Compile Include="min2phase\CubieCube.cs" />
@@ -50,16 +47,12 @@
     <Compile Include="Core\AlgorithmBuilder.cs" />
     <Compile Include="Core\InvalidMoveException.cs" />
     <Compile Include="Core\InvalidScrambleException.cs" />
-    <Compile Include="Core\MergingMode.cs" />
     <Compile Include="Core\PuzzleStateAndGenerator.cs" />
     <Compile Include="Puzzles\CubePuzzle.cs" />
     <Compile Include="Solvers\TwoByTwoSolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MissingFeatures.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Core\IndexAndMove.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\GwtSafeUtils.cs" />

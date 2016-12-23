@@ -12,7 +12,7 @@ namespace TNoodle.Core
         /**
          * states.get(i) = state achieved by applying moves[0]...moves[i-1]
          */
-        private List<PuzzleState> states = new List<PuzzleState>();
+        private List<Puzzle.PuzzleState> states = new List<Puzzle.PuzzleState>();
         /**
          * If we are in CANONICALIZE_MOVES MergingMode, then something like
          * Uw Dw' on a 4x4x4 will become Uw2. This means the state we end
@@ -21,7 +21,7 @@ namespace TNoodle.Core
          * unNormalizedState keeps track of the state we would have been in
          * if we had just naively appended turns.
          */
-        private PuzzleState originalState, unNormalizedState;
+        private Puzzle.PuzzleState originalState, unNormalizedState;
         private int totalCost;
         private MergingMode mergingMode = MergingMode.NO_MERGING;
         private Puzzle puzzle;
@@ -32,14 +32,14 @@ namespace TNoodle.Core
 
         }
 
-        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode, PuzzleState originalState)
+        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode, Puzzle.PuzzleState originalState)
         {
             this.puzzle = puzzle;
             this.mergingMode = mergingMode;
             resetToState(originalState);
         }
 
-        private void resetToState(PuzzleState originalState)
+        private void resetToState(Puzzle.PuzzleState originalState)
         {
             this.totalCost = 0;
             this.originalState = originalState;
@@ -47,6 +47,44 @@ namespace TNoodle.Core
             this.moves.Clear();
             this.states.Clear();
             states.Add(unNormalizedState);
+        }
+
+        public enum MergingMode
+        {
+            // There are several degrees of manipulation we can choose to do
+            // while building an algorithm. Here they are, ranging from least to
+            // most aggressive. Examples are on a 3x3x3.
+
+            // Straightforward, blindly append moves.
+            // For example:
+            //  - "R R" stays unmodified.
+            NO_MERGING,
+
+            // Merge together redundant moves, but preserve the exact state
+            // of the puzzle (unlike CANONICALIZE_MOVES).
+            // In other words, the resulting state will be the
+            // same as if we had used NO_MERGING.
+            // For example:
+            //  - "R R" becomes "R2"
+            //  - "L Rw" stays unmodified.
+            //  - "F x U" will become something like "F2 x".
+            //  TODO - add actual support for this! feel free to rename it
+            //MERGE_REDUNDANT_MOVES_PRESERVE_STATE,
+
+            // Most aggressive merging.
+            // See PuzzleState.getCanonicalMovesByState() for the
+            // definition of "canonical" moves.
+            // Canonical moves will not necessarily let us preserve the
+            // exact state we would have achieved with NO_MERGING. This is
+            // because canonical moves may not let us rotate the puzzle.
+            // However, the resulting state when normalized will be the
+            // same as the normalization of the state we would have
+            // achieved if we had used NO_MERGING.
+            // For example:
+            //  - "R R" becomes "R2"
+            //  - "L Rw" becomes "L2"
+            //  - "F x U" becomes "F2"
+            CANONICALIZE_MOVES
         }
 
         public bool isRedundant(string move)
@@ -58,6 +96,21 @@ namespace TNoodle.Core
             return indexAndMove.index < moves.Count || indexAndMove.move == null;
         }
 
+        public class IndexAndMove
+        {
+            public int index;
+            public string move;
+            public IndexAndMove(int index, string move)
+            {
+                this.index = index;
+                this.move = move;
+            }
+            public string toString()
+            {
+                return "{ index: " + index + " move: " + move + " }";
+            }
+        }
+
         public IndexAndMove findBestIndexForMove(string move, MergingMode mergingMode)
         {
             if (mergingMode == MergingMode.NO_MERGING)
@@ -65,7 +118,7 @@ namespace TNoodle.Core
                 return new IndexAndMove(moves.Count, move);
             }
 
-            PuzzleState newUnNormalizedState = unNormalizedState.apply(move);
+            Puzzle.PuzzleState newUnNormalizedState = unNormalizedState.apply(move);
             if (newUnNormalizedState.equalsNormalized(unNormalizedState))
             {
                 // move must just be a rotation.
@@ -74,13 +127,13 @@ namespace TNoodle.Core
                     return new IndexAndMove(0, null);
                 }
             }
-            PuzzleState newNormalizedState = newUnNormalizedState.getNormalized();
+            Puzzle.PuzzleState newNormalizedState = newUnNormalizedState.getNormalized();
 
-            Dictionary<PuzzleState, string> successors = getState().getCanonicalMovesByState();
+            Dictionary<Puzzle.PuzzleState, string> successors = getState().getCanonicalMovesByState();
             move = null;
             // Search for the right move to do to our current state in
             // order to match up with newNormalizedState.
-            foreach (PuzzleState ps in successors.Keys)
+            foreach (Puzzle.PuzzleState ps in successors.Keys)
             {
                 if (ps.equalsNormalized(newNormalizedState))
                 {
@@ -97,13 +150,13 @@ namespace TNoodle.Core
                 for (int lastMoveIndex = moves.Count - 1; lastMoveIndex >= 0; lastMoveIndex--)
                 {
                     string lastMove = moves[lastMoveIndex];
-                    PuzzleState stateBeforeLastMove = states[lastMoveIndex];
+                    Puzzle.PuzzleState stateBeforeLastMove = states[lastMoveIndex];
                     if (!stateBeforeLastMove.movesCommute(lastMove, move))
                     {
                         break;
                     }
-                    PuzzleState stateAfterLastMove = states[lastMoveIndex + 1];
-                    PuzzleState stateAfterLastMoveAndNewMove = stateAfterLastMove.apply(move);
+                    Puzzle.PuzzleState stateAfterLastMove = states[lastMoveIndex + 1];
+                    Puzzle.PuzzleState stateAfterLastMoveAndNewMove = stateAfterLastMove.apply(move);
 
                     if (stateBeforeLastMove.equalsNormalized(stateAfterLastMoveAndNewMove))
                     {
@@ -113,7 +166,7 @@ namespace TNoodle.Core
                     else
                     {
                         successors = stateBeforeLastMove.getCanonicalMovesByState();
-                        foreach (PuzzleState ps in successors.Keys)
+                        foreach (Puzzle.PuzzleState ps in successors.Keys)
                         {
                             if (ps.equalsNormalized(stateAfterLastMoveAndNewMove))
                             {
@@ -216,7 +269,7 @@ namespace TNoodle.Core
             }
         }
 
-        public PuzzleState getState()
+        public Puzzle.PuzzleState getState()
         {
             //azzert(states.Count == moves.Count + 1);
             return states[states.Count - 1];
@@ -227,7 +280,7 @@ namespace TNoodle.Core
             return totalCost;
         }
 
-        public string toString()
+        public override string ToString()
         {
             return GwtSafeUtils.join(moves, " ");
         }
