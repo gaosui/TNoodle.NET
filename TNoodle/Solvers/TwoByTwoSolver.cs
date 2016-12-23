@@ -346,7 +346,6 @@ namespace TNoodle.Solvers
             return solutionFound;
         }
 
-
         /**
          * Generate a random 2x2 position.
          * @param r         random int generator
