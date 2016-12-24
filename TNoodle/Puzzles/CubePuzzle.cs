@@ -425,7 +425,7 @@ namespace TNoodle.Puzzles
 
         protected internal static int[][] getStickersByPiece(int[][][] img)
         {
-            int s = img.GetLength(1) - 1;
+            int s = img[0].Length - 1;
             return new int[][] {
             new int[] { img[(int)Face.U][s][s], img[(int)Face.R][0][0], img[(int)Face.F][0][s] },
             new int[] { img[(int)Face.U][s][0], img[(int)Face.F][0][0], img[(int)Face.L][0][s] },

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TNoodle.min2phase;
 using TNoodle.Solvers;
+using TNoodle.Puzzles;
 
 namespace Test
 {
@@ -26,15 +27,22 @@ namespace Test
             //{
             //    Console.WriteLine("ori " + item);
             //}
-            var perm = new int[] { 2, 1, 0, 3, 4, 5, 6 };
-            var ori = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-            var state = new TwoByTwoState
-            {
-                permutation = TwoByTwoSolver.packPerm(perm),
-                orientation = TwoByTwoSolver.packOrient(ori)
-            };
-            Console.WriteLine(solver.solveIn(state, 10));
+            //var perm = new int[] { 2, 1, 0, 3, 4, 5, 6 };
+            //var ori = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+            //var state = new TwoByTwoState
+            //{
+            //    permutation = TwoByTwoSolver.packPerm(perm),
+            //    orientation = TwoByTwoSolver.packOrient(ori)
+            //};
+            //Console.WriteLine(solver.solveIn(state, 10));
+            var p = new TwoByTwoCubePuzzle();
 
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(p.generateScramble());
+            }
+
+            Console.ReadKey();
         }
     }
 }

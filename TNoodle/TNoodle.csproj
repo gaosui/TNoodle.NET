@@ -49,6 +49,7 @@
     <Compile Include="Core\InvalidScrambleException.cs" />
     <Compile Include="Core\PuzzleStateAndGenerator.cs" />
     <Compile Include="Puzzles\CubePuzzle.cs" />
+    <Compile Include="Puzzles\TwoByTwoCubePuzzle.cs" />
     <Compile Include="Solvers\TwoByTwoSolver.cs" />
   </ItemGroup>
   <ItemGroup>
