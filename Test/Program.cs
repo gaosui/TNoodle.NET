@@ -13,34 +13,11 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            var solver = new TwoByTwoSolver();
-            //var state = solver.randomState(new Random());
-            //var perm = new int[7];
-            //var ori = new int[7];
-            //TwoByTwoSolver.unpackPerm(state.permutation, perm);
-            //TwoByTwoSolver.unpackOrient(state.orientation, ori);
-            //foreach (var item in perm)
-            //{
-            //    Console.WriteLine("perm " + item);
-            //}
-            //foreach (var item in ori)
-            //{
-            //    Console.WriteLine("ori " + item);
-            //}
-            //var perm = new int[] { 2, 1, 0, 3, 4, 5, 6 };
-            //var ori = new int[] { 0, 0, 0, 0, 0, 0, 0 };
-            //var state = new TwoByTwoState
-            //{
-            //    permutation = TwoByTwoSolver.packPerm(perm),
-            //    orientation = TwoByTwoSolver.packOrient(ori)
-            //};
-            //Console.WriteLine(solver.solveIn(state, 10));
             var p = new TwoByTwoCubePuzzle();
+            Console.WriteLine(p.generateScramble());
 
-            for (int i = 0; i < 10; i++)
-            {
-                Console.WriteLine(p.generateScramble());
-            }
+            var p3x3 = new ThreeByThreeCubePuzzle();
+            Console.WriteLine(p3x3.generateScramble());
 
             Console.ReadKey();
         }

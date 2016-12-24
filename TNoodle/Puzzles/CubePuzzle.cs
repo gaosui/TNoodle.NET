@@ -71,7 +71,10 @@ namespace TNoodle.Puzzles
                 else if (innerSlice == cubePuzzle.size - 1)
                 {
                     // Turning all the slices is a rotation
-                    string rotationName = faceRotationsByName[face];
+
+                    //string rotationName = faceRotationsByName[face];
+                    string rotationName = null;
+                    faceRotationsByName.TryGetValue(face, out rotationName);
                     if (rotationName == null)
                     {
                         // Not all rotations are actually named.
