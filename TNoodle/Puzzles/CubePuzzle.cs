@@ -290,10 +290,10 @@ namespace TNoodle.Puzzles
             int[][][] imageCopy = new int[image.Length][][];
             for (int i = 0; i < image.Length; i++)
             {
-                image[i] = new int[image[i].Length][];
+                imageCopy[i] = new int[image[i].Length][];
                 for (int j = 0; j < image[i].Length; j++)
                 {
-                    image[i][j] = new int[image[i][j].Length];
+                    imageCopy[i][j] = new int[image[i][j].Length];
                 }
             }
 
@@ -630,7 +630,11 @@ namespace TNoodle.Puzzles
                 {
                     for (int j = 0; j < image[i].Length; j++)
                     {
-                        if (image[i][j] != ((CubeState)other).image[i][j]) return false;
+                        for (int k = 0; k < image[i][j].Length; k++)
+                        {
+
+                            if (image[i][j][k] != ((CubeState)other).image[i][j][k]) return false;
+                        }
                     }
                 }
                 return true;
