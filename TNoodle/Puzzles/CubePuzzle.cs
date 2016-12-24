@@ -46,6 +46,7 @@ namespace TNoodle.Puzzles
             }
             public CubeMove(Face face, int dir, int innerSlice, int outerSlice, CubePuzzle cp)
             {
+                cubePuzzle = cp;
                 this.face = face;
                 this.dir = dir;
                 this.innerSlice = innerSlice;
@@ -272,6 +273,230 @@ namespace TNoodle.Puzzles
             }
         }
 
-    }  
+        public override PuzzleState getSolvedState()
+        {
+            return new CubeState();
+        }
+
+        protected internal override int getRandomMoveCount()
+        {
+            return DEFAULT_LENGTHS[size];
+        }
+
+        private int[,,] cloneImage(int[,,] image)
+        {
+            int[,,] imageCopy = new int[image.GetLength(0), image.GetLength(1), image.GetLength(2)];
+            GwtSafeUtils.deepCopy(image, imageCopy);
+            return imageCopy;
+        }
+
+        private void spinCube(int[,,] image, Face face, int dir)
+        {
+            for (int slice = 0; slice < size; slice++)
+            {
+                slice(face, slice, dir, image);
+            }
+        }
+
+        public class CubeState : PuzzleState
+        {
+            private CubePuzzle cubePuzzle;
+            private readonly int[,,] image;
+            private CubeState normalizedState = null;
+
+            public CubeState(CubePuzzle cp) : base(cp)
+            {
+                cubePuzzle = cp;
+                image = new int[6, cubePuzzle.size, cubePuzzle.size];
+                for (int face = 0; face < image.GetLength(0); face++)
+                {
+                    for (int j = 0; j < cubePuzzle.size; j++)
+                    {
+                        for (int k = 0; k < cubePuzzle.size; k++)
+                        {
+                            image[face, j, k] = face;
+                        }
+                    }
+                }
+                normalizedState = this;
+            }
+
+            public CubeState(int[,,] image, CubePuzzle cp) : base(cp)
+            {
+                cubePuzzle = cp;
+                this.image = image;
+            }
+
+            public override bool isNormalized()
+            {
+                return cubePuzzle.isNormalized(image);
+            }
+
+            public override Puzzle.PuzzleState getNormalized()
+            {
+                if (normalizedState == null)
+                {
+                    int[][][] normalizedImage = normalize(image);
+                    normalizedState = new CubeState(normalizedImage);
+                }
+                return normalizedState;
+            }
+
+            public TwoByTwoState toTwoByTwoState()
+            {
+                TwoByTwoState state = new TwoByTwoState();
+
+                int[][] stickersByPiece = getStickersByPiece(image);
+
+                // Here's a clever color value assigning system that gives each piece
+                // a unique id just by summing up the values of its stickers.
+                //
+                //            +----------+
+                //            |*3*    *2*|
+                //            |   U (0)  |
+                //            |*1*    *0*|
+                // +----------+----------+----------+----------+
+                // | 3      1 | 1      0 | 0      2 | 2      3 |
+                // |   L (1)  |   F (0)  |   R (0)  |   B (2)  |
+                // | 7      5 | 5      4 | 4      6 | 6      7 |
+                // +----------+----------+----------+----------+
+                //            |*5*    *4*|
+                //            |   D (4)  |
+                //            |*7*    *6*|
+                //            +----------+
+                //
+
+                int dColor = stickersByPiece[7][0];
+                int bColor = stickersByPiece[7][1];
+                int lColor = stickersByPiece[7][2];
+
+                int uColor = Face.values()[dColor].oppositeFace().ordinal();
+                int fColor = Face.values()[bColor].oppositeFace().ordinal();
+                int rColor = Face.values()[lColor].oppositeFace().ordinal();
+
+                int[] colorToVal = new int[8];
+                colorToVal[uColor] = 0;
+                colorToVal[fColor] = 0;
+                colorToVal[rColor] = 0;
+                colorToVal[lColor] = 1;
+                colorToVal[bColor] = 2;
+                colorToVal[dColor] = 4;
+
+                int[] pieces = new int[7];
+                for (int i = 0; i < pieces.length; i++)
+                {
+                    int[] stickers = stickersByPiece[i];
+                    int pieceVal = colorToVal[stickers[0]] + colorToVal[stickers[1]] + colorToVal[stickers[2]];
+
+                    int clockwiseTurnsToGetToPrimaryColor = 0;
+                    while (stickers[clockwiseTurnsToGetToPrimaryColor] != uColor && stickers[clockwiseTurnsToGetToPrimaryColor] != dColor)
+                    {
+                        clockwiseTurnsToGetToPrimaryColor++;
+                        azzert(clockwiseTurnsToGetToPrimaryColor < 3);
+                    }
+                    int piece = (clockwiseTurnsToGetToPrimaryColor << 3) + pieceVal;
+                    pieces[i] = piece;
+                }
+
+                state.permutation = TwoByTwoSolver.packPerm(pieces);
+                state.orientation = TwoByTwoSolver.packOrient(pieces);
+                return state;
+            }
+
+            public String toFaceCube()
+            {
+                azzert(size == 3);
+                String state = "";
+                for (char f : "URFDLB".toCharArray())
+                {
+                    Face face = Face.valueOf("" + f);
+                    int[][] faceArr = image[face.ordinal()];
+                    for (int i = 0; i < faceArr.length; i++)
+                    {
+                        for (int j = 0; j < faceArr[i].length; j++)
+                        {
+                            state += Face.values()[faceArr[i][j]].toString();
+                        }
+                    }
+                }
+                return state;
+            }
+
+            @Override
+        public LinkedHashMap<String, CubeState> getSuccessorsByName()
+            {
+                return getSuccessorsWithinSlice(size - 1, true);
+            }
+
+            @Override
+        public HashMap<String, CubeState> getScrambleSuccessors()
+            {
+                return getSuccessorsWithinSlice((int)(size / 2) - 1, false);
+            }
+
+            @Override
+        public HashMap<? extends PuzzleState, String> getCanonicalMovesByState()
+            {
+                return GwtSafeUtils.reverseHashMap(getScrambleSuccessors());
+            }
+
+            private LinkedHashMap<String, CubeState> getSuccessorsWithinSlice(int maxSlice, boolean includeRedundant)
+            {
+                LinkedHashMap<String, CubeState> successors = new LinkedHashMap<String, CubeState>();
+                for (int innerSlice = 0; innerSlice <= maxSlice; innerSlice++)
+                {
+                    for (Face face : Face.values())
+                    {
+                        boolean halfOfEvenCube = size % 2 == 0 && (innerSlice == (size / 2) - 1);
+                        if (!includeRedundant && face.ordinal() >= 3 && halfOfEvenCube)
+                        {
+                            // Skip turning the other halves of even sized cubes
+                            continue;
+                        }
+                        int outerSlice = 0;
+                        for (int dir = 1; dir <= 3; dir++)
+                        {
+                            CubeMove move = new CubeMove(face, dir, innerSlice, outerSlice);
+                            String moveStr = move.toString();
+                            if (moveStr == null)
+                            {
+                                // Skip unnamed rotations.
+                                continue;
+                            }
+
+                            int[][][] imageCopy = cloneImage(image);
+                            for (int slice = outerSlice; slice <= innerSlice; slice++)
+                            {
+                                slice(face, slice, dir, imageCopy);
+                            }
+                            successors.put(moveStr, new CubeState(imageCopy));
+                        }
+                    }
+                }
+
+                return successors;
+            }
+
+            @Override
+        public boolean equals(Object other)
+            {
+                return Arrays.deepEquals(image, ((CubeState)other).image);
+            }
+
+            @Override
+        public int hashCode()
+            {
+                return Arrays.deepHashCode(image);
+            }
+
+            protected Svg drawScramble(HashMap<String, Color> colorScheme)
+            {
+                Svg svg = new Svg(getPreferredSize());
+                drawCube(svg, image, gap, cubieSize, colorScheme);
+                return svg;
+            }
+        }
+
+    }
 }
 
