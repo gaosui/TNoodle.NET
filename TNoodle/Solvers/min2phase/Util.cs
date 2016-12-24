@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TNoodle.min2phase
+namespace TNoodle.Solvers.min2phase
 {
     internal class Util
     {

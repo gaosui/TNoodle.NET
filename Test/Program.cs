@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TNoodle.min2phase;
+using TNoodle.Solvers.min2phase;
 using TNoodle.Solvers;
 using TNoodle.Puzzles;
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TNoodle.Core;
 using TNoodle.Solvers;
-using TNoodle.min2phase;
+using TNoodle.Solvers.min2phase;
 using System.Threading;
 
 namespace TNoodle.Puzzles

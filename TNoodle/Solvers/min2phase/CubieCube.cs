@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TNoodle.min2phase
+namespace TNoodle.Solvers.min2phase
 {
     internal class CubieCube
     {
