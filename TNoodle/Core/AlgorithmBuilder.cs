@@ -129,7 +129,7 @@ namespace TNoodle.Core
             }
             Puzzle.PuzzleState newNormalizedState = newUnNormalizedState.getNormalized();
 
-            Dictionary<Puzzle.PuzzleState, string> successors = getState().getCanonicalMovesByState();
+            LinkedHashMap<Puzzle.PuzzleState, string> successors = getState().getCanonicalMovesByState();
             move = null;
             // Search for the right move to do to our current state in
             // order to match up with newNormalizedState.
@@ -287,7 +287,7 @@ namespace TNoodle.Core
 
         public PuzzleStateAndGenerator getStateAndGenerator()
         {
-            return new PuzzleStateAndGenerator(getState(), toString());
+            return new PuzzleStateAndGenerator(getState(), ToString());
         }
 
         public static string[] splitAlgorithm(string algorithm)

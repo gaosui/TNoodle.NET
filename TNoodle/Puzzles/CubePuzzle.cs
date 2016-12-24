@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TNoodle.Core;
+using TNoodle.Solvers;
 
 namespace TNoodle.Puzzles
 {
@@ -194,6 +195,7 @@ namespace TNoodle.Puzzles
         private static void slice(Face face, int slice, int dir, int[][][] image)
         {
             int size = image[0].Length;
+
             //azzert(slice >= 0 && slice < size);
 
             Face sface = face;
@@ -275,7 +277,7 @@ namespace TNoodle.Puzzles
 
         public override PuzzleState getSolvedState()
         {
-            return new CubeState();
+            return new CubeState(this);
         }
 
         protected internal override int getRandomMoveCount()
@@ -283,45 +285,192 @@ namespace TNoodle.Puzzles
             return DEFAULT_LENGTHS[size];
         }
 
-        private int[,,] cloneImage(int[,,] image)
+        private int[][][] cloneImage(int[][][] image)
         {
-            int[,,] imageCopy = new int[image.GetLength(0), image.GetLength(1), image.GetLength(2)];
+            int[][][] imageCopy = new int[image.Length][][];
+            for (int i = 0; i < image.Length; i++)
+            {
+                image[i] = new int[image[i].Length][];
+                for (int j = 0; j < image[i].Length; j++)
+                {
+                    image[i][j] = new int[image[i][j].Length];
+                }
+            }
+
             GwtSafeUtils.deepCopy(image, imageCopy);
             return imageCopy;
         }
 
-        private void spinCube(int[,,] image, Face face, int dir)
+        private void spinCube(int[][][] image, Face face, int dir)
         {
             for (int slice = 0; slice < size; slice++)
             {
-                slice(face, slice, dir, image);
+                CubePuzzle.slice(face, slice, dir, image);
             }
+        }
+
+        private int[][][] normalize(int[][][] image)
+        {
+            image = cloneImage(image);
+
+            int spins = 0;
+            while (!isNormalized(image))
+            {
+                //azzert(spins < 2);
+                int[][] stickersByPiece = getStickersByPiece(image);
+
+                int goal = 0;
+                goal |= 1 << (int)Face.B;
+                goal |= 1 << (int)Face.L;
+                goal |= 1 << (int)Face.D;
+                int idx = -1;
+                for (int i = 0; i < stickersByPiece.Length; i++)
+                {
+                    int t = 0;
+                    for (int j = 0; j < stickersByPiece[i].Length; j++)
+                    {
+                        t |= 1 << stickersByPiece[i][j];
+                    }
+                    if (t == goal)
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+                //azzert(idx >= 0);
+                Face? f = null;
+                int dir = 1;
+                if (stickersByPiece[idx][0] == (int)Face.D)
+                {
+                    if (idx < 4)
+                    {
+                        // on U
+                        f = Face.F;
+                        dir = 2;
+                    }
+                    else
+                    {
+                        // on D
+                        f = Face.U;
+                        switch (idx)
+                        {
+                            case 4:
+                                dir = 2; break;
+                            case 5:
+                                dir = 1; break;
+                            case 6:
+                                dir = 3; break;
+                            default:
+                                //azzert(false);
+                                break;
+                        }
+                    }
+                }
+                else if (stickersByPiece[idx][1] == (int)Face.D)
+                {
+                    switch (idx)
+                    {
+                        case 0:
+                        case 6:
+                            f = Face.F; break; // on R
+                        case 1:
+                        case 4:
+                            f = Face.L; break; // on F
+                        case 2:
+                        case 7:
+                            f = Face.R; break; // on B
+                        case 3:
+                        case 5:
+                            f = Face.B; break; // on L
+                        default:
+                            //azzert(false);
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (idx)
+                    {
+                        case 2:
+                        case 4:
+                            f = Face.F; break; // on R
+                        case 0:
+                        case 5:
+                            f = Face.L; break; // on F
+                        case 3:
+                        case 6:
+                            f = Face.R; break; // on B
+                        case 1:
+                        case 7:
+                            f = Face.B; break; // on L
+                        default:
+                            //azzert(false);
+                            break;
+                    }
+                }
+                spinCube(image, (Face)f, dir);
+                spins++;
+            }
+
+            return image;
+        }
+
+        private bool isNormalized(int[][][] image)
+        {
+            // A CubeState is normalized if the BLD piece is solved
+            return image[(int)Face.B][size - 1][size - 1] == (int)Face.B &&
+                    image[(int)Face.L][size - 1][0] == (int)Face.L &&
+                    image[(int)Face.D][size - 1][0] == (int)Face.D;
+        }
+
+        protected internal static int[][] getStickersByPiece(int[][][] img)
+        {
+            int s = img.GetLength(1) - 1;
+            return new int[][] {
+            new int[] { img[(int)Face.U][s][s], img[(int)Face.R][0][0], img[(int)Face.F][0][s] },
+            new int[] { img[(int)Face.U][s][0], img[(int)Face.F][0][0], img[(int)Face.L][0][s] },
+            new int[] { img[(int)Face.U][0][s], img[(int)Face.B][0][0], img[(int)Face.R][0][s] },
+            new int[] { img[(int)Face.U][0][0], img[(int)Face.L][0][0], img[(int)Face.B][0][s] },
+
+            new int[] { img[(int)Face.D][0][s], img[(int)Face.F][s][s], img[(int)Face.R][s][0] },
+            new int[] { img[(int)Face.D][0][0], img[(int)Face.L][s][s], img[(int)Face.F][s][0] },
+            new int[] { img[(int)Face.D][s][s], img[(int)Face.R][s][s], img[(int)Face.B][s][0] },
+            new int[] { img[(int)Face.D][s][0], img[(int)Face.B][s][s], img[(int)Face.L][s][0] }
+        };
         }
 
         public class CubeState : PuzzleState
         {
             private CubePuzzle cubePuzzle;
-            private readonly int[,,] image;
+            private readonly int[][][] image;
             private CubeState normalizedState = null;
 
             public CubeState(CubePuzzle cp) : base(cp)
             {
                 cubePuzzle = cp;
-                image = new int[6, cubePuzzle.size, cubePuzzle.size];
-                for (int face = 0; face < image.GetLength(0); face++)
+                image = new int[6][][];
+                for (int i = 0; i < 6; i++)
+                {
+                    image[i] = new int[cubePuzzle.size][];
+                    for (int j = 0; j < cubePuzzle.size; j++)
+                    {
+                        image[i][j] = new int[cubePuzzle.size];
+                    }
+                }
+                for (int face = 0; face < image.Length; face++)
                 {
                     for (int j = 0; j < cubePuzzle.size; j++)
                     {
                         for (int k = 0; k < cubePuzzle.size; k++)
                         {
-                            image[face, j, k] = face;
+                            image[face][j][k] = face;
                         }
                     }
                 }
                 normalizedState = this;
             }
 
-            public CubeState(int[,,] image, CubePuzzle cp) : base(cp)
+            public CubeState(int[][][] image, CubePuzzle cp) : base(cp)
             {
                 cubePuzzle = cp;
                 this.image = image;
@@ -332,12 +481,12 @@ namespace TNoodle.Puzzles
                 return cubePuzzle.isNormalized(image);
             }
 
-            public override Puzzle.PuzzleState getNormalized()
+            public override PuzzleState getNormalized()
             {
                 if (normalizedState == null)
                 {
-                    int[][][] normalizedImage = normalize(image);
-                    normalizedState = new CubeState(normalizedImage);
+                    int[][][] normalizedImage = cubePuzzle.normalize(image);
+                    normalizedState = new CubeState(normalizedImage, cubePuzzle);
                 }
                 return normalizedState;
             }
@@ -370,9 +519,9 @@ namespace TNoodle.Puzzles
                 int bColor = stickersByPiece[7][1];
                 int lColor = stickersByPiece[7][2];
 
-                int uColor = Face.values()[dColor].oppositeFace().ordinal();
-                int fColor = Face.values()[bColor].oppositeFace().ordinal();
-                int rColor = Face.values()[lColor].oppositeFace().ordinal();
+                int uColor = (int)((Face)dColor).oppositeFace();
+                int fColor = (int)((Face)bColor).oppositeFace();
+                int rColor = (int)((Face)lColor).oppositeFace();
 
                 int[] colorToVal = new int[8];
                 colorToVal[uColor] = 0;
@@ -383,7 +532,7 @@ namespace TNoodle.Puzzles
                 colorToVal[dColor] = 4;
 
                 int[] pieces = new int[7];
-                for (int i = 0; i < pieces.length; i++)
+                for (int i = 0; i < pieces.Length; i++)
                 {
                     int[] stickers = stickersByPiece[i];
                     int pieceVal = colorToVal[stickers[0]] + colorToVal[stickers[1]] + colorToVal[stickers[2]];
@@ -392,7 +541,7 @@ namespace TNoodle.Puzzles
                     while (stickers[clockwiseTurnsToGetToPrimaryColor] != uColor && stickers[clockwiseTurnsToGetToPrimaryColor] != dColor)
                     {
                         clockwiseTurnsToGetToPrimaryColor++;
-                        azzert(clockwiseTurnsToGetToPrimaryColor < 3);
+                        //azzert(clockwiseTurnsToGetToPrimaryColor < 3);
                     }
                     int piece = (clockwiseTurnsToGetToPrimaryColor << 3) + pieceVal;
                     pieces[i] = piece;
@@ -403,52 +552,49 @@ namespace TNoodle.Puzzles
                 return state;
             }
 
-            public String toFaceCube()
+            public string toFaceCube()
             {
-                azzert(size == 3);
-                String state = "";
-                for (char f : "URFDLB".toCharArray())
+                //azzert(size == 3);
+                string state = "";
+                foreach (char f in "URFDLB")
                 {
-                    Face face = Face.valueOf("" + f);
-                    int[][] faceArr = image[face.ordinal()];
-                    for (int i = 0; i < faceArr.length; i++)
+                    Face face = (Face)Enum.Parse(typeof(Face), "" + f);
+                    int[][] faceArr = image[(int)face];
+                    for (int i = 0; i < faceArr.Length; i++)
                     {
-                        for (int j = 0; j < faceArr[i].length; j++)
+                        for (int j = 0; j < faceArr[i].Length; j++)
                         {
-                            state += Face.values()[faceArr[i][j]].toString();
+                            state += ((Face)faceArr[i][j]).ToString();
                         }
                     }
                 }
                 return state;
             }
 
-            @Override
-        public LinkedHashMap<String, CubeState> getSuccessorsByName()
+            public override LinkedHashMap<string, PuzzleState> getSuccessorsByName()
             {
-                return getSuccessorsWithinSlice(size - 1, true);
+                return getSuccessorsWithinSlice(cubePuzzle.size - 1, true);
             }
 
-            @Override
-        public HashMap<String, CubeState> getScrambleSuccessors()
+            public override LinkedHashMap<string, PuzzleState> getScrambleSuccessors()
             {
-                return getSuccessorsWithinSlice((int)(size / 2) - 1, false);
+                return getSuccessorsWithinSlice((int)(cubePuzzle.size / 2) - 1, false);
             }
 
-            @Override
-        public HashMap<? extends PuzzleState, String> getCanonicalMovesByState()
+            public override LinkedHashMap<PuzzleState, string> getCanonicalMovesByState()
             {
                 return GwtSafeUtils.reverseHashMap(getScrambleSuccessors());
             }
 
-            private LinkedHashMap<String, CubeState> getSuccessorsWithinSlice(int maxSlice, boolean includeRedundant)
+            private LinkedHashMap<string, PuzzleState> getSuccessorsWithinSlice(int maxSlice, bool includeRedundant)
             {
-                LinkedHashMap<String, CubeState> successors = new LinkedHashMap<String, CubeState>();
+                LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<string, PuzzleState>();
                 for (int innerSlice = 0; innerSlice <= maxSlice; innerSlice++)
                 {
-                    for (Face face : Face.values())
+                    foreach (Face face in Enum.GetValues(typeof(Face)))
                     {
-                        boolean halfOfEvenCube = size % 2 == 0 && (innerSlice == (size / 2) - 1);
-                        if (!includeRedundant && face.ordinal() >= 3 && halfOfEvenCube)
+                        bool halfOfEvenCube = cubePuzzle.size % 2 == 0 && (innerSlice == (cubePuzzle.size / 2) - 1);
+                        if (!includeRedundant && (int)face >= 3 && halfOfEvenCube)
                         {
                             // Skip turning the other halves of even sized cubes
                             continue;
@@ -456,20 +602,20 @@ namespace TNoodle.Puzzles
                         int outerSlice = 0;
                         for (int dir = 1; dir <= 3; dir++)
                         {
-                            CubeMove move = new CubeMove(face, dir, innerSlice, outerSlice);
-                            String moveStr = move.toString();
+                            CubeMove move = new CubeMove(face, dir, innerSlice, outerSlice, cubePuzzle);
+                            string moveStr = move.ToString();
                             if (moveStr == null)
                             {
                                 // Skip unnamed rotations.
                                 continue;
                             }
 
-                            int[][][] imageCopy = cloneImage(image);
+                            int[][][] imageCopy = cubePuzzle.cloneImage(image);
                             for (int slice = outerSlice; slice <= innerSlice; slice++)
                             {
-                                slice(face, slice, dir, imageCopy);
+                                CubePuzzle.slice(face, slice, dir, imageCopy);
                             }
-                            successors.put(moveStr, new CubeState(imageCopy));
+                            successors[moveStr] = new CubeState(imageCopy, cubePuzzle);
                         }
                     }
                 }
@@ -477,23 +623,22 @@ namespace TNoodle.Puzzles
                 return successors;
             }
 
-            @Override
-        public boolean equals(Object other)
+            public override bool Equals(object other)
             {
-                return Arrays.deepEquals(image, ((CubeState)other).image);
+                //return Arrays.deepEquals(image, ((CubeState)other).image);
+                for (int i = 0; i < image.Length; i++)
+                {
+                    for (int j = 0; j < image[i].Length; j++)
+                    {
+                        if (image[i][j] != ((CubeState)other).image[i][j]) return false;
+                    }
+                }
+                return true;
             }
 
-            @Override
-        public int hashCode()
+            public override int GetHashCode()
             {
-                return Arrays.deepHashCode(image);
-            }
-
-            protected Svg drawScramble(HashMap<String, Color> colorScheme)
-            {
-                Svg svg = new Svg(getPreferredSize());
-                drawCube(svg, image, gap, cubieSize, colorScheme);
-                return svg;
+                return image.GetHashCode();
             }
         }
 

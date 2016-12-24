@@ -21,9 +21,9 @@ namespace TNoodle.Core
             return chosen;
         }
 
-        public static Dictionary<B, A> reverseHashMap<A, B>(Dictionary<A, B> map)
+        public static LinkedHashMap<B, A> reverseHashMap<A, B>(LinkedHashMap<A, B> map)
         {
-            Dictionary<B, A> reverseMap = new Dictionary<B, A>();
+            LinkedHashMap<B, A> reverseMap = new LinkedHashMap<B, A>();
             foreach (A a in map.Keys)
             {
                 B b = map[a];
@@ -50,5 +50,24 @@ namespace TNoodle.Core
             }
             return sb.ToString();
         }
+
+        public static void deepCopy(int[][] src, int[][] dest)
+        {
+            for (int i = 0; i < src.Length; i++)
+            {
+                Array.Copy(src[i], 0, dest[i], 0, src[i].Length);
+            }
+        }
+
+        public static void deepCopy(int[][][] src, int[][][] dest)
+        {
+            for (int i = 0; i < src.Length; i++)
+            {
+                deepCopy(src[i], dest[i]);
+            }
+        }
+
     }
+
+
 }

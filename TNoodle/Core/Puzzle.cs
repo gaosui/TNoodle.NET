@@ -386,7 +386,7 @@ namespace TNoodle.Core
                 }
 
 
-                Dictionary<PuzzleState, string> movesByState = node.getCanonicalMovesByState();
+                LinkedHashMap<PuzzleState, string> movesByState = node.getCanonicalMovesByState();
                 foreach (PuzzleState next in movesByState.Keys)
                 {
                     int moveCost = node.getMoveCost(movesByState[next]);
@@ -459,7 +459,7 @@ namespace TNoodle.Core
 
             // Step 2: bestIntersection <----- scrambled
 
-            AlgorithmBuilder solution = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES, ps);
+            AlgorithmBuilder solution = new AlgorithmBuilder(this, AlgorithmBuilder.MergingMode.CANONICALIZE_MOVES, ps);
             state = ps;
             distanceFromScrambled = 0;
 
@@ -521,7 +521,7 @@ namespace TNoodle.Core
                 //azzert(false);
             }
 
-            return solution.toString();
+            return solution.ToString();
         }
 
         public abstract class PuzzleState
@@ -561,12 +561,12 @@ namespace TNoodle.Core
              * @return A mapping of canonical PuzzleState's to the name of
              *         the move that gets you to them.
              */
-            public virtual Dictionary<PuzzleState, string> getCanonicalMovesByState()
+            public virtual LinkedHashMap<PuzzleState, string> getCanonicalMovesByState()
             {
                 LinkedHashMap<string, PuzzleState> successorsByName =
                       getSuccessorsByName();
-                Dictionary<PuzzleState, string> uniqueSuccessors =
-                    new Dictionary<PuzzleState, string>();
+                LinkedHashMap<PuzzleState, string> uniqueSuccessors =
+                    new LinkedHashMap<PuzzleState, string>();
                 HashSet<PuzzleState> statesSeenNormalized = new HashSet<PuzzleState>();
                 // We're not interested in any successor states are just a
                 // rotation away.
@@ -674,7 +674,7 @@ namespace TNoodle.Core
              * @return A HashMap mapping move Strings to resulting PuzzleStates.
              *         The move Strings may not contain spaces.
              */
-            public virtual Dictionary<string, PuzzleState> getScrambleSuccessors()
+            public virtual LinkedHashMap<string, PuzzleState> getScrambleSuccessors()
             {
                 return GwtSafeUtils.reverseHashMap(getCanonicalMovesByState());
             }
@@ -789,10 +789,10 @@ namespace TNoodle.Core
         public virtual PuzzleStateAndGenerator generateRandomMoves(Random r)
         {
             AlgorithmBuilder ab = new AlgorithmBuilder(
-                    this, MergingMode.NO_MERGING);
+                    this, AlgorithmBuilder.MergingMode.NO_MERGING);
             while (ab.getTotalCost() < getRandomMoveCount())
             {
-                Dictionary<string, PuzzleState> successors =
+                LinkedHashMap<string, PuzzleState> successors =
                       ab.getState().getScrambleSuccessors();
                 string move;
                 try
