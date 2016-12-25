@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TNoodle.Core
+namespace TNoodle.Puzzles
 {
     /**
      * Puzzle and TwistyPuzzle encapsulate all the information to filter out
@@ -99,7 +99,7 @@ namespace TNoodle.Core
         }
 
         /** seeded scrambles, these can't be cached, so they'll be a little slower **/
-
+        /*
         public string generateSeededScramble(string seed)
         {
             return generateSeededScramble(Encoding.UTF8.GetBytes(seed));
@@ -134,6 +134,7 @@ namespace TNoodle.Core
             //r.setSeed(seed);
             return generateScrambles(r, count);
         }
+        */
 
         /**
          * @return Simply returns getLongName()
@@ -141,126 +142,6 @@ namespace TNoodle.Core
         public override string ToString()
         {
             return getLongName();
-        }
-
-        public class Bucket<H> : IComparable<Bucket<H>>
-        {
-            private LinkedList<H> contents;
-            private int value;
-
-            public Bucket(int value)
-            {
-                this.value = value;
-                this.contents = new LinkedList<H>();
-            }
-
-            public int getValue()
-            {
-                return this.value;
-            }
-
-            public H pop()
-            {
-                var last = contents.Last.Value;
-                contents.RemoveLast();
-                return last;
-            }
-
-            public void push(H element)
-            {
-                contents.AddLast(element);
-            }
-
-            public bool isEmpty()
-            {
-                return contents.Count == 0;
-            }
-
-            public override string ToString()
-            {
-                return "#: " + value + ": " + contents.ToString();
-            }
-
-            public int CompareTo(Bucket<H> other)
-            {
-                return this.value - other.value;
-            }
-
-            public override int GetHashCode()
-            {
-                return this.value;
-            }
-
-            public override bool Equals(object o)
-            {
-                Bucket<H> other = (Bucket<H>)o;
-                return this.value == other.value;
-            }
-        }
-
-        public class SortedBuckets<H>
-        {
-            SortedSet<Bucket<H>> buckets;
-
-            public SortedBuckets()
-            {
-                buckets = new SortedSet<Bucket<H>>();
-            }
-
-            public void add(H element, int value)
-            {
-                Bucket<H> bucket;
-                Bucket<H> searchBucket = new Bucket<H>(value);
-                if (!buckets.Contains(searchBucket))
-                {
-                    // There is no bucket yet for value, so we create one.
-                    bucket = searchBucket;
-                    buckets.Add(bucket);
-                }
-                else
-                {
-                    bucket = buckets.Where(b => b.CompareTo(searchBucket) >= 0).First();
-                }
-                bucket.push(element);
-            }
-
-            public int smallestValue()
-            {
-                return buckets.First().getValue();
-            }
-
-            public bool isEmpty()
-            {
-                return buckets.Count == 0;
-            }
-
-            public H pop()
-            {
-                Bucket<H> bucket = buckets.First();
-                H h = bucket.pop();
-                if (bucket.isEmpty())
-                {
-                    // We just removed the last element from this bucket,
-                    // so we can trash the bucket now.
-                    buckets.Remove(bucket);
-                }
-                return h;
-            }
-
-            public override string ToString()
-            {
-                return buckets.ToString();
-            }
-
-            public override int GetHashCode()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override bool Equals(object o)
-            {
-                throw new NotImplementedException();
-            }
         }
 
         protected internal virtual string solveIn(PuzzleState ps, int n)
@@ -386,7 +267,7 @@ namespace TNoodle.Core
                 }
 
 
-                LinkedHashMap<PuzzleState, string> movesByState = node.getCanonicalMovesByState();
+                Dictionary<PuzzleState, string> movesByState = node.getCanonicalMovesByState();
                 foreach (PuzzleState next in movesByState.Keys)
                 {
                     int moveCost = node.getMoveCost(movesByState[next]);
@@ -459,7 +340,7 @@ namespace TNoodle.Core
 
             // Step 2: bestIntersection <----- scrambled
 
-            AlgorithmBuilder solution = new AlgorithmBuilder(this, AlgorithmBuilder.MergingMode.CANONICALIZE_MOVES, ps);
+            AlgorithmBuilder solution = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES, ps);
             state = ps;
             distanceFromScrambled = 0;
 
@@ -526,10 +407,10 @@ namespace TNoodle.Core
 
         public abstract class PuzzleState
         {
-            private Puzzle associatedPuzzle;
+            private Puzzle puzzle;
             public PuzzleState(Puzzle p)
             {
-                associatedPuzzle = p;
+                puzzle = p;
             }
 
             /**
@@ -561,12 +442,12 @@ namespace TNoodle.Core
              * @return A mapping of canonical PuzzleState's to the name of
              *         the move that gets you to them.
              */
-            public virtual LinkedHashMap<PuzzleState, string> getCanonicalMovesByState()
+            public virtual Dictionary<PuzzleState, string> getCanonicalMovesByState()
             {
                 LinkedHashMap<string, PuzzleState> successorsByName =
                       getSuccessorsByName();
-                LinkedHashMap<PuzzleState, string> uniqueSuccessors =
-                    new LinkedHashMap<PuzzleState, string>();
+                Dictionary<PuzzleState, string> uniqueSuccessors =
+                    new Dictionary<PuzzleState, string>();
                 HashSet<PuzzleState> statesSeenNormalized = new HashSet<PuzzleState>();
                 // We're not interested in any successor states are just a
                 // rotation away.
@@ -674,7 +555,7 @@ namespace TNoodle.Core
              * @return A HashMap mapping move Strings to resulting PuzzleStates.
              *         The move Strings may not contain spaces.
              */
-            public virtual LinkedHashMap<string, PuzzleState> getScrambleSuccessors()
+            public virtual Dictionary<string, PuzzleState> getScrambleSuccessors()
             {
                 return GwtSafeUtils.reverseHashMap(getCanonicalMovesByState());
             }
@@ -706,7 +587,7 @@ namespace TNoodle.Core
 
             public virtual Puzzle getPuzzle()
             {
-                return associatedPuzzle;
+                return puzzle;
             }
 
             public virtual bool isSolved()
@@ -724,11 +605,11 @@ namespace TNoodle.Core
             public virtual PuzzleState apply(string move)
             {
                 LinkedHashMap<string, PuzzleState> successors = getSuccessorsByName();
-                if (!successors.ContainsKey(move))
+                if (!successors.Any(p => p.Key == move))
                 {
                     throw new InvalidMoveException("Unrecognized turn " + move);
                 }
-                return successors[move];
+                return successors.Single(p => p.Key == move).Value;
             }
 
             public virtual string solveIn(int n)
@@ -789,10 +670,10 @@ namespace TNoodle.Core
         public virtual PuzzleStateAndGenerator generateRandomMoves(Random r)
         {
             AlgorithmBuilder ab = new AlgorithmBuilder(
-                    this, AlgorithmBuilder.MergingMode.NO_MERGING);
+                    this, MergingMode.NO_MERGING);
             while (ab.getTotalCost() < getRandomMoveCount())
             {
-                LinkedHashMap<string, PuzzleState> successors =
+                Dictionary<string, PuzzleState> successors =
                       ab.getState().getScrambleSuccessors();
                 string move;
                 try

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TNoodle.Core;
 using TNoodle.Solvers;
 using TNoodle.Solvers.min2phase;
 using System.Threading;
@@ -68,7 +67,7 @@ namespace TNoodle.Puzzles
             string randomState = Tools.randomCube(r);
             string scramble = twoPhaseSearcher.Value.solution(randomState, THREE_BY_THREE_MAX_SCRAMBLE_LENGTH, THREE_BY_THREE_TIMEOUT, THREE_BY_THREE_TIMEMIN, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
-            AlgorithmBuilder ab = new AlgorithmBuilder(this, AlgorithmBuilder.MergingMode.CANONICALIZE_MOVES);
+            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
             //try
             {
                 ab.appendAlgorithm(scramble);

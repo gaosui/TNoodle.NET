@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TNoodle.Core
+namespace TNoodle.Puzzles
 {
     public class LinkedHashMap<TKey, TValue> : IDictionary<TKey, TValue>
     {

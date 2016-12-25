@@ -13,11 +13,18 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            var p = new TwoByTwoCubePuzzle();
-            Console.WriteLine(p.generateScramble());
+            List<Puzzle> list = new List<Puzzle>();
 
-            var p3x3 = new ThreeByThreeCubePuzzle();
-            Console.WriteLine(p3x3.generateScramble());
+            list.Add(new TwoByTwoCubePuzzle());
+            list.Add(new ThreeByThreeCubePuzzle());
+            list.Add(new CubePuzzle(5));
+            list.Add(new CubePuzzle(6));
+            list.Add(new CubePuzzle(7));
+
+            foreach (var p in list)
+            {
+                Console.WriteLine($"{p.getLongName()} {p.generateScramble()}");
+            }
 
             Console.ReadKey();
         }

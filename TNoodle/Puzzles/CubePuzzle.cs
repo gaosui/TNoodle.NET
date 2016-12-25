@@ -3,27 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TNoodle.Core;
 using TNoodle.Solvers;
 
 namespace TNoodle.Puzzles
 {
-    public static class ExtensionMethods
-    {
-        public static CubePuzzle.Face oppositeFace(this CubePuzzle.Face f)
-        {
-            return (CubePuzzle.Face)(((int)f + 3) % 6);
-        }
-    }
-
     public class CubePuzzle : Puzzle
     {
-        public enum Face
-        {
-            R, U, F, L, D, B
-        }
-
-
         private static readonly string[] DIR_TO_STR = new string[] { null, "", "2", "'" };
         private static Dictionary<Face, string> faceRotationsByName = new Dictionary<Face, string>();
         static CubePuzzle()
@@ -579,12 +564,12 @@ namespace TNoodle.Puzzles
                 return getSuccessorsWithinSlice(cubePuzzle.size - 1, true);
             }
 
-            public override LinkedHashMap<string, PuzzleState> getScrambleSuccessors()
+            public override Dictionary<string, PuzzleState> getScrambleSuccessors()
             {
                 return getSuccessorsWithinSlice((int)(cubePuzzle.size / 2) - 1, false);
             }
 
-            public override LinkedHashMap<PuzzleState, string> getCanonicalMovesByState()
+            public override Dictionary<PuzzleState, string> getCanonicalMovesByState()
             {
                 return GwtSafeUtils.reverseHashMap(getScrambleSuccessors());
             }

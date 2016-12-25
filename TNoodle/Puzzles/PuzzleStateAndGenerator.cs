@@ -1,4 +1,4 @@
-﻿namespace TNoodle.Core
+﻿namespace TNoodle.Puzzles
 {
     public class PuzzleStateAndGenerator
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TNoodle.Core
+namespace TNoodle.Puzzles
 {
     public static class GwtSafeUtils
     {
@@ -21,9 +21,9 @@ namespace TNoodle.Core
             return chosen;
         }
 
-        public static LinkedHashMap<B, A> reverseHashMap<A, B>(LinkedHashMap<A, B> map)
+        public static Dictionary<B, A> reverseHashMap<A, B>(Dictionary<A, B> map)
         {
-            LinkedHashMap<B, A> reverseMap = new LinkedHashMap<B, A>();
+            Dictionary<B, A> reverseMap = new Dictionary<B, A>();
             foreach (A a in map.Keys)
             {
                 B b = map[a];

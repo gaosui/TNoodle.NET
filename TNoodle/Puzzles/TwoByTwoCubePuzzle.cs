@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using TNoodle.Solvers;
 using System.Threading.Tasks;
-using TNoodle.Core;
 
 namespace TNoodle.Puzzles
 {
@@ -24,12 +23,12 @@ namespace TNoodle.Puzzles
             TwoByTwoState state = twoSolver.randomState(r);
             string scramble = twoSolver.generateExactly(state, TWO_BY_TWO_MIN_SCRAMBLE_LENGTH);
 
-            AlgorithmBuilder ab = new AlgorithmBuilder(this, AlgorithmBuilder.MergingMode.CANONICALIZE_MOVES);
-            try
+            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
+            //try
             {
                 ab.appendAlgorithm(scramble);
             }
-            catch //(InvalidMoveException e)
+            //catch //(InvalidMoveException e)
             {
                 //azzert(false, new InvalidScrambleException(scramble, e));
             }

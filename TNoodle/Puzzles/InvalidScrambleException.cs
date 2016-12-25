@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TNoodle.Core
+namespace TNoodle.Puzzles
 {
     public class InvalidScrambleException : Exception
     {
