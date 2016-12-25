@@ -564,12 +564,12 @@ namespace TNoodle.Puzzles
                 return getSuccessorsWithinSlice(cubePuzzle.size - 1, true);
             }
 
-            public override Dictionary<string, PuzzleState> getScrambleSuccessors()
+            public override LinkedHashMap<string, PuzzleState> getScrambleSuccessors()
             {
                 return getSuccessorsWithinSlice((int)(cubePuzzle.size / 2) - 1, false);
             }
 
-            public override Dictionary<PuzzleState, string> getCanonicalMovesByState()
+            public override LinkedHashMap<PuzzleState, string> getCanonicalMovesByState()
             {
                 return GwtSafeUtils.reverseHashMap(getScrambleSuccessors());
             }

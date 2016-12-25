@@ -21,9 +21,9 @@ namespace TNoodle.Puzzles
             return chosen;
         }
 
-        public static Dictionary<B, A> reverseHashMap<A, B>(Dictionary<A, B> map)
+        public static LinkedHashMap<B, A> reverseHashMap<A, B>(LinkedHashMap<A, B> map)
         {
-            Dictionary<B, A> reverseMap = new Dictionary<B, A>();
+            LinkedHashMap<B, A> reverseMap = new LinkedHashMap<B, A>();
             foreach (A a in map.Keys)
             {
                 B b = map[a];

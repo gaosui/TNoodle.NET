@@ -76,7 +76,7 @@ namespace TNoodle.Puzzles
             }
             Puzzle.PuzzleState newNormalizedState = newUnNormalizedState.getNormalized();
 
-            Dictionary<Puzzle.PuzzleState, string> successors = getState().getCanonicalMovesByState();
+            LinkedHashMap<Puzzle.PuzzleState, string> successors = getState().getCanonicalMovesByState();
             move = null;
             // Search for the right move to do to our current state in
             // order to match up with newNormalizedState.
