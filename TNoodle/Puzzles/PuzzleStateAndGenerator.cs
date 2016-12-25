@@ -2,9 +2,9 @@
 {
     public class PuzzleStateAndGenerator
     {
-        public Puzzle.PuzzleState state;
+        public PuzzleState state;
         public string generator;
-        public PuzzleStateAndGenerator(Puzzle.PuzzleState state, string generator)
+        public PuzzleStateAndGenerator(PuzzleState state, string generator)
         {
             this.state = state;
             this.generator = generator;

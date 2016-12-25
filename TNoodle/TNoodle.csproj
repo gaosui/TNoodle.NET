@@ -43,6 +43,7 @@
     <Compile Include="Puzzles\MergingMode.cs" />
     <Compile Include="Puzzles\Puzzle.cs" />
     <Compile Include="Puzzles\LinkedHashMap.cs" />
+    <Compile Include="Puzzles\PuzzleState.cs" />
     <Compile Include="Puzzles\SortedBucket.cs" />
     <Compile Include="Solvers\min2phase\CoordCube.cs" />
     <Compile Include="Solvers\min2phase\CubieCube.cs" />
