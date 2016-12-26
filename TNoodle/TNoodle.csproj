@@ -42,6 +42,9 @@
     <Compile Include="Puzzles\FourByFourCubePuzzle.cs" />
     <Compile Include="Puzzles\IndexAndMove.cs" />
     <Compile Include="Puzzles\MergingMode.cs" />
+    <Compile Include="Puzzles\NoInspectionFiveByFiveCubePuzzle.cs" />
+    <Compile Include="Puzzles\NoInspectionFourByFourCubePuzzle.cs" />
+    <Compile Include="Puzzles\NoInspectionThreeByThreeCubePuzzle.cs" />
     <Compile Include="Puzzles\Puzzle.cs" />
     <Compile Include="Puzzles\LinkedHashMap.cs" />
     <Compile Include="Puzzles\PuzzleState.cs" />
@@ -69,7 +72,6 @@
     <Compile Include="Solvers\threephase\FullCube.cs" />
     <Compile Include="Solvers\threephase\Moves.cs" />
     <Compile Include="Solvers\threephase\Search.cs" />
-    <Compile Include="Solvers\threephase\Tools.cs" />
     <Compile Include="Solvers\threephase\Util.cs" />
     <Compile Include="Solvers\TwoByTwoSolver.cs" />
   </ItemGroup>

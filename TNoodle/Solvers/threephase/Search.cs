@@ -7,7 +7,6 @@ using static TNoodle.Solvers.threephase.Moves;
 using static TNoodle.Solvers.threephase.Center1;
 using static TNoodle.Solvers.threephase.Center2;
 using static TNoodle.Solvers.threephase.Util;
-using TNoodle.Utils;
 
 namespace TNoodle.Solvers.threephase
 {
