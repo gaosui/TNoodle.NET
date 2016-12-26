@@ -210,7 +210,7 @@ namespace TNoodle.Solvers.threephase
 
         private static int[] move2rot = { 35, 1, 34, 2, 4, 6, 22, 5, 19 };
 
-        String to333Facelet()
+        internal String to333Facelet()
         {
             char[] ret = new char[54];
             getEdge().fill333Facelet(ret);
@@ -219,28 +219,28 @@ namespace TNoodle.Solvers.threephase
             return new String(ret);
         }
 
-        byte[] moveBuffer = new byte[60];
+        internal sbyte[] moveBuffer = new sbyte[60];
         private int moveLength = 0;
         private int edgeAvail = 0;
         private int centerAvail = 0;
         private int cornerAvail = 0;
 
-        int sym = 0;
+        internal int sym = 0;
 
-        void move(int m)
+        internal void move(int m)
         {
-            moveBuffer[moveLength++] = (byte)m;
+            moveBuffer[moveLength++] = (sbyte)m;
             return;
         }
 
-        void doMove(int m)
+        internal void doMove(int m)
         {
             getEdge().move(m);
             getCenter().move(m);
             getCorner().move(m % 18);
         }
 
-        EdgeCube getEdge()
+        internal EdgeCube getEdge()
         {
             while (edgeAvail < moveLength)
             {
@@ -249,7 +249,7 @@ namespace TNoodle.Solvers.threephase
             return edge;
         }
 
-        CenterCube getCenter()
+        internal CenterCube getCenter()
         {
             while (centerAvail < moveLength)
             {
@@ -258,7 +258,7 @@ namespace TNoodle.Solvers.threephase
             return center;
         }
 
-        CornerCube getCorner()
+        internal CornerCube getCorner()
         {
             while (cornerAvail < moveLength)
             {

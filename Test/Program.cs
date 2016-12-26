@@ -17,9 +17,10 @@ namespace Test
 
             list.Add(new TwoByTwoCubePuzzle());
             list.Add(new ThreeByThreeCubePuzzle());
+            list.Add(new FourByFourCubePuzzle());
             list.Add(new CubePuzzle(5));
-            list.Add(new CubePuzzle(6));
-            list.Add(new CubePuzzle(7));
+            //list.Add(new CubePuzzle(6));
+            //list.Add(new CubePuzzle(7));
 
             foreach (var p in list)
             {

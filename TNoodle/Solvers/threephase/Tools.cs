@@ -17,6 +17,7 @@ namespace TNoodle.Solvers.threephase
                 s.Read(buffer, 0, 4);
                 arr[i] = BitConverter.ToInt32(buffer, 0);
             }
+            
         }
     }
 }

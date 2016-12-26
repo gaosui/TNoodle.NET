@@ -39,6 +39,7 @@
     <Compile Include="Puzzles\Bucket.cs" />
     <Compile Include="Puzzles\ExtensionMethods.cs" />
     <Compile Include="Puzzles\Face.cs" />
+    <Compile Include="Puzzles\FourByFourCubePuzzle.cs" />
     <Compile Include="Puzzles\IndexAndMove.cs" />
     <Compile Include="Puzzles\MergingMode.cs" />
     <Compile Include="Puzzles\Puzzle.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Solvers\threephase\EdgeCube.cs" />
     <Compile Include="Solvers\threephase\FullCube.cs" />
     <Compile Include="Solvers\threephase\Moves.cs" />
+    <Compile Include="Solvers\threephase\Search.cs" />
     <Compile Include="Solvers\threephase\Tools.cs" />
     <Compile Include="Solvers\threephase\Util.cs" />
     <Compile Include="Solvers\TwoByTwoSolver.cs" />
@@ -77,7 +79,9 @@
   <ItemGroup>
     <Compile Include="Puzzles\GwtSafeUtils.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Utils\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
