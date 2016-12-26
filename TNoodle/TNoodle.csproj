@@ -48,6 +48,7 @@
     <Compile Include="Puzzles\Puzzle.cs" />
     <Compile Include="Puzzles\LinkedHashMap.cs" />
     <Compile Include="Puzzles\PuzzleState.cs" />
+    <Compile Include="Puzzles\PyraminxPuzzle.cs" />
     <Compile Include="Puzzles\SortedBucket.cs" />
     <Compile Include="Puzzles\ThreeByThreeCubeFewestMovesPuzzle.cs" />
     <Compile Include="Solvers\min2phase\CoordCube.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Puzzles\CubePuzzle.cs" />
     <Compile Include="Puzzles\ThreeByThreeCubePuzzle.cs" />
     <Compile Include="Puzzles\TwoByTwoCubePuzzle.cs" />
+    <Compile Include="Solvers\PyraminxSolver.cs" />
     <Compile Include="Solvers\threephase\Center1.cs" />
     <Compile Include="Solvers\threephase\Center2.cs" />
     <Compile Include="Solvers\threephase\Center3.cs" />

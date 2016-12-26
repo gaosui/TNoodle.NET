@@ -15,16 +15,17 @@ namespace Test
         {
             List<Puzzle> list = new List<Puzzle>();
 
-            list.Add(new TwoByTwoCubePuzzle());
-            list.Add(new ThreeByThreeCubePuzzle());
-            list.Add(new FourByFourCubePuzzle());
-            list.Add(new CubePuzzle(5));
-            list.Add(new CubePuzzle(6));
-            list.Add(new CubePuzzle(7));
-            list.Add(new NoInspectionThreeByThreeCubePuzzle());
-            list.Add(new NoInspectionFourByFourCubePuzzle());
-            list.Add(new NoInspectionFiveByFiveCubePuzzle());
-            list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
+            //list.Add(new TwoByTwoCubePuzzle());
+            //list.Add(new ThreeByThreeCubePuzzle());
+            //list.Add(new FourByFourCubePuzzle());
+            //list.Add(new CubePuzzle(5));
+            //list.Add(new CubePuzzle(6));
+            //list.Add(new CubePuzzle(7));
+            ///list.Add(new NoInspectionThreeByThreeCubePuzzle());
+            //list.Add(new NoInspectionFourByFourCubePuzzle());
+            //list.Add(new NoInspectionFiveByFiveCubePuzzle());
+            //list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
+            list.Add(new PyraminxPuzzle());
 
             foreach (var p in list)
             {
