@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Puzzles\Bucket.cs" />
+    <Compile Include="Puzzles\ClockPuzzle.cs" />
     <Compile Include="Puzzles\ExtensionMethods.cs" />
     <Compile Include="Puzzles\Face.cs" />
     <Compile Include="Puzzles\FourByFourCubePuzzle.cs" />

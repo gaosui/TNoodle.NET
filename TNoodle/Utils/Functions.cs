@@ -33,6 +33,15 @@ namespace TNoodle.Utils
             return y;
         }
 
+        public static bool DeepEquals(this int[] a, int[] b)
+        {
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i]) return false;
+            }
+            return true;
+        }
+
         public static bool DeepEquals(this int[,] a, int[,] b)
         {
             for (int i = 0; i < a.GetLength(0); i++)
@@ -45,17 +54,17 @@ namespace TNoodle.Utils
             return true;
         }
 
-        public static int DeepHashCode(this int[] a)
-        {
-            if (a == null)
-                return 0;
+        //public static int DeepHashCode(this int[] a)
+        //{
+        //    if (a == null)
+        //        return 0;
 
-            int result = 1;
-            foreach (int element in a)
-                result = 31 * result + element;
+        //    int result = 1;
+        //    foreach (int element in a)
+        //        result = 31 * result + element;
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public static int DeepHashCode(this Array a)
         {
