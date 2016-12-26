@@ -24,6 +24,7 @@ namespace Test
             list.Add(new NoInspectionThreeByThreeCubePuzzle());
             list.Add(new NoInspectionFourByFourCubePuzzle());
             list.Add(new NoInspectionFiveByFiveCubePuzzle());
+            list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
 
             foreach (var p in list)
             {

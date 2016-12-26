@@ -49,6 +49,7 @@
     <Compile Include="Puzzles\LinkedHashMap.cs" />
     <Compile Include="Puzzles\PuzzleState.cs" />
     <Compile Include="Puzzles\SortedBucket.cs" />
+    <Compile Include="Puzzles\ThreeByThreeCubeFewestMovesPuzzle.cs" />
     <Compile Include="Solvers\min2phase\CoordCube.cs" />
     <Compile Include="Solvers\min2phase\CubieCube.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
