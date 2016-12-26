@@ -244,7 +244,7 @@ namespace TNoodle.Puzzles
                 return new string[0];
             }
 
-            return algorithm.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            return algorithm.Split(new char[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

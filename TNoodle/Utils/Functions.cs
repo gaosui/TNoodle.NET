@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TNoodle.Puzzles;
 
 namespace TNoodle.Utils
 {
@@ -32,6 +33,18 @@ namespace TNoodle.Utils
             return y;
         }
 
+        public static bool DeepEquals(this int[,] a, int[,] b)
+        {
+            for (int i = 0; i < a.GetLength(0); i++)
+            {
+                for (int j = 0; j < a.GetLength(1); j++)
+                {
+                    if (a[i, j] != b[i, j]) return false;
+                }
+            }
+            return true;
+        }
+
         public static int DeepHashCode(this int[] a)
         {
             if (a == null)
@@ -42,6 +55,52 @@ namespace TNoodle.Utils
                 result = 31 * result + element;
 
             return result;
+        }
+
+        public static int DeepHashCode(this Array a)
+        {
+            if (a == null)
+                return 0;
+
+            int result = 1;
+            foreach (int element in a)
+                result = 31 * result + element;
+
+            return result;
+        }
+
+        // TODO We could rename faces so we can just do +6 mod 12 here instead.
+        public static MegaminxPuzzle.Face? oppositeFace(this MegaminxPuzzle.Face face)
+        {
+            switch (face)
+            {
+                case MegaminxPuzzle.Face.U:
+                    return MegaminxPuzzle.Face.D;
+                case MegaminxPuzzle.Face.BL:
+                    return MegaminxPuzzle.Face.DR;
+                case MegaminxPuzzle.Face.BR:
+                    return MegaminxPuzzle.Face.DL;
+                case MegaminxPuzzle.Face.R:
+                    return MegaminxPuzzle.Face.DBL;
+                case MegaminxPuzzle.Face.F:
+                    return MegaminxPuzzle.Face.B;
+                case MegaminxPuzzle.Face.L:
+                    return MegaminxPuzzle.Face.DBR;
+                case MegaminxPuzzle.Face.D:
+                    return MegaminxPuzzle.Face.U;
+                case MegaminxPuzzle.Face.DR:
+                    return MegaminxPuzzle.Face.BL;
+                case MegaminxPuzzle.Face.DBR:
+                    return MegaminxPuzzle.Face.L;
+                case MegaminxPuzzle.Face.B:
+                    return MegaminxPuzzle.Face.F;
+                case MegaminxPuzzle.Face.DBL:
+                    return MegaminxPuzzle.Face.R;
+                case MegaminxPuzzle.Face.DL:
+                    return MegaminxPuzzle.Face.BR;
+                default:
+                    return null;
+            }
         }
     }
 }

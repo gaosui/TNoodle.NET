@@ -41,6 +41,7 @@
     <Compile Include="Puzzles\Face.cs" />
     <Compile Include="Puzzles\FourByFourCubePuzzle.cs" />
     <Compile Include="Puzzles\IndexAndMove.cs" />
+    <Compile Include="Puzzles\MegaminxPuzzle.cs" />
     <Compile Include="Puzzles\MergingMode.cs" />
     <Compile Include="Puzzles\NoInspectionFiveByFiveCubePuzzle.cs" />
     <Compile Include="Puzzles\NoInspectionFourByFourCubePuzzle.cs" />
