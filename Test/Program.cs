@@ -28,7 +28,8 @@ namespace Test
             //list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
             //list.Add(new PyraminxPuzzle());
             //list.Add(new SquareOnePuzzle());
-            list.Add(new MegaminxPuzzle());
+            //list.Add(new MegaminxPuzzle());
+            list.Add(new SkewbPuzzle());
 
             foreach (var p in list)
             {
