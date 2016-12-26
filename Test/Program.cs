@@ -27,12 +27,14 @@ namespace Test
             //list.Add(new NoInspectionFiveByFiveCubePuzzle());
             //list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
             //list.Add(new PyraminxPuzzle());
+            list.Add(new SquareOnePuzzle());
 
-            //foreach (var p in list)
-            //{
-            //    Console.WriteLine($"{p.getLongName()} {p.generateScramble()}");
-            //    Console.WriteLine();
-            //}
+            foreach (var p in list)
+            {
+                Console.WriteLine($"{p.getLongName()} {p.generateScramble()}");
+                Console.WriteLine();
+            }
+
             Console.ReadKey();
         }
     }

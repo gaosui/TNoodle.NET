@@ -50,6 +50,7 @@
     <Compile Include="Puzzles\PuzzleState.cs" />
     <Compile Include="Puzzles\PyraminxPuzzle.cs" />
     <Compile Include="Puzzles\SortedBucket.cs" />
+    <Compile Include="Puzzles\SquareOnePuzzle.cs" />
     <Compile Include="Puzzles\ThreeByThreeCubeFewestMovesPuzzle.cs" />
     <Compile Include="Solvers\min2phase\CoordCube.cs" />
     <Compile Include="Solvers\min2phase\CubieCube.cs" />

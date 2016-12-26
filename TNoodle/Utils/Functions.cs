@@ -21,5 +21,27 @@ namespace TNoodle.Utils
 
             return (int)c;
         }
+        public static int modulo(int x, int m)
+        {
+            //azzert(m > 0, "m must be > 0");
+            int y = x % m;
+            if (y < 0)
+            {
+                y += m;
+            }
+            return y;
+        }
+
+        public static int DeepHashCode(this int[] a)
+        {
+            if (a == null)
+                return 0;
+
+            int result = 1;
+            foreach (int element in a)
+                result = 31 * result + element;
+
+            return result;
+        }
     }
 }
