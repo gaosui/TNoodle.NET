@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TNoodle.Solvers.min2phase;
 using TNoodle.Solvers;
 using TNoodle.Puzzles;
+using TNoodle.Utils;
 
 namespace Test
 {
@@ -25,14 +26,13 @@ namespace Test
             //list.Add(new NoInspectionFourByFourCubePuzzle());
             //list.Add(new NoInspectionFiveByFiveCubePuzzle());
             //list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
-            list.Add(new PyraminxPuzzle());
+            //list.Add(new PyraminxPuzzle());
 
-            foreach (var p in list)
-            {
-                Console.WriteLine($"{p.getLongName()} {p.generateScramble()}");
-                Console.WriteLine();
-            }
-
+            //foreach (var p in list)
+            //{
+            //    Console.WriteLine($"{p.getLongName()} {p.generateScramble()}");
+            //    Console.WriteLine();
+            //}
             Console.ReadKey();
         }
     }

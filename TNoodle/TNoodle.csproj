@@ -65,6 +65,10 @@
     <Compile Include="Puzzles\ThreeByThreeCubePuzzle.cs" />
     <Compile Include="Puzzles\TwoByTwoCubePuzzle.cs" />
     <Compile Include="Solvers\PyraminxSolver.cs" />
+    <Compile Include="Solvers\sq12phase\FullCube.cs" />
+    <Compile Include="Solvers\sq12phase\Search.cs" />
+    <Compile Include="Solvers\sq12phase\Shape.cs" />
+    <Compile Include="Solvers\sq12phase\Square.cs" />
     <Compile Include="Solvers\threephase\Center1.cs" />
     <Compile Include="Solvers\threephase\Center2.cs" />
     <Compile Include="Solvers\threephase\Center3.cs" />
@@ -77,6 +81,7 @@
     <Compile Include="Solvers\threephase\Search.cs" />
     <Compile Include="Solvers\threephase\Util.cs" />
     <Compile Include="Solvers\TwoByTwoSolver.cs" />
+    <Compile Include="Utils\Functions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MissingFeatures.txt" />
@@ -84,9 +89,7 @@
   <ItemGroup>
     <Compile Include="Puzzles\GwtSafeUtils.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
