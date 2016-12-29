@@ -12,14 +12,14 @@ namespace TNoodle.Puzzles
         {
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            CubeMove[][] randomOrientationMoves = getRandomOrientationMoves(size / 2);
+            CubeMove[][] randomOrientationMoves = GetRandomOrientationMoves(Size / 2);
             CubeMove[] randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
             string firstAxisRestriction;
             if (randomOrientation.Length > 0)
             {
-                Face restrictedFace = randomOrientation[0].face;
+                CubeFace restrictedFace = randomOrientation[0].Face;
                 // Restrictions are for an entire axis, so this will also
                 // prevent the opposite of restrictedFace from being the first
                 // move of our solution. This ensures that randomOrientation will
@@ -36,12 +36,12 @@ namespace TNoodle.Puzzles
             return psag;
         }
 
-        public override string getShortName()
+        public override string GetShortName()
         {
             return "333ni";
         }
 
-        public override string getLongName()
+        public override string GetLongName()
         {
             return "3x3x3 no inspection";
         }

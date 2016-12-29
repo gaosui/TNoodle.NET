@@ -10,35 +10,27 @@ namespace TNoodle.Puzzles
     public class TwoByTwoCubePuzzle : CubePuzzle
     {
         private const int TWO_BY_TWO_MIN_SCRAMBLE_LENGTH = 11;
+        private TwoByTwoSolver twoSolver = new TwoByTwoSolver();
 
-        private TwoByTwoSolver twoSolver = null;
         public TwoByTwoCubePuzzle() : base(2)
         {
-            wcaMinScrambleDistance = 4;
-            twoSolver = new TwoByTwoSolver();
+            WcaMinScrambleDistance = 4;
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            TwoByTwoState state = twoSolver.randomState(r);
-            string scramble = twoSolver.generateExactly(state, TWO_BY_TWO_MIN_SCRAMBLE_LENGTH);
+            TwoByTwoState state = twoSolver.RandomState(r);
+            string scramble = twoSolver.GenerateExactly(state, TWO_BY_TWO_MIN_SCRAMBLE_LENGTH);
 
             AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
-            //try
-            {
-                ab.appendAlgorithm(scramble);
-            }
-            //catch //(InvalidMoveException e)
-            {
-                //azzert(false, new InvalidScrambleException(scramble, e));
-            }
+            ab.appendAlgorithm(scramble);
             return ab.getStateAndGenerator();
         }
 
-        protected internal override string solveIn(PuzzleState ps, int n)
+        protected override string SolveIn(PuzzleState ps, int n)
         {
             CubeState cs = (CubeState)ps;
-            string solution = twoSolver.solveIn(cs.toTwoByTwoState(), n);
+            string solution = twoSolver.SolveIn(cs.ToTwoByTwoState(), n);
             return solution;
         }
     }

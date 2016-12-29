@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Text;
+using TNoodle.Utils;
 
 namespace TNoodle.Solvers
 {
     public class TwoByTwoSolver
     {
-        public TwoByTwoSolver() { }
-
         /***
         There are 8 "corner" cubies, numbered 0 to 7.
         The home positions of these cubies are labeled in the diagram below.
@@ -33,21 +32,20 @@ namespace TNoodle.Solvers
 
          ***/
 
-        internal static readonly int N_PERM = 5040; // Number of permutations
-        internal static readonly int N_ORIENT = 729; // Number of orientations
-        internal static readonly int N_MOVES = 9; // Number of moves
-        internal static readonly int MAX_LENGTH = 20; // Max length of solutions
-        internal static readonly string[] moveToString = { "U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'" };
-        internal static readonly string[] inverseMoveToString = { "U'", "U2", "U", "R'", "R2", "R", "F'", "F2", "F" };
-
-        internal static readonly int[] fact = { 1, 1, 2, 6, 24, 120, 720 }; // fact[x] = x!
+        private const int N_PERM = 5040; // Number of permutations
+        private const int N_ORIENT = 729; // Number of orientations
+        private const int N_MOVES = 9; // Number of moves
+        private const int MAX_LENGTH = 20; // Max length of solutions
+        private static readonly string[] moveToString = { "U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'" };
+        private static readonly string[] inverseMoveToString = { "U'", "U2", "U", "R'", "R2", "R", "F'", "F2", "F" };
+        private static readonly int[] fact = { 1, 1, 2, 6, 24, 120, 720 }; // fact[x] = x!
 
         /**
          * Converts the list of cubies into a number representing the permutation of the cubies.
          * @param cubies   cubies representation (ori << 3 + perm)
          * @return         an integer between 0 and 5039 representing the permutation of 7 elements
          */
-        public static int packPerm(int[] cubies)
+        public static int PackPerm(int[] cubies)
         {
             int idx = 0;
             int val = 0x6543210;
@@ -65,7 +63,7 @@ namespace TNoodle.Solvers
          * @param perm     an integer between 0 and 5039 representing the permutation of 7 elements
          * @param cubies   cubies representation (ori << 3 + perm)
          */
-        public static void unpackPerm(int perm, int[] cubies)
+        public static void UnpackPerm(int perm, int[] cubies)
         {
             int val = 0x6543210;
             for (int i = 0; i < 6; i++)
@@ -86,7 +84,7 @@ namespace TNoodle.Solvers
          * @param cubies   cubies representation (ori << 3 + perm)
          * @return         an integer between 0 and 728 representing the orientation of 6 elements (the 7th is fixed)
          */
-        public static int packOrient(int[] cubies)
+        public static int PackOrient(int[] cubies)
         {
             int ori = 0;
             for (int i = 0; i < 6; i++)
@@ -101,7 +99,7 @@ namespace TNoodle.Solvers
          * @param ori      an integer between 0 and 728 representing the orientation of 6 elements (the 7th is fixed)
          * @param cubies   cubies representation (ori << 3 + perm)
          */
-        public static void unpackOrient(int ori, int[] cubies)
+        public static void UnpackOrient(int ori, int[] cubies)
         {
             int sum_ori = 0;
             for (int i = 5; i >= 0; i--)
@@ -122,7 +120,7 @@ namespace TNoodle.Solvers
          * @param d        fourth element to cycle
          * @param times    number of times to cycle
          */
-        private static void cycle(int[] cubies, int a, int b, int c, int d, int times)
+        private static void Cycle(int[] cubies, int a, int b, int c, int d, int times)
         {
             int temp = cubies[d];
             cubies[d] = cubies[c];
@@ -131,7 +129,7 @@ namespace TNoodle.Solvers
             cubies[a] = temp;
             if (times > 1)
             {
-                cycle(cubies, a, b, c, d, times - 1);
+                Cycle(cubies, a, b, c, d, times - 1);
             }
         }
 
@@ -144,7 +142,7 @@ namespace TNoodle.Solvers
          * @param d        fourth element to cycle
          * @param times    number of times to cycle
          */
-        private static void cycleAndOrient(int[] cubies, int a, int b, int c, int d, int times)
+        private static void CycleAndOrient(int[] cubies, int a, int b, int c, int d, int times)
         {
             int temp = cubies[d];
             cubies[d] = (cubies[c] + 8) % 24;
@@ -153,7 +151,7 @@ namespace TNoodle.Solvers
             cubies[a] = (temp + 16) % 24;
             if (times > 1)
             {
-                cycleAndOrient(cubies, a, b, c, d, times - 1);
+                CycleAndOrient(cubies, a, b, c, d, times - 1);
             }
         }
 
@@ -162,20 +160,20 @@ namespace TNoodle.Solvers
          * @param cubies   cubies representation (ori << 3 + perm)
          * @param move     move to apply to the cubies
          */
-        private static void moveCubies(int[] cubies, int move)
+        private static void MoveCubies(int[] cubies, int move)
         {
             int face = move / 3;
             int times = (move % 3) + 1;
             switch (face)
             {
                 case 0: // U face
-                    cycle(cubies, 1, 3, 2, 0, times);
+                    Cycle(cubies, 1, 3, 2, 0, times);
                     break;
                 case 1: // R face
-                    cycleAndOrient(cubies, 0, 2, 6, 4, times);
+                    CycleAndOrient(cubies, 0, 2, 6, 4, times);
                     break;
                 case 2: // F face
-                    cycleAndOrient(cubies, 1, 0, 4, 5, times);
+                    CycleAndOrient(cubies, 1, 0, 4, 5, times);
                     break;
                 default:
                     //azzert(false);
@@ -186,33 +184,33 @@ namespace TNoodle.Solvers
         /**
          * Fill the arrays to move permutation and orientation coordinates.
          */
-        public static int[,] movePerm = new int[N_PERM, N_MOVES];
-        public static int[,] moveOrient = new int[N_ORIENT, N_MOVES];
-        private static void initMoves()
+        private static readonly int[][] movePerm = Functions.CreateJaggedArray(N_PERM, N_MOVES);
+        private static readonly int[][] moveOrient = Functions.CreateJaggedArray(N_ORIENT, N_MOVES);
+        private static void InitMoves()
         {
             int[] cubies1 = new int[7];
             int[] cubies2 = new int[7];
             for (int perm = 0; perm < N_PERM; perm++)
             {
-                unpackPerm(perm, cubies1);
+                UnpackPerm(perm, cubies1);
                 for (int move = 0; move < N_MOVES; move++)
                 {
                     Array.Copy(cubies1, 0, cubies2, 0, 7);
-                    moveCubies(cubies2, move);
-                    int newPerm = packPerm(cubies2);
-                    movePerm[perm, move] = newPerm;
+                    MoveCubies(cubies2, move);
+                    int newPerm = PackPerm(cubies2);
+                    movePerm[perm][move] = newPerm;
                 }
             }
 
             for (int orient = 0; orient < N_ORIENT; orient++)
             {
-                unpackOrient(orient, cubies1);
+                UnpackOrient(orient, cubies1);
                 for (int move = 0; move < N_MOVES; move++)
                 {
                     Array.Copy(cubies1, 0, cubies2, 0, 7);
-                    moveCubies(cubies2, move);
-                    int newOrient = packOrient(cubies2);
-                    moveOrient[orient, move] = newOrient;
+                    MoveCubies(cubies2, move);
+                    int newOrient = PackOrient(cubies2);
+                    moveOrient[orient][move] = newOrient;
                 }
             }
         }
@@ -220,11 +218,10 @@ namespace TNoodle.Solvers
         /**
          * Fill the pruning tables for the permutation and orientation coordinates.
          */
-        private static int[] prunPerm = new int[N_PERM];
-        private static int[] prunOrient = new int[N_ORIENT];
-        private static void initPrun()
+        private static readonly int[] prunPerm = new int[N_PERM];
+        private static readonly int[] prunOrient = new int[N_ORIENT];
+        private static void InitPrun()
         {
-
             for (int perm = 0; perm < N_PERM; perm++)
             {
                 prunPerm[perm] = -1;
@@ -240,7 +237,7 @@ namespace TNoodle.Solvers
                     {
                         for (int move = 0; move < N_MOVES; move++)
                         {
-                            int newPerm = movePerm[perm, move];
+                            int newPerm = movePerm[perm][move];
                             if (prunPerm[newPerm] == -1)
                             {
                                 prunPerm[newPerm] = length + 1;
@@ -266,7 +263,7 @@ namespace TNoodle.Solvers
                     {
                         for (int move = 0; move < N_MOVES; move++)
                         {
-                            int newOrient = moveOrient[orient, move];
+                            int newOrient = moveOrient[orient][move];
                             if (prunOrient[newOrient] == -1)
                             {
                                 prunOrient[newOrient] = length + 1;
@@ -280,8 +277,8 @@ namespace TNoodle.Solvers
 
         static TwoByTwoSolver()
         {
-            initMoves();
-            initPrun();
+            InitMoves();
+            InitPrun();
         }
 
         /**
@@ -293,7 +290,7 @@ namespace TNoodle.Solvers
          * @param last_move  what was the last move done (first called with an int >= 9)
          * @param solution   the array containing the current moves done.
          */
-        private bool search(int perm, int orient, int depth, int length, int last_move, int[] solution, int[] best_solution)
+        private bool Search(int perm, int orient, int depth, int length, int last_move, int[] solution, int[] best_solution)
         {
             /* If there are no moves left to try (length=0), check if the current position is solved */
             if (length == 0)
@@ -301,7 +298,7 @@ namespace TNoodle.Solvers
                 if ((perm == 0) && (orient == 0))
                 {
                     // Solution found! Compute the cost of applying the reverse solution.
-                    int cost = computeCost(solution, depth, 0, 0);
+                    int cost = ComputeCost(solution, depth, 0, 0);
                     // We found a better solution, storing it.
                     if (cost < best_solution[depth])
                     {
@@ -336,12 +333,12 @@ namespace TNoodle.Solvers
                     continue;
                 }
                 // Apply the move
-                int newPerm = movePerm[perm, move];
-                int newOrient = moveOrient[orient, move];
+                int newPerm = movePerm[perm][move];
+                int newOrient = moveOrient[orient][move];
                 // Store the move
                 solution[depth] = move;
                 // Call the recursive function
-                solutionFound |= search(newPerm, newOrient, depth + 1, length - 1, move, solution, best_solution);
+                solutionFound |= Search(newPerm, newOrient, depth + 1, length - 1, move, solution, best_solution);
             }
             return solutionFound;
         }
@@ -350,11 +347,11 @@ namespace TNoodle.Solvers
          * Generate a random 2x2 position.
          * @param r         random int generator
          */
-        public TwoByTwoState randomState(Random r)
+        public TwoByTwoState RandomState(Random r)
         {
             TwoByTwoState state = new TwoByTwoState();
-            state.permutation = r.Next(N_PERM);
-            state.orientation = r.Next(N_ORIENT);
+            state.Permutation = r.Next(N_PERM);
+            state.Orientation = r.Next(N_ORIENT);
             return state;
         }
 
@@ -365,9 +362,9 @@ namespace TNoodle.Solvers
          * @param length    length of the desired solution
          * @return          a string representing the solution or the scramble of a random position
          */
-        public string solveIn(TwoByTwoState state, int length)
+        public string SolveIn(TwoByTwoState state, int length)
         {
-            return solve(state, length, false, false);
+            return Solve(state, length, false, false);
         }
 
         /**
@@ -378,12 +375,12 @@ namespace TNoodle.Solvers
          * @param length    length of the desired solution
          * @return          a string representing the solution or the scramble of a random position
          */
-        public string generateExactly(TwoByTwoState state, int length)
+        public string GenerateExactly(TwoByTwoState state, int length)
         {
-            return solve(state, length, true, true);
+            return Solve(state, length, true, true);
         }
 
-        private string solve(TwoByTwoState state, int desiredLength, bool exactLength, bool inverse)
+        private string Solve(TwoByTwoState state, int desiredLength, bool exactLength, bool inverse)
         {
             int[] solution = new int[MAX_LENGTH];
             int[] best_solution = new int[MAX_LENGTH + 1];
@@ -392,7 +389,7 @@ namespace TNoodle.Solvers
             while (length <= desiredLength)
             {
                 best_solution[length] = 42424242;
-                if (search(state.permutation, state.orientation, 0, length, 42, solution, best_solution))
+                if (Search(state.Permutation, state.Orientation, 0, length, 42, solution, best_solution))
                 {
                     foundSolution = true;
                     break;
@@ -431,17 +428,17 @@ namespace TNoodle.Solvers
             return scramble.ToString();
         }
 
-        internal static readonly int cost_U = 8;
-        internal static readonly int cost_U_low = 20; // when grip = -1
-        internal static readonly int cost_U2 = 10;
-        internal static readonly int cost_U3 = 7;
-        internal static readonly int cost_R = 6;
-        internal static readonly int cost_R2 = 10;
-        internal static readonly int cost_R3 = 6;
-        internal static readonly int cost_F = 10;
-        internal static readonly int cost_F2 = 30;
-        internal static readonly int cost_F3 = 19;
-        internal static readonly int cost_regrip = 20;
+        private const int cost_U = 8;
+        private const int cost_U_low = 20; // when grip = -1
+        private const int cost_U2 = 10;
+        private const int cost_U3 = 7;
+        private const int cost_R = 6;
+        private const int cost_R2 = 10;
+        private const int cost_R3 = 6;
+        private const int cost_F = 10;
+        private const int cost_F2 = 30;
+        private const int cost_F3 = 19;
+        private const int cost_regrip = 20;
 
         /**
          * Try to evaluate the cost of applying a scramble
@@ -451,101 +448,97 @@ namespace TNoodle.Solvers
          * @param grip          state of the grip of the right hand. -1: thumb on D, 0: thumb on F, 1: thumb on U
          * @return              returns the cost of the whole sequence
          */
-        private int computeCost(int[] solution, int index, int current_cost, int grip)
+        private int ComputeCost(int[] solution, int index, int current_cost, int grip)
         {
             // If we are finished, just output the cost.
             if (index < 0)
             {
                 return current_cost;
             }
-
             switch (solution[index])
             {
                 case 0: // U'
-                    return computeCost(solution, index - 1, current_cost + cost_U3, grip);
+                    return ComputeCost(solution, index - 1, current_cost + cost_U3, grip);
                 case 1: // U2
-                    return computeCost(solution, index - 1, current_cost + cost_U2, grip);
+                    return ComputeCost(solution, index - 1, current_cost + cost_U2, grip);
                 case 2: // U
                     if (grip == 0)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_U, 0);
+                        return ComputeCost(solution, index - 1, current_cost + cost_U, 0);
                     }
                     else if (grip == -1)
                     {
-                        return Math.Min(computeCost(solution, index - 1, current_cost + cost_regrip + cost_U, 0),
-                                         computeCost(solution, index - 1, current_cost + cost_U_low, grip));
+                        return Math.Min(ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_U, 0),
+                                         ComputeCost(solution, index - 1, current_cost + cost_U_low, grip));
                     }
                     else
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_regrip + cost_U, 0);
+                        return ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_U, 0);
                     }
                 case 3: // R'
                     if (grip > -1)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_R3, grip - 1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_R3, grip - 1);
                     }
                     else
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_regrip + cost_R3, -1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_R3, -1);
                     }
                 case 4: // R2
                     if (grip != 0)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_R2, -grip);
+                        return ComputeCost(solution, index - 1, current_cost + cost_R2, -grip);
                     }
                     else
                     {
-                        return Math.Min(computeCost(solution, index - 1, current_cost + cost_regrip + cost_R2, -1),
-                                         computeCost(solution, index - 1, current_cost + cost_regrip + cost_R2, 1));
+                        return Math.Min(ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_R2, -1),
+                                         ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_R2, 1));
                     }
                 case 5: // R
                     if (grip < 1)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_R, grip + 1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_R, grip + 1);
                     }
                     else
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_regrip + cost_R, 1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_R, 1);
                     }
                 case 6: // F'
                     if (grip != 0)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_F3, grip);
+                        return ComputeCost(solution, index - 1, current_cost + cost_F3, grip);
                     }
                     else
                     {
-                        return Math.Min(computeCost(solution, index - 1, current_cost + cost_regrip + cost_F3, -1),
-                                         computeCost(solution, index - 1, current_cost + cost_regrip + cost_F3, 1));
+                        return Math.Min(ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_F3, -1),
+                                         ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_F3, 1));
                     }
                 case 7: // F2
                     if (grip == -1)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_F2, -1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_F2, -1);
                     }
                     else
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_regrip + cost_F2, -1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_F2, -1);
                     }
                 case 8: // F
                     if (grip == -1)
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_F, -1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_F, -1);
                     }
                     else
                     {
-                        return computeCost(solution, index - 1, current_cost + cost_regrip + cost_F, -1);
+                        return ComputeCost(solution, index - 1, current_cost + cost_regrip + cost_F, -1);
                     }
-                default:
-                    //azzert(false);
-                    break;
             }
             return -1;
         }
     }
 
-
     public class TwoByTwoState
     {
-        public int permutation, orientation;
+        public int Permutation { get; set; }
+        public int Orientation { get; set; }
     }
 }

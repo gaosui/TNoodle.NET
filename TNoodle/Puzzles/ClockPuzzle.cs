@@ -11,7 +11,7 @@ namespace TNoodle.Puzzles
     {
         //private static final Logger l = Logger.getLogger(ClockPuzzle.class.getName());
 
-        private static readonly String[] turns = { "UR", "DR", "DL", "UL", "U", "R", "D", "L", "ALL" };
+        private static readonly string[] turns = { "UR", "DR", "DL", "UL", "U", "R", "D", "L", "ALL" };
         private const int STROKE_WIDTH = 2;
         private const int radius = 70;
         private const int clockRadius = 14;
@@ -25,12 +25,12 @@ namespace TNoodle.Puzzles
 
         private const int gap = 5;
 
-        public override String getLongName()
+        public override String GetLongName()
         {
             return "Clock";
         }
 
-        public override String getShortName()
+        public override String GetShortName()
         {
             return "clock";
         }
@@ -49,17 +49,17 @@ namespace TNoodle.Puzzles
 
 
 
-        public override PuzzleState getSolvedState()
+        public override PuzzleState GetSolvedState()
         {
             return new ClockState(this);
         }
 
-        protected internal override int getRandomMoveCount()
+        protected  override int GetRandomMoveCount()
         {
             return 19;
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             StringBuilder scramble = new StringBuilder();
 
@@ -91,7 +91,7 @@ namespace TNoodle.Puzzles
 
             String scrambleStr = scramble.ToString().Trim();
 
-            PuzzleState state = getSolvedState();
+            PuzzleState state = GetSolvedState();
             try
             {
                 state = state.applyAlgorithm(scrambleStr);
@@ -126,7 +126,7 @@ namespace TNoodle.Puzzles
                 this.rightSideUp = rightSideUp;
             }
 
-            public override LinkedHashMap<String, PuzzleState> getSuccessorsByName()
+            public override LinkedHashMap<String, PuzzleState> GetSuccessorsByName()
             {
                 LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
 

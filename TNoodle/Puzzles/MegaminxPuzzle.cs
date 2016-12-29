@@ -20,12 +20,12 @@ namespace TNoodle.Puzzles
 
         public MegaminxPuzzle() { }
 
-        public override String getLongName()
+        public override String GetLongName()
         {
             return "Megaminx";
         }
 
-        public override String getShortName()
+        public override String GetShortName()
         {
             return "minx";
         }
@@ -168,17 +168,17 @@ namespace TNoodle.Puzzles
         }
 
 
-        public override PuzzleState getSolvedState()
+        public override PuzzleState GetSolvedState()
         {
             return new MegaminxState(this);
         }
 
-        protected internal override int getRandomMoveCount()
+        protected  override int GetRandomMoveCount()
         {
             return 11 * 7;
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             StringBuilder scramble = new StringBuilder();
 
@@ -209,7 +209,7 @@ namespace TNoodle.Puzzles
 
             String scrambleStr = scramble.ToString();
 
-            PuzzleState state = getSolvedState();
+            PuzzleState state = GetSolvedState();
             //try
             {
                 state = state.applyAlgorithm(scrambleStr);
@@ -349,7 +349,7 @@ namespace TNoodle.Puzzles
                 this.image = image;
             }
 
-            public override PuzzleState getNormalized()
+            public override PuzzleState GetNormalized()
             {
                 if (normalizedState == null)
                 {
@@ -359,12 +359,12 @@ namespace TNoodle.Puzzles
                 return normalizedState;
             }
 
-            public override bool isNormalized()
+            public override bool IsNormalized()
             {
                 return puzzle.isNormalized(image);
             }
 
-            public override LinkedHashMap<String, PuzzleState> getSuccessorsByName()
+            public override LinkedHashMap<String, PuzzleState> GetSuccessorsByName()
             {
                 LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
 
@@ -402,9 +402,9 @@ namespace TNoodle.Puzzles
                 return successors;
             }
 
-            public override LinkedHashMap<String, PuzzleState> getScrambleSuccessors()
+            public override LinkedHashMap<String, PuzzleState> GetScrambleSuccessors()
             {
-                LinkedHashMap<String, PuzzleState> successors = getSuccessorsByName();
+                LinkedHashMap<String, PuzzleState> successors = GetSuccessorsByName();
                 LinkedHashMap<String, PuzzleState> scrambleSuccessors = new LinkedHashMap<String, PuzzleState>();
                 foreach (String turn in new String[] { "R++", "R--", "D++", "D--", "U", "U2", "U2'", "U'" })
                 {

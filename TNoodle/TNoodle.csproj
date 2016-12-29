@@ -38,8 +38,7 @@
   <ItemGroup>
     <Compile Include="Puzzles\Bucket.cs" />
     <Compile Include="Puzzles\ClockPuzzle.cs" />
-    <Compile Include="Puzzles\ExtensionMethods.cs" />
-    <Compile Include="Puzzles\Face.cs" />
+    <Compile Include="Puzzles\CubeFace.cs" />
     <Compile Include="Puzzles\FourByFourCubePuzzle.cs" />
     <Compile Include="Puzzles\IndexAndMove.cs" />
     <Compile Include="Puzzles\MegaminxPuzzle.cs" />

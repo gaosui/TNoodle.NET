@@ -33,7 +33,7 @@ namespace TNoodle.Puzzles
             //};
         }
 
-        protected internal override string solveIn(PuzzleState ps, int n)
+        protected  override string SolveIn(PuzzleState ps, int n)
         {
             return solveIn(ps, n, null, null);
         }
@@ -41,12 +41,12 @@ namespace TNoodle.Puzzles
         public string solveIn(PuzzleState ps, int n, string firstAxisRestriction, string lastAxisRestriction)
         {
             CubeState cs = (CubeState)ps;
-            if (this.Equals(getSolvedState()))
+            if (this.Equals(GetSolvedState()))
             {
                 // TODO - apparently min2phase can't solve the solved cube
                 return "";
             }
-            string solution = twoPhaseSearcher.Value.solution(cs.toFaceCube(), n, THREE_BY_THREE_TIMEOUT, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
+            string solution = twoPhaseSearcher.Value.solution(cs.ToFaceCube(), n, THREE_BY_THREE_TIMEOUT, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
             if ("Error 7".Equals(solution))
             {
                 // No solution exists for given depth
@@ -78,7 +78,7 @@ namespace TNoodle.Puzzles
             }
             return ab.getStateAndGenerator();
         }
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             return generateRandomMoves(r, null, null);
         }

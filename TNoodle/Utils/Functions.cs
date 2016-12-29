@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,18 @@ namespace TNoodle.Utils
 {
     public static class Functions
     {
+        public static int ArrayCopyCounter1;
+        public static int ArrayCopyCounter2;
+        public static Stopwatch Watch = new Stopwatch();
+        public static int[][] CreateJaggedArray(int l1, int l2)
+        {
+            int[][] res = new int[l1][];
+            for (int i = 0; i < l1; i++)
+            {
+                res[i] = new int[l2];
+            }
+            return res;
+        }
         public static int BitCount(int value)
         {
             uint v = (uint)value;
@@ -54,19 +67,32 @@ namespace TNoodle.Utils
             return true;
         }
 
-        //public static int DeepHashCode(this int[] a)
-        //{
-        //    if (a == null)
-        //        return 0;
+        public static bool DeepEquals(this int[,,] a, int[,,] b)
+        {
+            for (int i = 0; i < a.GetLength(0); i++)
+            {
+                for (int j = 0; j < a.GetLength(1); j++)
+                {
+                    for (int k = 0; k < a.GetLength(2); k++)
+                    {
+                        if (a[i, j, k] != b[i, j, k]) return false;
+                    }
+                }
+            }
+            return true;
+        }
 
-        //    int result = 1;
-        //    foreach (int element in a)
-        //        result = 31 * result + element;
+        public static int DeepHashCode(this int[] a)
+        {
+            int result = 1;
+            for (int i = 0, length = a.Length; i < length; i++)
+            {
+                result = 31 * result + a[i];
+            }
+            return result;
+        }
 
-        //    return result;
-        //}
-
-        public static int DeepHashCode(this Array a)
+        public static int DeepHashCode(this int[,] a)
         {
             if (a == null)
                 return 0;
@@ -76,6 +102,23 @@ namespace TNoodle.Utils
                 result = 31 * result + element;
 
             return result;
+        }
+
+        public static int DeepHashCode(this int[,,] a)
+        {
+            if (a == null)
+                return 0;
+
+            int result = 1;
+            foreach (int element in a)
+                result = 31 * result + element;
+
+            return result;
+        }
+
+        public static CubeFace oppositeFace(this CubeFace f)
+        {
+            return (CubeFace)(((int)f + 3) % 6);
         }
 
         // TODO We could rename faces so we can just do +6 mod 12 here instead.
@@ -110,6 +153,16 @@ namespace TNoodle.Utils
                 default:
                     return null;
             }
+        }
+
+        public static LinkedHashMap<B, A> ReverseHashMap<A, B>(this LinkedHashMap<A, B> map)
+        {
+            LinkedHashMap<B, A> reverseMap = new LinkedHashMap<B, A>();
+            foreach (var pair in map)
+            {
+                reverseMap.Add(pair.Value, pair.Key);
+            }
+            return reverseMap;
         }
     }
 }

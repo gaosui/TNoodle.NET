@@ -18,10 +18,10 @@ namespace TNoodle.Puzzles
         public PyraminxPuzzle()
         {
             pyraminxSolver = new PyraminxSolver();
-            wcaMinScrambleDistance = 6;
+            WcaMinScrambleDistance = 6;
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             PyraminxSolverState state = pyraminxSolver.randomState(r);
             String scramble = pyraminxSolver.generateExactly(state, MIN_SCRAMBLE_LENGTH, false);
@@ -29,7 +29,7 @@ namespace TNoodle.Puzzles
             PuzzleState pState;
             try
             {
-                pState = getSolvedState().applyAlgorithm(scramble);
+                pState = GetSolvedState().applyAlgorithm(scramble);
             }
             catch //(InvalidScrambleException e)
             {
@@ -42,22 +42,22 @@ namespace TNoodle.Puzzles
 
 
 
-        public override String getLongName()
+        public override String GetLongName()
         {
             return "Pyraminx";
         }
 
-        public override String getShortName()
+        public override String GetShortName()
         {
             return "pyram";
         }
 
-        public override PuzzleState getSolvedState()
+        public override PuzzleState GetSolvedState()
         {
             return new PyraminxState(this);
         }
 
-        protected internal override int getRandomMoveCount()
+        protected  override int GetRandomMoveCount()
         {
             return 15;
         }
@@ -314,7 +314,7 @@ namespace TNoodle.Puzzles
                 return puzzle.pyraminxSolver.solveIn(toPyraminxSolverState(), n, SCRAMBLE_LENGTH_INCLUDES_TIPS);
             }
 
-            public override LinkedHashMap<String, PuzzleState> getSuccessorsByName()
+            public override LinkedHashMap<String, PuzzleState> GetSuccessorsByName()
             {
                 LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
 

@@ -7,6 +7,7 @@ using TNoodle.Solvers.min2phase;
 using TNoodle.Solvers;
 using TNoodle.Puzzles;
 using TNoodle.Utils;
+using System.Diagnostics;
 
 namespace Test
 {
@@ -15,6 +16,8 @@ namespace Test
         public static void Main(string[] args)
         {
             List<Puzzle> list = new List<Puzzle>();
+            Random r = new Random(2017);
+            var watch = new Stopwatch();
 
             //list.Add(new TwoByTwoCubePuzzle());
             //list.Add(new ThreeByThreeCubePuzzle());
@@ -22,7 +25,7 @@ namespace Test
             //list.Add(new CubePuzzle(5));
             //list.Add(new CubePuzzle(6));
             //list.Add(new CubePuzzle(7));
-            ///list.Add(new NoInspectionThreeByThreeCubePuzzle());
+            //list.Add(new NoInspectionThreeByThreeCubePuzzle());
             //list.Add(new NoInspectionFourByFourCubePuzzle());
             //list.Add(new NoInspectionFiveByFiveCubePuzzle());
             //list.Add(new ThreeByThreeCubeFewestMovesPuzzle());
@@ -30,15 +33,32 @@ namespace Test
             //list.Add(new SquareOnePuzzle());
             //list.Add(new MegaminxPuzzle());
             //list.Add(new SkewbPuzzle());
-            list.Add(new ClockPuzzle());
+            //list.Add(new ClockPuzzle());
 
-            foreach (var p in list)
+            //foreach (var p in list)
+            //{
+            //    Console.WriteLine($"{p.GetLongName()} {p.GenerateWcaScramble(r)}");
+            //    Console.WriteLine();
+            //}
+            //var puzzle = new ThreeByThreeCubePuzzle();
+            var solver = new TwoByTwoSolver();
+            var state = solver.RandomState(r);
+            var puzzle = new TwoByTwoCubePuzzle();
+            double tick = 0;
+            int count = 50;
+
+            for (int i = 0; i < count; i++)
             {
-                Console.WriteLine($"{p.getLongName()} {p.generateScramble()}");
-                Console.WriteLine();
+                watch.Restart();
+                solver.GenerateExactly(state, 11);
+                //puzzle.GenerateWcaScramble(r);
+                watch.Stop();
+                tick += watch.ElapsedTicks;
             }
 
-            Console.ReadKey();
+            tick /= count;
+            Console.WriteLine($"{tick / TimeSpan.TicksPerMillisecond} ms");
+
         }
     }
 }

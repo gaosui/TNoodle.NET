@@ -18,17 +18,17 @@ namespace TNoodle.Puzzles
             // TODO - we can't filter super aggresively until
             // Chen Shuang's optimal solver is fixed.
             //wcaMinScrambleDistance = 20;
-            wcaMinScrambleDistance = 11;
+            WcaMinScrambleDistance = 11;
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             Search s = new Search();
             String scramble = s.solution(FullCube.randomCube(r)).Trim();
             PuzzleState state;
             try
             {
-                state = getSolvedState().applyAlgorithm(scramble);
+                state = GetSolvedState().applyAlgorithm(scramble);
             }
             catch //(InvalidScrambleException e)
             {
@@ -39,22 +39,22 @@ namespace TNoodle.Puzzles
         }
 
 
-        public override String getLongName()
+        public override String GetLongName()
         {
             return "Square-1";
         }
 
-        public override String getShortName()
+        public override String GetShortName()
         {
             return "sq1";
         }
 
-        public override PuzzleState getSolvedState()
+        public override PuzzleState GetSolvedState()
         {
             return new SquareOneState(this);
         }
 
-        protected internal override int getRandomMoveCount()
+        protected override int GetRandomMoveCount()
         {
             return 40;
         }
@@ -209,9 +209,9 @@ namespace TNoodle.Puzzles
                 return costsByMove[move];
             }
 
-            public override LinkedHashMap<string, PuzzleState> getScrambleSuccessors()
+            public override LinkedHashMap<string, PuzzleState> GetScrambleSuccessors()
             {
-                LinkedHashMap<String, PuzzleState> successors = getSuccessorsByName();
+                LinkedHashMap<String, PuzzleState> successors = GetSuccessorsByName();
                 var iter = successors.Keys.GetEnumerator();
                 foreach (var key in successors.Keys)
                 {
@@ -226,7 +226,7 @@ namespace TNoodle.Puzzles
                 return successors;
             }
 
-            public override LinkedHashMap<string, PuzzleState> getSuccessorsByName()
+            public override LinkedHashMap<string, PuzzleState> GetSuccessorsByName()
             {
                 LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
                 for (int top = -5; top <= 6; top++)

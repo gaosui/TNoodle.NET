@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace TNoodle.Puzzles
 {
-    public static class ExtensionMethods
+    public enum CubeFace
     {
-        public static Face oppositeFace(this Face f)
-        {
-            return (Face)(((int)f + 3) % 6);
-        }
+        R, U, F, L, D, B
     }
 }

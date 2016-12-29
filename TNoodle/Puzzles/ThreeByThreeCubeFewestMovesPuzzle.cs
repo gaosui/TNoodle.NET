@@ -12,7 +12,7 @@ namespace TNoodle.Puzzles
         {
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             // For fewest moves, we want to minimize the probability that the
             // scramble has useful "stuff" in it. The problem with conventional
@@ -99,12 +99,12 @@ namespace TNoodle.Puzzles
             return ab.getStateAndGenerator();
         }
 
-        public override string getShortName()
+        public override string GetShortName()
         {
             return "333fm";
         }
 
-        public override string getLongName()
+        public override string GetLongName()
         {
             return "3x3x3 Fewest Moves";
         }

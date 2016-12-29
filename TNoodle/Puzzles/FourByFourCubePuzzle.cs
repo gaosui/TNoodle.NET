@@ -18,12 +18,12 @@ namespace TNoodle.Puzzles
 
         }
 
-        public override double getInitializationStatus()
+        public override double GetInitializationStatus()
         {
             return Edge3.initStatus();
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             string scramble = threePhaseSearcher.Value.randomState(r);
             AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);

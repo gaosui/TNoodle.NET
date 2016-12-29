@@ -12,7 +12,7 @@ namespace TNoodle.Puzzles
         /**
          * states.get(i) = state achieved by applying moves[0]...moves[i-1]
          */
-        private List<PuzzleState> states = new List<PuzzleState>();
+        private List<Puzzle.PuzzleState> states = new List<Puzzle.PuzzleState>();
         /**
          * If we are in CANONICALIZE_MOVES MergingMode, then something like
          * Uw Dw' on a 4x4x4 will become Uw2. This means the state we end
@@ -21,25 +21,25 @@ namespace TNoodle.Puzzles
          * unNormalizedState keeps track of the state we would have been in
          * if we had just naively appended turns.
          */
-        private PuzzleState originalState, unNormalizedState;
+        private Puzzle.PuzzleState originalState, unNormalizedState;
         private int totalCost;
         private MergingMode mergingMode = MergingMode.NO_MERGING;
         private Puzzle puzzle;
 
 
-        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode) : this(puzzle, mergingMode, puzzle.getSolvedState())
+        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode) : this(puzzle, mergingMode, puzzle.GetSolvedState())
         {
 
         }
 
-        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode, PuzzleState originalState)
+        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode, Puzzle.PuzzleState originalState)
         {
             this.puzzle = puzzle;
             this.mergingMode = mergingMode;
             resetToState(originalState);
         }
 
-        private void resetToState(PuzzleState originalState)
+        private void resetToState(Puzzle.PuzzleState originalState)
         {
             this.totalCost = 0;
             this.originalState = originalState;
@@ -65,7 +65,7 @@ namespace TNoodle.Puzzles
                 return new IndexAndMove(moves.Count, move);
             }
 
-            PuzzleState newUnNormalizedState = unNormalizedState.apply(move);
+            Puzzle.PuzzleState newUnNormalizedState = unNormalizedState.apply(move);
             if (newUnNormalizedState.equalsNormalized(unNormalizedState))
             {
                 // move must just be a rotation.
@@ -74,13 +74,13 @@ namespace TNoodle.Puzzles
                     return new IndexAndMove(0, null);
                 }
             }
-            PuzzleState newNormalizedState = newUnNormalizedState.getNormalized();
+            Puzzle.PuzzleState newNormalizedState = newUnNormalizedState.GetNormalized();
 
-            LinkedHashMap<PuzzleState, string> successors = getState().getCanonicalMovesByState();
+            LinkedHashMap<Puzzle.PuzzleState, string> successors = getState().GetCanonicalMovesByState();
             move = null;
             // Search for the right move to do to our current state in
             // order to match up with newNormalizedState.
-            foreach (PuzzleState ps in successors.Keys)
+            foreach (Puzzle.PuzzleState ps in successors.Keys)
             {
                 if (ps.equalsNormalized(newNormalizedState))
                 {
@@ -97,13 +97,13 @@ namespace TNoodle.Puzzles
                 for (int lastMoveIndex = moves.Count - 1; lastMoveIndex >= 0; lastMoveIndex--)
                 {
                     string lastMove = moves[lastMoveIndex];
-                    PuzzleState stateBeforeLastMove = states[lastMoveIndex];
+                    Puzzle.PuzzleState stateBeforeLastMove = states[lastMoveIndex];
                     if (!stateBeforeLastMove.movesCommute(lastMove, move))
                     {
                         break;
                     }
-                    PuzzleState stateAfterLastMove = states[lastMoveIndex + 1];
-                    PuzzleState stateAfterLastMoveAndNewMove = stateAfterLastMove.apply(move);
+                    Puzzle.PuzzleState stateAfterLastMove = states[lastMoveIndex + 1];
+                    Puzzle.PuzzleState stateAfterLastMoveAndNewMove = stateAfterLastMove.apply(move);
 
                     if (stateBeforeLastMove.equalsNormalized(stateAfterLastMoveAndNewMove))
                     {
@@ -112,8 +112,8 @@ namespace TNoodle.Puzzles
                     }
                     else
                     {
-                        successors = stateBeforeLastMove.getCanonicalMovesByState();
-                        foreach (PuzzleState ps in successors.Keys)
+                        successors = stateBeforeLastMove.GetCanonicalMovesByState();
+                        foreach (Puzzle.PuzzleState ps in successors.Keys)
                         {
                             if (ps.equalsNormalized(stateAfterLastMoveAndNewMove))
                             {
@@ -216,7 +216,7 @@ namespace TNoodle.Puzzles
             }
         }
 
-        public PuzzleState getState()
+        public Puzzle.PuzzleState getState()
         {
             //azzert(states.Count == moves.Count + 1);
             return states[states.Count - 1];

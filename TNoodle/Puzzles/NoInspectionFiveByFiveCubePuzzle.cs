@@ -12,11 +12,11 @@ namespace TNoodle.Puzzles
         {
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            CubeMove[][] randomOrientationMoves = getRandomOrientationMoves(size / 2);
+            CubeMove[][] randomOrientationMoves = GetRandomOrientationMoves(Size / 2);
             CubeMove[] randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
-            PuzzleStateAndGenerator psag = base.generateRandomMoves(r);
+            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r);
             psag = applyOrientation(this, randomOrientation, psag, true);
             return psag;
         }
@@ -61,12 +61,12 @@ namespace TNoodle.Puzzles
             }
         }
 
-        public override string getShortName()
+        public override string GetShortName()
         {
             return "555ni";
         }
 
-        public override string getLongName()
+        public override string GetLongName()
         {
             return "5x5x5 no inspection";
         }

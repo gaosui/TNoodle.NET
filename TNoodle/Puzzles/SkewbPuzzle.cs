@@ -22,10 +22,10 @@ namespace TNoodle.Puzzles
         public SkewbPuzzle()
         {
             skewbSolver = new SkewbSolver();
-            wcaMinScrambleDistance = 7;
+            WcaMinScrambleDistance = 7;
         }
 
-        public override PuzzleStateAndGenerator generateRandomMoves(Random r)
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             SkewbSolver.SkewbSolverState state = skewbSolver.randomState(r);
             String scramble = skewbSolver.generateExactly(state, MIN_SCRAMBLE_LENGTH, r);
@@ -33,7 +33,7 @@ namespace TNoodle.Puzzles
             PuzzleState pState;
             try
             {
-                pState = getSolvedState().applyAlgorithm(scramble);
+                pState = GetSolvedState().applyAlgorithm(scramble);
             }
             catch //(InvalidScrambleException e)
             {
@@ -43,22 +43,22 @@ namespace TNoodle.Puzzles
             return new PuzzleStateAndGenerator(pState, scramble);
         }
 
-        public override String getLongName()
+        public override String GetLongName()
         {
             return "Skewb";
         }
 
-        public override String getShortName()
+        public override String GetShortName()
         {
             return "skewb";
         }
 
-        public override PuzzleState getSolvedState()
+        public override PuzzleState GetSolvedState()
         {
             return new SkewbState(this);
         }
 
-        protected internal override int getRandomMoveCount()
+        protected  override int GetRandomMoveCount()
         {
             return 15;
         }
@@ -160,7 +160,7 @@ namespace TNoodle.Puzzles
 
 
 
-            public override LinkedHashMap<String, PuzzleState> getSuccessorsByName()
+            public override LinkedHashMap<String, PuzzleState> GetSuccessorsByName()
             {
                 LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
                 String axes = "RULB";
