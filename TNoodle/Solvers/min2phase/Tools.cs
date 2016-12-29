@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TNoodle.Solvers.min2phase
+namespace TNoodle.Solvers.Min2phase
 {
     public class Tools
     {
@@ -374,7 +374,7 @@ namespace TNoodle.Solvers.min2phase
          */
         public static int verify(string facelets)
         {
-            return new Search().verify(facelets);
+            return new Search().Verify(facelets);
         }
     }
 }

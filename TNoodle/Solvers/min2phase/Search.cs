@@ -4,25 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TNoodle.Solvers.min2phase
+namespace TNoodle.Solvers.Min2phase
 {
     public class Search
     {
-        private int[] move = new int[31];
+        private readonly int[] move = new int[31];
 
-        private int[] corn = new int[20];
-        private int[] mid4 = new int[20];
-        private int[] ud8e = new int[20];
+        private readonly int[] corn = new int[20];
+        private readonly int[] mid4 = new int[20];
+        private readonly int[] ud8e = new int[20];
 
-        private int[] twist = new int[6];
-        private int[] flip = new int[6];
-        private int[] slice = new int[6];
+        private readonly int[] twist = new int[6];
+        private readonly int[] flip = new int[6];
+        private readonly int[] slice = new int[6];
 
-        private int[] corn0 = new int[6];
-        private int[] ud8e0 = new int[6];
-        private int[] prun = new int[6];
+        private readonly int[] corn0 = new int[6];
+        private readonly int[] ud8e0 = new int[6];
+        private readonly int[] prun = new int[6];
 
-        private sbyte[] f = new sbyte[54];
+        private readonly sbyte[] f = new sbyte[54];
 
         private int urfIdx;
         private int depth1;
@@ -30,29 +30,29 @@ namespace TNoodle.Solvers.min2phase
         private int sol;
         private int valid1;
         private int valid2;
-        private string _solution;
+        private string solution;
         private long timeOut;
         private long timeMin;
         private int verbose;
         private int firstAxisRestriction;
         private int lastAxisRestriction;
-        private CubieCube cc = new CubieCube();
+        private readonly CubieCube cc = new CubieCube();
 
         /**
          *     Verbose_Mask determines if a " . " separates the phase1 and phase2 parts of the solver string like in F' R B R L2 F .
          *     U2 U D for example.<br>
          */
-        public static readonly int USE_SEPARATOR = 0x1;
+        public const int USE_SEPARATOR = 0x1;
 
         /**
          *     Verbose_Mask determines if the solution will be inversed to a scramble/state generator.
          */
-        public static readonly int INVERSE_SOLUTION = 0x2;
+        public const int INVERSE_SOLUTION = 0x2;
 
         /**
          *     Verbose_Mask determines if a tag such as "(21f)" will be appended to the solution.
          */
-        public static readonly int APPEND_LENGTH = 0x4;
+        public const int APPEND_LENGTH = 0x4;
 
         /**
          * Computes the solver string for a given cube.
@@ -123,20 +123,20 @@ namespace TNoodle.Solvers.min2phase
          * 		Error 8: Timeout, no solution within given time<br>
          * 		Error 9: Invalid firstAxisRestrictionStr or lastAxisRestrictionStr
          */
-        public string solution(string facelets, int maxDepth, long timeOut, long timeMin, int verbose, string firstAxisRestrictionStr, string lastAxisRestrictionStr)
+        public string Solution(string facelets, int maxDepth, long timeOut, long timeMin, int verbose, string firstAxisRestrictionStr, string lastAxisRestrictionStr)
         {
-            int check = verify(facelets);
+            int check = Verify(facelets);
             if (check != 0)
             {
                 return "Error " + Math.Abs(check);
             }
-            this.sol = maxDepth + 1;
-            this.timeOut = currentTimeMillis() + timeOut;
+            sol = maxDepth + 1;
+            this.timeOut = Environment.TickCount + timeOut;
             this.timeMin = this.timeOut + Math.Min(timeMin - timeOut, 0);
             this.verbose = verbose;
-            this._solution = null;
-            this.firstAxisRestriction = -1;
-            this.lastAxisRestriction = -1;
+            solution = null;
+            firstAxisRestriction = -1;
+            lastAxisRestriction = -1;
             if (firstAxisRestrictionStr != null)
             {
                 if (!Util.str2move.ContainsKey(firstAxisRestrictionStr))
@@ -177,27 +177,28 @@ namespace TNoodle.Solvers.min2phase
                     lastAxisRestriction += 9;
                 }
             }
-            return solve(cc);
+            return Solve(cc);
         }
 
-        public string solution(string facelets, int maxDepth, long timeOut, long timeMin, int verbose)
+        public string Solution(string facelets, int maxDepth, long timeOut, long timeMin, int verbose)
         {
-            return solution(facelets, maxDepth, timeOut, timeMin, verbose, null, null);
+            return Solution(facelets, maxDepth, timeOut, timeMin, verbose, null, null);
         }
 
-        internal int verify(string facelets)
+        internal int Verify(string facelets)
         {
             int count = 0x000000;
             try
             {
-                string center = new string(new char[] {
-                facelets[4],
-                facelets[13],
-                facelets[22],
-                facelets[31],
-                facelets[40],
-                facelets[49]
-            });
+                string center = new string(new char[]
+                {
+                    facelets[4],
+                    facelets[13],
+                    facelets[22],
+                    facelets[31],
+                    facelets[40],
+                    facelets[49]
+                });
                 for (int i = 0; i < 54; i++)
                 {
                     f[i] = (sbyte)center.IndexOf(facelets[i]);
@@ -220,7 +221,7 @@ namespace TNoodle.Solvers.min2phase
             return cc.verify();
         }
 
-        private string solve(CubieCube c)
+        private string Solve(CubieCube c)
         {
             Tools.init();
             int conjMask = 0;
@@ -245,11 +246,11 @@ namespace TNoodle.Solvers.min2phase
                 {
                     prun[i] = Math.Max(Math.Max(
                         CoordCube.getPruning(CoordCube.UDSliceTwistPrun,
-                            ((int)((uint)twist[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff, twist[i] & 7]),
+                            ((int)(twist[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff, twist[i] & 7]),
                         CoordCube.getPruning(CoordCube.UDSliceFlipPrun,
                             ((int)((uint)flip[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff, flip[i] & 7])),
                         Tools.USE_TWIST_FLIP_PRUN ? CoordCube.getPruning(CoordCube.TwistFlipPrun,
-                                ((int)((uint)twist[i] >> 3)) * 2688 + (flip[i] & 0xfff8 | CubieCube.Sym8MultInv[flip[i] & 7, twist[i] & 7])) : 0);
+                                ((int)(twist[i] >> 3)) * 2688 + (flip[i] & 0xfff8 | CubieCube.Sym8MultInv[flip[i] & 7, twist[i] & 7])) : 0);
                 }
                 c.URFConjugate();
                 if (i == 2)
@@ -282,14 +283,14 @@ namespace TNoodle.Solvers.min2phase
                     valid1 = 0;
                     int lm = firstAxisRestriction == -1 ? -1 : CubieCube.urfMoveInv[urfIdx][firstAxisRestriction] / 3 * 3;
                     if ((prun[urfIdx] <= depth1)
-                            && phase1((int)((uint)twist[urfIdx] >> 3), twist[urfIdx] & 7, (int)((uint)flip[urfIdx] >> 3), flip[urfIdx] & 7,
+                            && Phase1((int)((uint)twist[urfIdx] >> 3), twist[urfIdx] & 7, (int)((uint)flip[urfIdx] >> 3), flip[urfIdx] & 7,
                                 slice[urfIdx] & 0x1ff, depth1, lm) == 0)
                     {
-                        return _solution == null ? "Error 8" : _solution;
+                        return solution == null ? "Error 8" : solution;
                     }
                 }
             }
-            return _solution == null ? "Error 7" : _solution;
+            return solution == null ? "Error 7" : solution;
         }
 
         /**
@@ -298,11 +299,11 @@ namespace TNoodle.Solvers.min2phase
          * 		1: Try Next Power
          * 		2: Try Next Axis
          */
-        private int phase1(int twist, int tsym, int flip, int fsym, int slice, int maxl, int lastAxis)
+        private int Phase1(int twist, int tsym, int flip, int fsym, int slice, int maxl, int lastAxis)
         {
             if (twist == 0 && flip == 0 && slice == 0 && maxl < 5)
             {
-                return maxl == 0 ? initPhase2() : 1;
+                return maxl == 0 ? InitPhase2() : 1;
             }
             for (int axis = 0; axis < 18; axis += 3)
             {
@@ -356,7 +357,7 @@ namespace TNoodle.Solvers.min2phase
                     }
                     move[depth1 - maxl] = m;
                     valid1 = Math.Min(valid1, depth1 - maxl);
-                    int ret = phase1(twistx, tsymx, flipx, fsymx, slicex, maxl - 1, axis);
+                    int ret = Phase1(twistx, tsymx, flipx, fsymx, slicex, maxl - 1, axis);
                     if (ret != 1)
                     {
                         return ret >> 1;
@@ -372,9 +373,9 @@ namespace TNoodle.Solvers.min2phase
          * 		1: Try Next Power
          * 		2: Try Next Axis
          */
-        private int initPhase2()
+        private int InitPhase2()
         {
-            if (currentTimeMillis() >= (_solution == null ? timeOut : timeMin))
+            if (Environment.TickCount >= (solution == null ? timeOut : timeMin))
             {
                 return 0;
             }
@@ -430,18 +431,18 @@ namespace TNoodle.Solvers.min2phase
             int lm = depth1 == 0 ? firstAxisRestrictionUd : Util.std2ud[move[depth1 - 1] / 3 * 3 + 1];
             for (int depth2 = prun; depth2 < maxDep2; depth2++)
             {
-                if (phase2(edge, esym, cidx, csym, mid, depth2, depth1, lm))
+                if (Phase2(edge, esym, cidx, csym, mid, depth2, depth1, lm))
                 {
                     sol = depth1 + depth2;
                     maxDep2 = Math.Min(12, sol - depth1);
-                    _solution = solutionToString();
-                    return currentTimeMillis() >= timeMin ? 0 : 1;
+                    solution = SolutionToString();
+                    return Environment.TickCount >= timeMin ? 0 : 1;
                 }
             }
             return 1;
         }
 
-        private bool phase2(int eidx, int esym, int cidx, int csym, int mid, int maxl, int depth, int lm)
+        private bool Phase2(int eidx, int esym, int cidx, int csym, int mid, int maxl, int depth, int lm)
         {
             if (maxl == 0)
             {
@@ -481,7 +482,7 @@ namespace TNoodle.Solvers.min2phase
                 {
                     continue;
                 }
-                if (phase2(eidxx, esymx, cidxx, csymx, midx, maxl - 1, depth + 1, m))
+                if (Phase2(eidxx, esymx, cidxx, csymx, midx, maxl - 1, depth + 1, m))
                 {
                     move[depth] = Util.ud2std[m];
                     return true;
@@ -490,7 +491,7 @@ namespace TNoodle.Solvers.min2phase
             return false;
         }
 
-        private string solutionToString()
+        private string SolutionToString()
         {
             StringBuilder sb = new StringBuilder();
             int urf = (verbose & INVERSE_SOLUTION) != 0 ? (urfIdx + 3) % 6 : urfIdx;
@@ -529,12 +530,6 @@ namespace TNoodle.Solvers.min2phase
                 sb.Append("(").Append(sol).Append("f)");
             }
             return sb.ToString();
-        }
-
-        private static DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private static long currentTimeMillis()
-        {
-            return (long)((DateTime.UtcNow - Jan1st1970).TotalMilliseconds);
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace TNoodle.Solvers.min2phase
+namespace TNoodle.Solvers.Min2phase
 {
     internal class CubieCube
     {
-        internal static CubieCube[] CubeSym = new CubieCube[16];
+        internal static readonly CubieCube[] CubeSym = new CubieCube[16];
 
-        internal static CubieCube[] moveCube = new CubieCube[18];
+        internal static readonly CubieCube[] moveCube = new CubieCube[18];
 
         internal static int[] SymInv = new int[16];
         internal static int[,] SymMult = new int[16, 16];

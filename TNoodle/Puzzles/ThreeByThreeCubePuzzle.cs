@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TNoodle.Solvers;
-using TNoodle.Solvers.min2phase;
+using TNoodle.Solvers.Min2phase;
 using System.Threading;
 
 namespace TNoodle.Puzzles
@@ -46,7 +46,7 @@ namespace TNoodle.Puzzles
                 // TODO - apparently min2phase can't solve the solved cube
                 return "";
             }
-            string solution = twoPhaseSearcher.Value.solution(cs.ToFaceCube(), n, THREE_BY_THREE_TIMEOUT, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
+            string solution = twoPhaseSearcher.Value.Solution(cs.ToFaceCube(), n, THREE_BY_THREE_TIMEOUT, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
             if ("Error 7".Equals(solution))
             {
                 // No solution exists for given depth
@@ -65,7 +65,7 @@ namespace TNoodle.Puzzles
         public PuzzleStateAndGenerator generateRandomMoves(Random r, string firstAxisRestriction, string lastAxisRestriction)
         {
             string randomState = Tools.randomCube(r);
-            string scramble = twoPhaseSearcher.Value.solution(randomState, THREE_BY_THREE_MAX_SCRAMBLE_LENGTH, THREE_BY_THREE_TIMEOUT, THREE_BY_THREE_TIMEMIN, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
+            string scramble = twoPhaseSearcher.Value.Solution(randomState, THREE_BY_THREE_MAX_SCRAMBLE_LENGTH, THREE_BY_THREE_TIMEOUT, THREE_BY_THREE_TIMEMIN, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
             AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
             //try

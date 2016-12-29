@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TNoodle.Solvers.min2phase
+namespace TNoodle.Solvers.Min2phase
 {
     internal class CoordCube
     {

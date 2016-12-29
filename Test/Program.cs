@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TNoodle.Solvers.min2phase;
+using TNoodle.Solvers.Min2phase;
 using TNoodle.Solvers;
 using TNoodle.Puzzles;
 using TNoodle.Utils;
@@ -15,7 +15,6 @@ namespace Test
     {
         public static void Main(string[] args)
         {
-            List<Puzzle> list = new List<Puzzle>();
             Random r = new Random(2017);
             var watch = new Stopwatch();
 
@@ -41,19 +40,20 @@ namespace Test
             //    Console.WriteLine();
             //}
             //var puzzle = new ThreeByThreeCubePuzzle();
-            var solver = new TwoByTwoSolver();
-            var state = solver.RandomState(r);
-            var puzzle = new TwoByTwoCubePuzzle();
+            var solver = new Search();
+            string state = null;
+
             double tick = 0;
             int count = 50;
 
             for (int i = 0; i < count; i++)
             {
-                watch.Restart();
-                solver.GenerateExactly(state, 11);
-                //puzzle.GenerateWcaScramble(r);
+                state = Tools.randomCube(r);
+                watch.Start();
+                Console.WriteLine(solver.Solution(state, 21, 60000, 0, 0, null, null));
                 watch.Stop();
                 tick += watch.ElapsedTicks;
+                watch.Reset();
             }
 
             tick /= count;

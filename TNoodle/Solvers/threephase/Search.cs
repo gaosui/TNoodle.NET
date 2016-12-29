@@ -40,7 +40,7 @@ namespace TNoodle.Solvers.threephase
         internal Edge3 e12 = new Edge3();
         internal Edge3[] tempe = new Edge3[20];
 
-        min2phase.Search search333 = new min2phase.Search();
+        Min2phase.Search search333 = new Min2phase.Search();
 
         internal int valid1 = 0;
         internal string solution = "";
@@ -66,7 +66,7 @@ namespace TNoodle.Solvers.threephase
             {
                 return;
             }
-            min2phase.Tools.init();
+            Min2phase.Tools.init();
 
             //System.out.println("Initialize Center1 Solver...");
 
@@ -251,10 +251,10 @@ namespace TNoodle.Solvers.threephase
             }
 
             String facelet = solcube.to333Facelet();
-            String sol = search333.solution(facelet, 20, 100, 50, 0);
+            String sol = search333.Solution(facelet, 20, 100, 50, 0);
             if (sol.StartsWith("Error 8"))
             {
-                sol = search333.solution(facelet, 21, 1000000, 30, 0);
+                sol = search333.Solution(facelet, 21, 1000000, 30, 0);
             }
             int len333 = sol.Length / 3;
             if (sol.StartsWith("Error"))
