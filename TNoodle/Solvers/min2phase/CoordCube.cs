@@ -1,4 +1,5 @@
 ﻿using System;
+using TNoodle.Utils;
 
 namespace TNoodle.Solvers.Min2phase
 {
@@ -14,19 +15,19 @@ namespace TNoodle.Solvers.Min2phase
         internal static readonly int N_MPERM = 24;
 
         //phase1
-        internal static char[,] UDSliceMove = new char[N_SLICE, N_MOVES];
-        internal static char[,] TwistMove = new char[N_TWIST_SYM, N_MOVES];
-        internal static char[,] FlipMove = new char[N_FLIP_SYM, N_MOVES];
-        internal static char[,] UDSliceConj = new char[N_SLICE, 8];
+        internal static char[][] UDSliceMove = Functions.CreateJaggedArray<char>(N_SLICE, N_MOVES);
+        internal static char[][] TwistMove = Functions.CreateJaggedArray<char>(N_TWIST_SYM, N_MOVES);
+        internal static char[][] FlipMove = Functions.CreateJaggedArray<char>(N_FLIP_SYM, N_MOVES);
+        internal static char[][] UDSliceConj = Functions.CreateJaggedArray<char>(N_SLICE, 8);
         internal static int[] UDSliceTwistPrun = new int[N_SLICE * N_TWIST_SYM / 8 + 1];
         internal static int[] UDSliceFlipPrun = new int[N_SLICE * N_FLIP_SYM / 8];
         internal static int[] TwistFlipPrun = Tools.USE_TWIST_FLIP_PRUN ? new int[N_FLIP_SYM * N_TWIST_SYM * 8 / 8] : null;
 
         //phase2
-        internal static char[,] CPermMove = new char[N_PERM_SYM, N_MOVES];
-        internal static char[,] EPermMove = new char[N_PERM_SYM, N_MOVES2];
-        internal static char[,] MPermMove = new char[N_MPERM, N_MOVES2];
-        internal static char[,] MPermConj = new char[N_MPERM, 16];
+        internal static char[][] CPermMove = Functions.CreateJaggedArray<char>(N_PERM_SYM, N_MOVES);
+        internal static char[][] EPermMove = Functions.CreateJaggedArray<char>(N_PERM_SYM, N_MOVES2);
+        internal static char[][] MPermMove = Functions.CreateJaggedArray<char>(N_MPERM, N_MOVES2);
+        internal static char[][] MPermConj = Functions.CreateJaggedArray<char>(N_MPERM, 16);
         internal static int[] MCPermPrun = new int[N_MPERM * N_PERM_SYM / 8];
         internal static int[] MEPermPrun = new int[N_MPERM * N_PERM_SYM / 8];
 
@@ -50,24 +51,24 @@ namespace TNoodle.Solvers.Min2phase
                 for (int j = 0; j < N_MOVES; j += 3)
                 {
                     CubieCube.EdgeMult(c, CubieCube.moveCube[j], d);
-                    UDSliceMove[i, j] = (char)d.getUDSlice();
+                    UDSliceMove[i][j] = (char)d.getUDSlice();
                 }
                 for (int j = 0; j < 16; j += 2)
                 {
                     CubieCube.EdgeConjugate(c, CubieCube.SymInv[j], d);
-                    UDSliceConj[i, (uint)j >> 1] = (char)(d.getUDSlice() & 0x1ff);
+                    UDSliceConj[i][(uint)j >> 1] = (char)(d.getUDSlice() & 0x1ff);
                 }
             }
             for (int i = 0; i < N_SLICE; i++)
             {
                 for (int j = 0; j < N_MOVES; j += 3)
                 {
-                    int udslice = UDSliceMove[i, j];
+                    int udslice = UDSliceMove[i][j];
                     for (int k = 1; k < 3; k++)
                     {
-                        int cx = UDSliceMove[udslice & 0x1ff, j];
-                        udslice = Util.permMult[(uint)udslice >> 9, ((uint)cx >> 9)] << 9 | cx & 0x1ff;
-                        UDSliceMove[i, j + k] = (char)(udslice);
+                        int cx = UDSliceMove[udslice & 0x1ff][j];
+                        udslice = Util.permMult[(uint)udslice >> 9][((uint)cx >> 9)] << 9 | cx & 0x1ff;
+                        UDSliceMove[i][j + k] = (char)(udslice);
                     }
                 }
             }
@@ -83,7 +84,7 @@ namespace TNoodle.Solvers.Min2phase
                 for (int j = 0; j < N_MOVES; j++)
                 {
                     CubieCube.EdgeMult(c, CubieCube.moveCube[j], d);
-                    FlipMove[i, j] = (char)d.getFlipSym();
+                    FlipMove[i][j] = (char)d.getFlipSym();
                 }
             }
         }
@@ -98,7 +99,7 @@ namespace TNoodle.Solvers.Min2phase
                 for (int j = 0; j < N_MOVES; j++)
                 {
                     CubieCube.CornMult(c, CubieCube.moveCube[j], d);
-                    TwistMove[i, j] = (char)d.getTwistSym();
+                    TwistMove[i][j] = (char)d.getTwistSym();
                 }
             }
         }
@@ -113,7 +114,7 @@ namespace TNoodle.Solvers.Min2phase
                 for (int j = 0; j < N_MOVES; j++)
                 {
                     CubieCube.CornMult(c, CubieCube.moveCube[j], d);
-                    CPermMove[i, j] = (char)d.getCPermSym();
+                    CPermMove[i][j] = (char)d.getCPermSym();
                 }
             }
         }
@@ -128,7 +129,7 @@ namespace TNoodle.Solvers.Min2phase
                 for (int j = 0; j < N_MOVES2; j++)
                 {
                     CubieCube.EdgeMult(c, CubieCube.moveCube[Util.ud2std[j]], d);
-                    EPermMove[i, j] = (char)d.getEPermSym();
+                    EPermMove[i][j] = (char)d.getEPermSym();
                 }
             }
         }
@@ -143,12 +144,12 @@ namespace TNoodle.Solvers.Min2phase
                 for (int j = 0; j < N_MOVES2; j++)
                 {
                     CubieCube.EdgeMult(c, CubieCube.moveCube[Util.ud2std[j]], d);
-                    MPermMove[i, j] = (char)d.getMPerm();
+                    MPermMove[i][j] = (char)d.getMPerm();
                 }
                 for (int j = 0; j < 16; j++)
                 {
                     CubieCube.EdgeConjugate(c, CubieCube.SymInv[j], d);
-                    MPermConj[i, j] = (char)d.getMPerm();
+                    MPermConj[i][j] = (char)d.getMPerm();
                 }
             }
         }
@@ -184,11 +185,11 @@ namespace TNoodle.Solvers.Min2phase
                         flip = (int)((uint)flip >> 3);
                         for (int m = 0; m < N_MOVES; m++)
                         {
-                            int twistx = TwistMove[twist, m];
+                            int twistx = TwistMove[twist][m];
                             int tsymx = twistx & 7;
                             twistx = (int)((uint)twistx >> 3);
-                            int flipx = FlipMove[flip, CubieCube.Sym8Move[fsym, m]];
-                            int fsymx = CubieCube.Sym8MultInv[CubieCube.Sym8Mult[flipx & 7, fsym], tsymx];
+                            int flipx = FlipMove[flip][CubieCube.Sym8Move[fsym][m]];
+                            int fsymx = CubieCube.Sym8MultInv[CubieCube.Sym8Mult[flipx & 7][fsym]][tsymx];
                             flipx = (int)((uint)flipx >> 3);
                             int idx = ((twistx * 336 + flipx) << 3 | fsymx);
                             if (getPruning(TwistFlipPrun, idx) == check)
@@ -210,12 +211,12 @@ namespace TNoodle.Solvers.Min2phase
                                         {
                                             if ((symF & 1) == 1)
                                             {
-                                                int fsymxx = CubieCube.Sym8MultInv[fsymx, j];
+                                                int fsymxx = CubieCube.Sym8MultInv[fsymx][j];
                                                 for (int k = 0; k < 8; k++)
                                                 {
                                                     if ((sym & (1 << k)) != 0)
                                                     {
-                                                        int idxx = twistx * 2688 + (flipx << 3 | CubieCube.Sym8MultInv[fsymxx, k]);
+                                                        int idxx = twistx * 2688 + (flipx << 3 | CubieCube.Sym8MultInv[fsymxx][k]);
                                                         if (getPruning(TwistFlipPrun, idxx) == 0x0f)
                                                         {
                                                             setPruning(TwistFlipPrun, idxx, depth);
@@ -235,16 +236,16 @@ namespace TNoodle.Solvers.Min2phase
         }
 
         internal static void initRawSymPrun(int[] PrunTable, int INV_DEPTH,
-          char[,] RawMove, char[,] RawConj,
-          char[,] SymMove, char[] SymState,
+          char[][] RawMove, char[][] RawConj,
+          char[][] SymMove, char[] SymState,
           sbyte[] SymSwitch, int[] moveMap, int SYM_SHIFT)
         {
 
             int SYM_MASK = (1 << SYM_SHIFT) - 1;
-            int N_RAW = RawMove.GetLength(0);
-            int N_SYM = SymMove.GetLength(0);
+            int N_RAW = RawMove.Length;
+            int N_SYM = SymMove.Length;
             int N_SIZE = N_RAW * N_SYM;
-            int N_MOVES = RawMove.GetLength(1);
+            int N_MOVES = RawMove[0].Length;
 
             for (int i = 0; i < (N_RAW * N_SYM + 7) / 8; i++)
             {
@@ -277,8 +278,8 @@ namespace TNoodle.Solvers.Min2phase
                             int sym = i / N_RAW;
                             for (int m = 0; m < N_MOVES; m++)
                             {
-                                int symx = SymMove[sym, moveMap == null ? m : moveMap[m]];
-                                int rawx = RawConj[RawMove[raw, m] & 0x1ff, symx & SYM_MASK];
+                                int symx = SymMove[sym][moveMap == null ? m : moveMap[m]];
+                                int rawx = RawConj[RawMove[raw][m] & 0x1ff][symx & SYM_MASK];
                                 symx = (int)((uint)symx >> SYM_SHIFT);
                                 int idx = symx * N_RAW + rawx;
                                 if (getPruning(PrunTable, idx) == check)
@@ -296,7 +297,7 @@ namespace TNoodle.Solvers.Min2phase
                                         {
                                             if ((symState & 1) == 1)
                                             {
-                                                int idxx = symx * N_RAW + RawConj[rawx, j ^ (SymSwitch == null ? 0 : SymSwitch[j])];
+                                                int idxx = symx * N_RAW + RawConj[rawx][j ^ (SymSwitch == null ? 0 : SymSwitch[j])];
                                                 if (getPruning(PrunTable, idxx) == 0x0f)
                                                 {
                                                     setPruning(PrunTable, idxx, depth);

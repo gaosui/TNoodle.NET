@@ -1,4 +1,5 @@
 ﻿using System;
+using TNoodle.Utils;
 
 namespace TNoodle.Solvers.Min2phase
 {
@@ -8,33 +9,33 @@ namespace TNoodle.Solvers.Min2phase
 
         internal static readonly CubieCube[] moveCube = new CubieCube[18];
 
-        internal static int[] SymInv = new int[16];
-        internal static int[,] SymMult = new int[16, 16];
-        internal static int[,] SymMove = new int[16, 18];
-        internal static int[,] Sym8Mult = new int[8, 8];
-        internal static int[,] Sym8Move = new int[8, 18];
-        internal static int[,] Sym8MultInv = new int[8, 8];
-        internal static int[,] SymMoveUD = new int[16, 10];
+        internal static readonly int[] SymInv = new int[16];
+        internal static readonly int[][] SymMult = Functions.CreateJaggedArray<int>(16, 16);
+        internal static readonly int[][] SymMove = Functions.CreateJaggedArray<int>(16, 18);
+        internal static readonly int[][] Sym8Mult = Functions.CreateJaggedArray<int>(8, 8);
+        internal static readonly int[][] Sym8Move = Functions.CreateJaggedArray<int>(8, 18);
+        internal static readonly int[][] Sym8MultInv = Functions.CreateJaggedArray<int>(8, 8);
+        internal static readonly int[][] SymMoveUD = Functions.CreateJaggedArray<int>(16, 10);
 
-        internal static char[] FlipS2R = new char[336];
-        internal static char[] TwistS2R = new char[324];
-        internal static char[] EPermS2R = new char[2768];
+        internal static readonly char[] FlipS2R = new char[336];
+        internal static readonly char[] TwistS2R = new char[324];
+        internal static readonly char[] EPermS2R = new char[2768];
 
-        internal static sbyte[] e2c = { 0, 0, 0, 0, 1, 3, 1, 3, 1, 3, 1, 3, 0, 0, 0, 0 };
+        internal static readonly sbyte[] e2c = { 0, 0, 0, 0, 1, 3, 1, 3, 1, 3, 1, 3, 0, 0, 0, 0 };
 
-        internal static char[] MtoEPerm = new char[40320];
+        internal static readonly char[] MtoEPerm = new char[40320];
 
         internal static char[] FlipR2S;
         internal static char[] TwistR2S;
         internal static char[] EPermR2S;
 
-        internal static char[] SymStateTwist = new char[324];
-        internal static char[] SymStateFlip = new char[336];
-        internal static char[] SymStatePerm = new char[2768];
+        internal static readonly char[] SymStateTwist = new char[324];
+        internal static readonly char[] SymStateFlip = new char[336];
+        internal static readonly char[] SymStatePerm = new char[2768];
 
-        internal static CubieCube urf1 = new CubieCube(2531, 1373, 67026819, 1367);
-        internal static CubieCube urf2 = new CubieCube(2089, 1906, 322752913, 2040);
-        internal static sbyte[][] urfMove =
+        internal static readonly CubieCube urf1 = new CubieCube(2531, 1373, 67026819, 1367);
+        internal static readonly CubieCube urf2 = new CubieCube(2089, 1906, 322752913, 2040);
+        internal static readonly sbyte[][] urfMove =
         {
             new sbyte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17},
             new sbyte[] {6, 7, 8, 0, 1, 2, 3, 4, 5,15,16,17, 9,10,11,12,13,14},
@@ -43,17 +44,17 @@ namespace TNoodle.Solvers.Min2phase
             new sbyte[] {8, 7, 6, 2, 1, 0, 5, 4, 3,17,16,15,11,10, 9,14,13,12},
             new sbyte[] {5, 4, 3, 8, 7, 6, 2, 1, 0,14,13,12,17,16,15,11,10, 9}
         };
-        internal static sbyte[][] urfMoveInv = new sbyte[urfMove.Length][];
+        internal static readonly sbyte[][] urfMoveInv = new sbyte[urfMove.Length][];
 
-        internal sbyte[] cp = { 0, 1, 2, 3, 4, 5, 6, 7 };
+        internal readonly sbyte[] cp = { 0, 1, 2, 3, 4, 5, 6, 7 };
         internal sbyte[] co = { 0, 0, 0, 0, 0, 0, 0, 0 };
-        internal sbyte[] ep = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-        internal sbyte[] eo = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        internal CubieCube temps = null;
+        internal readonly sbyte[] ep = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+        internal readonly sbyte[] eo = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        internal CubieCube temps;
 
         static CubieCube()
         {
-            for (int urfIdx = 0; urfIdx < urfMove.GetLength(0); urfIdx++)
+            for (int urfIdx = 0; urfIdx < urfMove.Length; urfIdx++)
             {
                 sbyte[] urfMoveArr = urfMove[urfIdx];
                 sbyte[] urfMoveArrInv = new sbyte[urfMoveArr.Length];
@@ -79,10 +80,10 @@ namespace TNoodle.Solvers.Min2phase
 
         internal CubieCube(CubieCube c)
         {
-            copy(c);
+            Copy(c);
         }
 
-        internal void copy(CubieCube c)
+        private void Copy(CubieCube c)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -96,7 +97,7 @@ namespace TNoodle.Solvers.Min2phase
             }
         }
 
-        internal void invCubieCube()
+        internal void InvCubieCube()
         {
             for (sbyte edge = 0; edge < 12; edge++)
                 temps.ep[ep[edge]] = edge;
@@ -111,7 +112,7 @@ namespace TNoodle.Solvers.Min2phase
                 if (temps.co[corn] < 0)
                     temps.co[corn] += 3;
             }
-            copy(temps);
+            Copy(temps);
         }
 
         internal static void CornMult(CubieCube a, CubieCube b, CubieCube prod)
@@ -150,7 +151,7 @@ namespace TNoodle.Solvers.Min2phase
                 b.cp[corn] = sinv.cp[a.cp[s.cp[corn]]];
                 sbyte oriA = sinv.co[a.cp[s.cp[corn]]];
                 sbyte oriB = a.co[s.cp[corn]];
-                b.co[corn] = (sbyte)((oriA < 3) ? oriB : (3 - oriB) % 3);
+                b.co[corn] = (oriA < 3) ? oriB : (sbyte)((3 - oriB) % 3);
             }
         }
 
@@ -475,7 +476,7 @@ namespace TNoodle.Solvers.Min2phase
                     {
                         if (CubeSym[k].cp[0] == c.cp[0] && CubeSym[k].cp[1] == c.cp[1] && CubeSym[k].cp[2] == c.cp[2])
                         {
-                            SymMult[i, j] = k;
+                            SymMult[i][j] = k;
                             if (k == 0)
                             {
                                 SymInv[i] = j;
@@ -500,7 +501,7 @@ namespace TNoodle.Solvers.Min2phase
                                 goto CONTINUE;
                             }
                         }
-                        SymMove[s, j] = m;
+                        SymMove[s][j] = m;
                         break;
                     CONTINUE: { }
                     }
@@ -510,22 +511,22 @@ namespace TNoodle.Solvers.Min2phase
             {
                 for (int s = 0; s < 16; s++)
                 {
-                    SymMoveUD[s, j] = Util.std2ud[SymMove[s, Util.ud2std[j]]];
+                    SymMoveUD[s][j] = Util.std2ud[SymMove[s][Util.ud2std[j]]];
                 }
             }
             for (int j = 0; j < 8; j++)
             {
                 for (int s = 0; s < 8; s++)
                 {
-                    Sym8Mult[j, s] = SymMult[j << 1, s << 1] >> 1;
-                    Sym8MultInv[j, s] = SymMult[j << 1, SymInv[s << 1]] >> 1;
+                    Sym8Mult[j][s] = SymMult[j << 1][s << 1] >> 1;
+                    Sym8MultInv[j][s] = SymMult[j << 1][SymInv[s << 1]] >> 1;
                 }
             }
             for (int j = 0; j < 18; j++)
             {
                 for (int s = 0; s < 8; s++)
                 {
-                    Sym8Move[s, j] = SymMove[s << 1, j];
+                    Sym8Move[s][j] = SymMove[s << 1][j];
                 }
             }
         }

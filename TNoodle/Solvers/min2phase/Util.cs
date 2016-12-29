@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TNoodle.Utils;
 
 namespace TNoodle.Solvers.Min2phase
 {
@@ -116,9 +117,9 @@ namespace TNoodle.Solvers.Min2phase
             { B4, R6 }
         };
 
-        internal static int[,] Cnk = new int[12, 12];
+        internal static int[][] Cnk = Functions.CreateJaggedArray<int>(12, 12);
         internal static int[] fact = new int[13];
-        internal static int[,] permMult = new int[24, 24];
+        internal static int[][] permMult = Functions.CreateJaggedArray<int>(24, 24);
         internal static string[] move2str =
         {
             "U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'",
@@ -129,7 +130,7 @@ namespace TNoodle.Solvers.Min2phase
         internal static int[] ud2std = { Ux1, Ux2, Ux3, Rx2, Fx2, Dx1, Dx2, Dx3, Lx2, Bx2 };
         internal static int[] std2ud = new int[18];
 
-        internal static bool[,] ckmv2 = new bool[11, 10];
+        internal static bool[][] ckmv2 = Functions.CreateJaggedArray<bool>(11, 10);
 
         static Util()
         {
@@ -148,18 +149,18 @@ namespace TNoodle.Solvers.Min2phase
                 {
                     int ix = ud2std[i];
                     int jx = ud2std[j];
-                    ckmv2[i, j] = (ix / 3 == jx / 3) || ((ix / 3 % 3 == jx / 3 % 3) && (ix >= jx));
+                    ckmv2[i][j] = (ix / 3 == jx / 3) || ((ix / 3 % 3 == jx / 3 % 3) && (ix >= jx));
                 }
-                ckmv2[10, i] = false;
+                ckmv2[10][i] = false;
             }
             fact[0] = 1;
             for (int i = 0; i < 12; i++)
             {
-                Cnk[i, 0] = Cnk[i, i] = 1;
+                Cnk[i][0] = Cnk[i][i] = 1;
                 fact[i + 1] = fact[i] * (i + 1);
                 for (int j = 1; j < i; j++)
                 {
-                    Cnk[i, j] = Cnk[i - 1, j - 1] + Cnk[i - 1, j];
+                    Cnk[i][j] = Cnk[i - 1][j - 1] + Cnk[i - 1][j];
                 }
             }
             sbyte[] arr1 = new sbyte[4];
@@ -175,7 +176,7 @@ namespace TNoodle.Solvers.Min2phase
                     {
                         arr3[k] = arr1[arr2[k]];
                     }
-                    permMult[i, j] = getNPerm(arr3, 4);
+                    permMult[i][j] = getNPerm(arr3, 4);
                 }
             }
         }
@@ -367,7 +368,7 @@ namespace TNoodle.Solvers.Min2phase
                     int v = (arr[i] & 3) << 2;
                     idxP = r * idxP + ((val >> v) & 0x0f);
                     val -= 0x0111 >> (12 - v);
-                    idxC += Cnk[i, r--];
+                    idxC += Cnk[i][r--];
                 }
             }
             return idxP << 9 | (494 - idxC);
@@ -380,9 +381,9 @@ namespace TNoodle.Solvers.Min2phase
             int idxP = (int)((uint)idx >> 9);
             for (int i = 11; i >= 0; i--)
             {
-                if (idxC >= Cnk[i, r])
+                if (idxC >= Cnk[i][r])
                 {
-                    idxC -= Cnk[i, r--];
+                    idxC -= Cnk[i][r--];
                     int p = fact[r & 3];
                     int v = idxP / p << 2;
                     idxP %= p;

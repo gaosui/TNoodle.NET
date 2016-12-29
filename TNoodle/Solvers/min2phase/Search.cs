@@ -246,16 +246,16 @@ namespace TNoodle.Solvers.Min2phase
                 {
                     prun[i] = Math.Max(Math.Max(
                         CoordCube.getPruning(CoordCube.UDSliceTwistPrun,
-                            ((int)(twist[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff, twist[i] & 7]),
+                            ((int)(twist[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff][twist[i] & 7]),
                         CoordCube.getPruning(CoordCube.UDSliceFlipPrun,
-                            ((int)((uint)flip[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff, flip[i] & 7])),
+                            ((int)((uint)flip[i] >> 3)) * 495 + CoordCube.UDSliceConj[slice[i] & 0x1ff][flip[i] & 7])),
                         Tools.USE_TWIST_FLIP_PRUN ? CoordCube.getPruning(CoordCube.TwistFlipPrun,
-                                ((int)(twist[i] >> 3)) * 2688 + (flip[i] & 0xfff8 | CubieCube.Sym8MultInv[flip[i] & 7, twist[i] & 7])) : 0);
+                                ((int)(twist[i] >> 3)) * 2688 + (flip[i] & 0xfff8 | CubieCube.Sym8MultInv[flip[i] & 7][twist[i] & 7])) : 0);
                 }
                 c.URFConjugate();
                 if (i == 2)
                 {
-                    c.invCubieCube();
+                    c.InvCubieCube();
                 }
             }
             for (depth1 = 0; depth1 < sol; depth1++)
@@ -315,12 +315,12 @@ namespace TNoodle.Solvers.Min2phase
                 {
                     int m = axis + power;
 
-                    int slicex = CoordCube.UDSliceMove[slice, m] & 0x1ff;
-                    int twistx = CoordCube.TwistMove[twist, CubieCube.Sym8Move[tsym, m]];
-                    int tsymx = CubieCube.Sym8Mult[twistx & 7, tsym];
+                    int slicex = CoordCube.UDSliceMove[slice][m] & 0x1ff;
+                    int twistx = CoordCube.TwistMove[twist][CubieCube.Sym8Move[tsym][m]];
+                    int tsymx = CubieCube.Sym8Mult[twistx & 7][tsym];
                     twistx = (int)((uint)twistx >> 3);
                     int prun = CoordCube.getPruning(CoordCube.UDSliceTwistPrun,
-                        twistx * 495 + CoordCube.UDSliceConj[slicex, tsymx]);
+                        twistx * 495 + CoordCube.UDSliceConj[slicex][tsymx]);
                     if (prun > maxl)
                     {
                         break;
@@ -329,13 +329,13 @@ namespace TNoodle.Solvers.Min2phase
                     {
                         continue;
                     }
-                    int flipx = CoordCube.FlipMove[flip, CubieCube.Sym8Move[fsym, m]];
-                    int fsymx = CubieCube.Sym8Mult[flipx & 7, fsym];
+                    int flipx = CoordCube.FlipMove[flip][CubieCube.Sym8Move[fsym][m]];
+                    int fsymx = CubieCube.Sym8Mult[flipx & 7][fsym];
                     flipx = (int)((uint)flipx >> 3);
                     if (Tools.USE_TWIST_FLIP_PRUN)
                     {
                         prun = CoordCube.getPruning(CoordCube.TwistFlipPrun,
-                            (twistx * 336 + flipx) << 3 | CubieCube.Sym8MultInv[fsymx, tsymx]);
+                            (twistx * 336 + flipx) << 3 | CubieCube.Sym8MultInv[fsymx][tsymx]);
                         if (prun > maxl)
                         {
                             break;
@@ -346,7 +346,7 @@ namespace TNoodle.Solvers.Min2phase
                         }
                     }
                     prun = CoordCube.getPruning(CoordCube.UDSliceFlipPrun,
-                        flipx * 495 + CoordCube.UDSliceConj[slicex, fsymx]);
+                        flipx * 495 + CoordCube.UDSliceConj[slicex][fsymx]);
                     if (prun > maxl)
                     {
                         break;
@@ -385,17 +385,17 @@ namespace TNoodle.Solvers.Min2phase
             for (int i = valid1; i < depth1; i++)
             {
                 int m = move[i];
-                cidx = CoordCube.CPermMove[cidx, CubieCube.SymMove[csym, m]];
-                csym = CubieCube.SymMult[cidx & 0xf, csym];
+                cidx = CoordCube.CPermMove[cidx][CubieCube.SymMove[csym][m]];
+                csym = CubieCube.SymMult[cidx & 0xf][csym];
                 cidx = (int)((uint)cidx >> 4);
                 corn[i + 1] = cidx << 4 | csym;
 
-                int cx = CoordCube.UDSliceMove[mid4[i] & 0x1ff, m];
-                mid4[i + 1] = Util.permMult[(uint)mid4[i] >> 9, (uint)cx >> 9] << 9 | cx & 0x1ff;
+                int cx = CoordCube.UDSliceMove[mid4[i] & 0x1ff][m];
+                mid4[i + 1] = Util.permMult[(uint)mid4[i] >> 9][(uint)cx >> 9] << 9 | cx & 0x1ff;
             }
             valid1 = depth1;
             int mid = (int)((uint)mid4[depth1] >> 9);
-            int prun = CoordCube.getPruning(CoordCube.MCPermPrun, cidx * 24 + CoordCube.MPermConj[mid, csym]);
+            int prun = CoordCube.getPruning(CoordCube.MCPermPrun, cidx * 24 + CoordCube.MPermConj[mid][csym]);
             if (prun >= maxDep2)
             {
                 return prun > maxDep2 ? 2 : 1;
@@ -407,11 +407,11 @@ namespace TNoodle.Solvers.Min2phase
             {
                 int m = move[i];
 
-                int cx = CoordCube.UDSliceMove[u4e & 0x1ff, m];
-                u4e = Util.permMult[(uint)u4e >> 9, (uint)cx >> 9] << 9 | cx & 0x1ff;
+                int cx = CoordCube.UDSliceMove[u4e & 0x1ff][m];
+                u4e = Util.permMult[(uint)u4e >> 9][(uint)cx >> 9] << 9 | cx & 0x1ff;
 
-                cx = CoordCube.UDSliceMove[d4e & 0x1ff, m];
-                d4e = Util.permMult[(uint)d4e >> 9, (uint)cx >> 9] << 9 | cx & 0x1ff;
+                cx = CoordCube.UDSliceMove[d4e & 0x1ff][m];
+                d4e = Util.permMult[(uint)d4e >> 9][(uint)cx >> 9] << 9 | cx & 0x1ff;
 
                 ud8e[i + 1] = u4e << 16 | d4e;
             }
@@ -421,7 +421,7 @@ namespace TNoodle.Solvers.Min2phase
             int esym = edge & 15;
             edge = (int)((uint)edge >> 4);
 
-            prun = Math.Max(CoordCube.getPruning(CoordCube.MEPermPrun, edge * 24 + CoordCube.MPermConj[mid, esym]), prun);
+            prun = Math.Max(CoordCube.getPruning(CoordCube.MEPermPrun, edge * 24 + CoordCube.MPermConj[mid][esym]), prun);
             if (prun >= maxDep2)
             {
                 return prun > maxDep2 ? 2 : 1;
@@ -461,24 +461,24 @@ namespace TNoodle.Solvers.Min2phase
             }
             for (int m = 0; m < 10; m++)
             {
-                if (Util.ckmv2[lm, m])
+                if (Util.ckmv2[lm][m])
                 {
                     continue;
                 }
-                int midx = CoordCube.MPermMove[mid, m];
-                int cidxx = CoordCube.CPermMove[cidx, CubieCube.SymMove[csym, Util.ud2std[m]]];
-                int csymx = CubieCube.SymMult[cidxx & 15, csym];
+                int midx = CoordCube.MPermMove[mid][m];
+                int cidxx = CoordCube.CPermMove[cidx][CubieCube.SymMove[csym][Util.ud2std[m]]];
+                int csymx = CubieCube.SymMult[cidxx & 15][csym];
                 cidxx = (int)((uint)cidxx >> 4);
                 if (CoordCube.getPruning(CoordCube.MCPermPrun,
-                        cidxx * 24 + CoordCube.MPermConj[midx, csymx]) >= maxl)
+                        cidxx * 24 + CoordCube.MPermConj[midx][csymx]) >= maxl)
                 {
                     continue;
                 }
-                int eidxx = CoordCube.EPermMove[eidx, CubieCube.SymMoveUD[esym, m]];
-                int esymx = CubieCube.SymMult[eidxx & 15, esym];
+                int eidxx = CoordCube.EPermMove[eidx][CubieCube.SymMoveUD[esym][m]];
+                int esymx = CubieCube.SymMult[eidxx & 15][esym];
                 eidxx = (int)((uint)eidxx >> 4);
                 if (CoordCube.getPruning(CoordCube.MEPermPrun,
-                        eidxx * 24 + CoordCube.MPermConj[midx, esymx]) >= maxl)
+                        eidxx * 24 + CoordCube.MPermConj[midx][esymx]) >= maxl)
                 {
                     continue;
                 }

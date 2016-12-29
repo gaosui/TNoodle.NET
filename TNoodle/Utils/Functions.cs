@@ -10,15 +10,12 @@ namespace TNoodle.Utils
 {
     public static class Functions
     {
-        public static int ArrayCopyCounter1;
-        public static int ArrayCopyCounter2;
-        public static Stopwatch Watch = new Stopwatch();
-        public static int[][] CreateJaggedArray(int l1, int l2)
+        public static T[][] CreateJaggedArray<T>(int l1, int l2)
         {
-            int[][] res = new int[l1][];
+            T[][] res = new T[l1][];
             for (int i = 0; i < l1; i++)
             {
-                res[i] = new int[l2];
+                res[i] = new T[l2];
             }
             return res;
         }
