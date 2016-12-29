@@ -2,71 +2,64 @@
 
 namespace TNoodle.Solvers.Min2phase
 {
-    public class Tools
+    public static class Tools
     {
-        internal static readonly bool USE_TWIST_FLIP_PRUN = true;
+        internal const bool USE_TWIST_FLIP_PRUN = true;
 
-        private static bool inited = false;
+        public static bool Inited { get; private set; } = false;
 
         private static int[] initState = new int[2];
         private static int[] require = { 0x0, 0x1, 0x2, 0x2, 0x2, 0x7, 0xa, 0x3, 0x13, 0x13, 0x3, 0x6e, 0xca, 0xa6, 0x612, 0x512 };
 
         private static readonly Random r = new Random();
 
-        public static readonly sbyte[] STATE_RANDOM = null;
-        public static readonly sbyte[] STATE_SOLVED = new sbyte[0];
+        public static sbyte[] STATE_RANDOM { get; } = null;
+        public static sbyte[] STATE_SOLVED { get; } = new sbyte[0];
 
-        private static void initIdx(int idx)
+        private static void InitIdx(int idx)
         {
             switch (idx)
             {
-                case 0: CubieCube.initMove(); break;//-
-                case 1: CubieCube.initSym(); break;//0
-                case 2: CubieCube.initFlipSym2Raw(); break;//1
-                case 3: CubieCube.initTwistSym2Raw(); break;//1
+                case 0: CubieCube.InitMove(); break;//-
+                case 1: CubieCube.InitSym(); break;//0
+                case 2: CubieCube.InitFlipSym2Raw(); break;//1
+                case 3: CubieCube.InitTwistSym2Raw(); break;//1
 
-                case 4: CubieCube.initPermSym2Raw(); break;//1
-                case 5: CoordCube.initFlipMove(); break;//0, 1, 2
-                case 6: CoordCube.initTwistMove(); break;//0, 1, 3
-                case 7: CoordCube.initUDSliceMoveConj(); break;//0, 1
+                case 4: CubieCube.InitPermSym2Raw(); break;//1
+                case 5: CoordCube.InitFlipMove(); break;//0, 1, 2
+                case 6: CoordCube.InitTwistMove(); break;//0, 1, 3
+                case 7: CoordCube.InitUDSliceMoveConj(); break;//0, 1
 
-                case 8: CoordCube.initCPermMove(); break;//0, 1, 4
-                case 9: CoordCube.initEPermMove(); break;//0, 1, 4
-                case 10: CoordCube.initMPermMoveConj(); break;//0, 1
-                case 11: if (USE_TWIST_FLIP_PRUN) { CoordCube.initTwistFlipPrun(); } break;//1, 2, 3, 5, 6
+                case 8: CoordCube.InitCPermMove(); break;//0, 1, 4
+                case 9: CoordCube.InitEPermMove(); break;//0, 1, 4
+                case 10: CoordCube.InitMPermMoveConj(); break;//0, 1
+                case 11: if (USE_TWIST_FLIP_PRUN) { CoordCube.InitTwistFlipPrun(); } break;//1, 2, 3, 5, 6
 
-                case 12: CoordCube.initSliceTwistPrun(); break;//1, 3, 6, 7
-                case 13: CoordCube.initSliceFlipPrun(); break;//1, 2, 5, 7
-                case 14: CoordCube.initMEPermPrun(); break;//1, 4, 9, 10
-                case 15: CoordCube.initMCPermPrun(); break;//1, 4, 8, 10
+                case 12: CoordCube.InitSliceTwistPrun(); break;//1, 3, 6, 7
+                case 13: CoordCube.InitSliceFlipPrun(); break;//1, 2, 5, 7
+                case 14: CoordCube.InitMEPermPrun(); break;//1, 4, 9, 10
+                case 15: CoordCube.InitMCPermPrun(); break;//1, 4, 8, 10
             }
         }
 
-        protected internal Tools() { }
-
-        public static void init()
+        public static void Init()
         {
-            if (inited)
+            if (Inited)
             {
                 return;
             }
-            
+
             for (int i = 0; i <= 15; i++)
             {
-                initIdx(i);
+                InitIdx(i);
             }
 
-            inited = true;
+            Inited = true;
         }
 
-        public static bool isInited()
+        public static string RandomCube()
         {
-            return inited;
-        }
-
-        public static string randomCube()
-        {
-            return randomCube(r);
+            return RandomCube(r);
         }
 
         /**
@@ -79,12 +72,12 @@ namespace TNoodle.Solvers.Min2phase
          * @see cs.min2phase.Tools#setRandomSource(java.util.Random)
          * @see cs.min2phase.Search#solution(java.lang.String facelets, int maxDepth, long timeOut, long timeMin, int verbose)
          */
-        public static string randomCube(Random gen)
+        public static string RandomCube(Random gen)
         {
-            return randomState(STATE_RANDOM, STATE_RANDOM, STATE_RANDOM, STATE_RANDOM, gen);
+            return RandomState(STATE_RANDOM, STATE_RANDOM, STATE_RANDOM, STATE_RANDOM, gen);
         }
 
-        private static int resolveOri(sbyte[] arr, int super, Random gen)
+        private static int ResolveOri(sbyte[] arr, int super, Random gen)
         {
             int sum = 0, idx = 0, lastUnknown = -1;
             for (int i = 0; i < arr.Length; i++)
@@ -108,7 +101,7 @@ namespace TNoodle.Solvers.Min2phase
             return idx;
         }
 
-        private static int countUnknown(sbyte[] arr)
+        private static int CountUnknown(sbyte[] arr)
         {
             if (arr == STATE_SOLVED)
             {
@@ -125,7 +118,7 @@ namespace TNoodle.Solvers.Min2phase
             return cnt;
         }
 
-        private static int resolvePerm(sbyte[] arr, int cntU, int parity, Random gen)
+        private static int ResolvePerm(sbyte[] arr, int cntU, int parity, Random gen)
         {
             if (arr == STATE_SOLVED)
             {
@@ -166,7 +159,7 @@ namespace TNoodle.Solvers.Min2phase
                     arr[idx] = val[--cntU];
                 }
             }
-            int p = Util.getNParity(Util.getNPerm(arr, arr.Length), arr.Length);
+            int p = Util.GetNParity(Util.GetNPerm(arr, arr.Length), arr.Length);
             if (p == 1 - parity && last != -1)
             {
                 sbyte temp = arr[idx - 1];
@@ -176,11 +169,11 @@ namespace TNoodle.Solvers.Min2phase
             return p;
         }
 
-        protected internal static string randomState(sbyte[] cp, sbyte[] co, sbyte[] ep, sbyte[] eo, Random gen)
+        private static string RandomState(sbyte[] cp, sbyte[] co, sbyte[] ep, sbyte[] eo, Random gen)
         {
             int parity;
-            int cntUE = ep == STATE_RANDOM ? 12 : countUnknown(ep);
-            int cntUC = cp == STATE_RANDOM ? 8 : countUnknown(cp);
+            int cntUE = ep == STATE_RANDOM ? 12 : CountUnknown(ep);
+            int cntUC = cp == STATE_RANDOM ? 8 : CountUnknown(cp);
             int cpVal, epVal;
             if (cntUE < 2)
             {   //ep != STATE_RANDOM
@@ -190,8 +183,8 @@ namespace TNoodle.Solvers.Min2phase
                 }
                 else
                 {
-                    parity = resolvePerm(ep, cntUE, -1, gen);
-                    epVal = Util.getNPerm(ep, 12);
+                    parity = ResolvePerm(ep, cntUE, -1, gen);
+                    epVal = Util.GetNPerm(ep, 12);
                 }
                 if (cp == STATE_SOLVED)
                 {
@@ -202,12 +195,12 @@ namespace TNoodle.Solvers.Min2phase
                     do
                     {
                         cpVal = gen.Next(40320);
-                    } while (Util.getNParity(cpVal, 8) != parity);
+                    } while (Util.GetNParity(cpVal, 8) != parity);
                 }
                 else
                 {
-                    resolvePerm(cp, cntUC, parity, gen);
-                    cpVal = Util.getNPerm(cp, 8);
+                    ResolvePerm(cp, cntUC, parity, gen);
+                    cpVal = Util.GetNPerm(cp, 8);
                 }
             }
             else
@@ -219,145 +212,145 @@ namespace TNoodle.Solvers.Min2phase
                 else if (cp == STATE_RANDOM)
                 {
                     cpVal = gen.Next(40320);
-                    parity = Util.getNParity(cpVal, 8);
+                    parity = Util.GetNParity(cpVal, 8);
                 }
                 else
                 {
-                    parity = resolvePerm(cp, cntUC, -1, gen);
-                    cpVal = Util.getNPerm(cp, 8);
+                    parity = ResolvePerm(cp, cntUC, -1, gen);
+                    cpVal = Util.GetNPerm(cp, 8);
                 }
                 if (ep == STATE_RANDOM)
                 {
                     do
                     {
                         epVal = gen.Next(479001600);
-                    } while (Util.getNParity(epVal, 12) != parity);
+                    } while (Util.GetNParity(epVal, 12) != parity);
                 }
                 else
                 {
-                    resolvePerm(ep, cntUE, parity, gen);
-                    epVal = Util.getNPerm(ep, 12);
+                    ResolvePerm(ep, cntUE, parity, gen);
+                    epVal = Util.GetNPerm(ep, 12);
                 }
             }
-            return Util.toFaceCube(new CubieCube(
+            return Util.ToFaceCube(new CubieCube(
                 cpVal,
-                co == STATE_RANDOM ? gen.Next(2187) : (co == STATE_SOLVED ? 0 : resolveOri(co, 3, gen)),
+                co == STATE_RANDOM ? gen.Next(2187) : (co == STATE_SOLVED ? 0 : ResolveOri(co, 3, gen)),
                 epVal,
-                eo == STATE_RANDOM ? gen.Next(2048) : (eo == STATE_SOLVED ? 0 : resolveOri(eo, 2, gen))));
+                eo == STATE_RANDOM ? gen.Next(2048) : (eo == STATE_SOLVED ? 0 : ResolveOri(eo, 2, gen))));
         }
 
-        public static string randomLastLayer()
+        public static string RandomLastLayer()
         {
-            return randomLastLayer(r);
+            return RandomLastLayer(r);
         }
 
-        public static string randomLastLayer(Random gen)
+        public static string RandomLastLayer(Random gen)
         {
-            return randomState(
+            return RandomState(
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0 },
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7, 8, 9, 10, 11 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0 }, gen);
         }
 
-        public static string randomLastSlot()
+        public static string RandomLastSlot()
         {
-            return randomLastSlot(r);
+            return RandomLastSlot(r);
         }
 
-        public static string randomLastSlot(Random gen)
+        public static string RandomLastSlot(Random gen)
         {
-            return randomState(
+            return RandomState(
                 new sbyte[] { -1, -1, -1, -1, -1, 5, 6, 7 },
                 new sbyte[] { -1, -1, -1, -1, -1, 0, 0, 0 },
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7, -1, 9, 10, 11 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0, -1, 0, 0, 0 }, gen);
         }
 
-        public static string randomZBLastLayer()
+        public static string RandomZBLastLayer()
         {
-            return randomZBLastLayer(r);
+            return RandomZBLastLayer(r);
         }
 
-        public static string randomZBLastLayer(Random gen)
+        public static string RandomZBLastLayer(Random gen)
         {
-            return randomState(
+            return RandomState(
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0 },
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7, 8, 9, 10, 11 },
                 STATE_SOLVED, gen);
         }
 
-        public static string randomCornerOfLastLayer()
+        public static string RandomCornerOfLastLayer()
         {
-            return randomCornerOfLastLayer(r);
+            return RandomCornerOfLastLayer(r);
         }
 
-        public static string randomCornerOfLastLayer(Random gen)
+        public static string RandomCornerOfLastLayer(Random gen)
         {
-            return randomState(
+            return RandomState(
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0 },
                 STATE_SOLVED,
                 STATE_SOLVED, gen);
         }
 
-        public static string randomEdgeOfLastLayer()
+        public static string RandomEdgeOfLastLayer()
         {
-            return randomEdgeOfLastLayer(r);
+            return RandomEdgeOfLastLayer(r);
         }
 
-        public static string randomEdgeOfLastLayer(Random gen)
+        public static string RandomEdgeOfLastLayer(Random gen)
         {
-            return randomState(
+            return RandomState(
                 STATE_SOLVED,
                 STATE_SOLVED,
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7, 8, 9, 10, 11 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0 }, gen);
         }
 
-        public static string randomCrossSolved()
+        public static string RandomCrossSolved()
         {
-            return randomCrossSolved(r);
+            return RandomCrossSolved(r);
         }
-        public static string randomCrossSolved(Random gen)
+        public static string RandomCrossSolved(Random gen)
         {
-            return randomState(
+            return RandomState(
                 STATE_RANDOM,
                 STATE_RANDOM,
                 new sbyte[] { -1, -1, -1, -1, 4, 5, 6, 7, -1, -1, -1, -1 },
                 new sbyte[] { -1, -1, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1 }, gen);
         }
 
-        public static string randomEdgeSolved()
+        public static string RandomEdgeSolved()
         {
-            return randomEdgeSolved(r);
+            return RandomEdgeSolved(r);
         }
-        public static string randomEdgeSolved(Random gen)
+        public static string RandomEdgeSolved(Random gen)
         {
-            return randomState(
+            return RandomState(
                 STATE_RANDOM,
                 STATE_RANDOM,
                 STATE_SOLVED,
                 STATE_SOLVED, gen);
         }
 
-        public static string randomCornerSolved()
+        public static string RandomCornerSolved()
         {
-            return randomCornerSolved(r);
+            return RandomCornerSolved(r);
         }
-        public static string randomCornerSolved(Random gen)
+        public static string RandomCornerSolved(Random gen)
         {
-            return randomState(
+            return RandomState(
                 STATE_SOLVED,
                 STATE_SOLVED,
                 STATE_RANDOM,
                 STATE_RANDOM, gen);
         }
 
-        public static string superFlip()
+        public static string SuperFlip()
         {
-            return Util.toFaceCube(new CubieCube(0, 0, 0, 2047));
+            return Util.ToFaceCube(new CubieCube(0, 0, 0, 2047));
         }
 
         /**
@@ -372,7 +365,7 @@ namespace TNoodle.Solvers.Min2phase
          *         -5: Twist error: One corner has to be twisted<br>
          *         -6: Parity error: Two corners or two edges have to be exchanged
          */
-        public static int verify(string facelets)
+        public static int Verify(string facelets)
         {
             return new Search().Verify(facelets);
         }

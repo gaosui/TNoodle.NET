@@ -48,7 +48,7 @@ namespace Test
 
             for (int i = 0; i < count; i++)
             {
-                state = Tools.randomCube(r);
+                state = Tools.RandomCube(r);
                 watch.Start();
                 Console.WriteLine(solver.Solution(state, 21, 60000, 0, 0, null, null));
                 watch.Stop();

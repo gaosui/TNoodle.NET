@@ -66,7 +66,7 @@ namespace TNoodle.Solvers.threephase
             {
                 return;
             }
-            Min2phase.Tools.init();
+            Min2phase.Tools.Init();
 
             //System.out.println("Initialize Center1 Solver...");
 

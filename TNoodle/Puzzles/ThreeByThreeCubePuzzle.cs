@@ -64,7 +64,7 @@ namespace TNoodle.Puzzles
 
         public PuzzleStateAndGenerator generateRandomMoves(Random r, string firstAxisRestriction, string lastAxisRestriction)
         {
-            string randomState = Tools.randomCube(r);
+            string randomState = Tools.RandomCube(r);
             string scramble = twoPhaseSearcher.Value.Solution(randomState, THREE_BY_THREE_MAX_SCRAMBLE_LENGTH, THREE_BY_THREE_TIMEOUT, THREE_BY_THREE_TIMEMIN, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
             AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
