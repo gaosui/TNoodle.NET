@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TNoodle.Solvers.threephase.Util;
+using TNoodle.Utils;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
 
     /*
@@ -21,22 +21,20 @@ namespace TNoodle.Solvers.threephase
 
     internal class Center3
     {
+        public static char[][] Ctmove { get; } = Functions.New<char>(35 * 35 * 12 * 2, 20);
+        private static readonly int[] pmove = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 };
 
-        internal static char[,] ctmove = new char[35 * 35 * 12 * 2, 20];
-        internal static int[] pmove = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 };
+        public static sbyte[] Prun { get; } = new sbyte[35 * 35 * 12 * 2];
 
-        internal static sbyte[] prun = new sbyte[35 * 35 * 12 * 2];
+        private static readonly int[] rl2std = { 0, 9, 14, 23, 27, 28, 41, 42, 46, 55, 60, 69 };
+        private static readonly int[] std2rl = new int[70];
 
-        internal static int[] rl2std = { 0, 9, 14, 23, 27, 28, 41, 42, 46, 55, 60, 69 };
-        internal static int[] std2rl = new int[70];
+        private readonly int[] ud = new int[8];
+        private readonly int[] rl = new int[8];
+        private readonly int[] fb = new int[8];
+        private int parity = 0;
 
-
-        internal int[] ud = new int[8];
-        internal int[] rl = new int[8];
-        internal int[] fb = new int[8];
-        internal int parity = 0;
-
-        internal static void init()
+        public static void Init()
         {
             for (int i = 0; i < 12; i++)
             {
@@ -48,55 +46,51 @@ namespace TNoodle.Solvers.threephase
             {
                 for (int m = 0; m < 20; m++)
                 {
-                    c.setct(i);
-                    c.move(m);
-                    ctmove[i, m] = (char)c.getct();
+                    c.Setct(i);
+                    c.Move(m);
+                    Ctmove[i][m] = (char)c.Getct();
                 }
             }
 
-            //Arrays.fill(prun, (byte)-1);
-            for (int i = 0; i < prun.Length; i++)
-            {
-                prun[i] = -1;
-            }
-            prun[0] = 0;
+            Functions.Fill(Prun, (sbyte)-1);
+
+            Prun[0] = 0;
             int depth = 0;
             int done = 1;
             while (done != 29400)
             {
                 for (int i = 0; i < 29400; i++)
                 {
-                    if (prun[i] != depth)
+                    if (Prun[i] != depth)
                     {
                         continue;
                     }
                     for (int m = 0; m < 17; m++)
                     {
-                        if (prun[ctmove[i, m]] == -1)
+                        if (Prun[Ctmove[i][m]] == -1)
                         {
-                            prun[ctmove[i, m]] = (sbyte)(depth + 1);
+                            Prun[Ctmove[i][m]] = (sbyte)(depth + 1);
                             done++;
                         }
                     }
                 }
                 depth++;
-                // System.out.println(String.format("%2d%10d", depth, done));
             }
         }
 
-        internal void set(CenterCube c, int eXc_parity)
+        public void Set(CenterCube c, int eXc_parity)
         {
-            int parity = (c.ct[0] > c.ct[8] ^ c.ct[8] > c.ct[16] ^ c.ct[0] > c.ct[16]) ? 1 : 0;
+            int parity = (c.Ct[0] > c.Ct[8] ^ c.Ct[8] > c.Ct[16] ^ c.Ct[0] > c.Ct[16]) ? 1 : 0;
             for (int i = 0; i < 8; i++)
             {
-                ud[i] = (c.ct[i] & 1) ^ 1;
-                fb[i] = (c.ct[i + 8] & 1) ^ 1;
-                rl[i] = (c.ct[i + 16] & 1) ^ 1 ^ parity;
+                ud[i] = (c.Ct[i] & 1) ^ 1;
+                fb[i] = (c.Ct[i + 8] & 1) ^ 1;
+                rl[i] = (c.Ct[i + 16] & 1) ^ 1 ^ parity;
             }
             this.parity = parity ^ eXc_parity;
         }
 
-        internal int getct()
+        public int Getct()
         {
             int idx = 0;
             int r = 4;
@@ -104,7 +98,7 @@ namespace TNoodle.Solvers.threephase
             {
                 if (ud[i] != ud[7])
                 {
-                    idx += Cnk[i, r--];
+                    idx += Util.Cnk[i][r--];
                 }
             }
             idx *= 35;
@@ -113,7 +107,7 @@ namespace TNoodle.Solvers.threephase
             {
                 if (fb[i] != fb[7])
                 {
-                    idx += Cnk[i, r--];
+                    idx += Util.Cnk[i][r--];
                 }
             }
             idx *= 12;
@@ -124,13 +118,13 @@ namespace TNoodle.Solvers.threephase
             {
                 if (rl[i] != check)
                 {
-                    idxrl += Cnk[i, r--];
+                    idxrl += Util.Cnk[i][r--];
                 }
             }
             return parity + 2 * (idx + std2rl[idxrl]);
         }
 
-        internal void setct(int idx)
+        private void Setct(int idx)
         {
             parity = idx & 1;
             //idx >>>= 1;
@@ -141,9 +135,9 @@ namespace TNoodle.Solvers.threephase
             for (int i = 7; i >= 0; i--)
             {
                 rl[i] = 0;
-                if (idxrl >= Cnk[i, r])
+                if (idxrl >= Util.Cnk[i][r])
                 {
-                    idxrl -= Cnk[i, r--];
+                    idxrl -= Util.Cnk[i][r--];
                     rl[i] = 1;
                 }
             }
@@ -153,9 +147,9 @@ namespace TNoodle.Solvers.threephase
             fb[7] = 0;
             for (int i = 6; i >= 0; i--)
             {
-                if (idxfb >= Cnk[i, r])
+                if (idxfb >= Util.Cnk[i][r])
                 {
-                    idxfb -= Cnk[i, r--];
+                    idxfb -= Util.Cnk[i][r--];
                     fb[i] = 1;
                 }
                 else
@@ -167,9 +161,9 @@ namespace TNoodle.Solvers.threephase
             ud[7] = 0;
             for (int i = 6; i >= 0; i--)
             {
-                if (idx >= Cnk[i, r])
+                if (idx >= Util.Cnk[i][r])
                 {
-                    idx -= Cnk[i, r--];
+                    idx -= Util.Cnk[i][r--];
                     ud[i] = 1;
                 }
                 else
@@ -179,7 +173,7 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        void move(int i)
+        private void Move(int i)
         {
             parity ^= pmove[i];
             switch (i)
@@ -187,61 +181,60 @@ namespace TNoodle.Solvers.threephase
                 case 0:     //U
                 case 1:     //U2
                 case 2:     //U'	
-                    swap(ud, 0, 1, 2, 3, i % 3);
+                    Util.Swap(ud, 0, 1, 2, 3, i % 3);
                     break;
                 case 3:     //R2
-                    swap(rl, 0, 1, 2, 3, 1);
+                    Util.Swap(rl, 0, 1, 2, 3, 1);
                     break;
                 case 4:     //F
                 case 5:     //F2
                 case 6:     //F'
-                    swap(fb, 0, 1, 2, 3, (i - 1) % 3);
+                    Util.Swap(fb, 0, 1, 2, 3, (i - 1) % 3);
                     break;
                 case 7:     //D
                 case 8:     //D2
                 case 9:     //D'
-                    swap(ud, 4, 5, 6, 7, (i - 1) % 3);
+                    Util.Swap(ud, 4, 5, 6, 7, (i - 1) % 3);
                     break;
                 case 10:    //L2
-                    swap(rl, 4, 5, 6, 7, 1);
+                    Util.Swap(rl, 4, 5, 6, 7, 1);
                     break;
                 case 11:    //B
                 case 12:    //B2
                 case 13:    //B'
-                    swap(fb, 4, 5, 6, 7, (i + 1) % 3);
+                    Util.Swap(fb, 4, 5, 6, 7, (i + 1) % 3);
                     break;
                 case 14:    //u2
-                    swap(ud, 0, 1, 2, 3, 1);
-                    swap(rl, 0, 5, 4, 1, 1);
-                    swap(fb, 0, 5, 4, 1, 1);
+                    Util.Swap(ud, 0, 1, 2, 3, 1);
+                    Util.Swap(rl, 0, 5, 4, 1, 1);
+                    Util.Swap(fb, 0, 5, 4, 1, 1);
                     break;
                 case 15:    //r2
-                    swap(rl, 0, 1, 2, 3, 1);
-                    swap(fb, 1, 4, 7, 2, 1);
-                    swap(ud, 1, 6, 5, 2, 1);
+                    Util.Swap(rl, 0, 1, 2, 3, 1);
+                    Util.Swap(fb, 1, 4, 7, 2, 1);
+                    Util.Swap(ud, 1, 6, 5, 2, 1);
                     break;
                 case 16:    //f2
-                    swap(fb, 0, 1, 2, 3, 1);
-                    swap(ud, 3, 2, 5, 4, 1);
-                    swap(rl, 0, 3, 6, 5, 1);
+                    Util.Swap(fb, 0, 1, 2, 3, 1);
+                    Util.Swap(ud, 3, 2, 5, 4, 1);
+                    Util.Swap(rl, 0, 3, 6, 5, 1);
                     break;
                 case 17:    //d2
-                    swap(ud, 4, 5, 6, 7, 1);
-                    swap(rl, 3, 2, 7, 6, 1);
-                    swap(fb, 3, 2, 7, 6, 1);
+                    Util.Swap(ud, 4, 5, 6, 7, 1);
+                    Util.Swap(rl, 3, 2, 7, 6, 1);
+                    Util.Swap(fb, 3, 2, 7, 6, 1);
                     break;
                 case 18:    //l2
-                    swap(rl, 4, 5, 6, 7, 1);
-                    swap(fb, 0, 3, 6, 5, 1);
-                    swap(ud, 0, 3, 4, 7, 1);
+                    Util.Swap(rl, 4, 5, 6, 7, 1);
+                    Util.Swap(fb, 0, 3, 6, 5, 1);
+                    Util.Swap(ud, 0, 3, 4, 7, 1);
                     break;
                 case 19:    //b2
-                    swap(fb, 4, 5, 6, 7, 1);
-                    swap(ud, 0, 7, 6, 1, 1);
-                    swap(rl, 1, 4, 7, 2, 1);
+                    Util.Swap(fb, 4, 5, 6, 7, 1);
+                    Util.Swap(ud, 0, 7, 6, 1, 1);
+                    Util.Swap(rl, 1, 4, 7, 2, 1);
                     break;
             }
         }
     }
-
 }

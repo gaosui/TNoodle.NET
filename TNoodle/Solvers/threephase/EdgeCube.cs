@@ -3,98 +3,99 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TNoodle.Solvers.threephase.Moves;
-using static TNoodle.Solvers.threephase.Util;
+using static TNoodle.Solvers.Threephase.Moves;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
-
     internal class EdgeCube
     {
-
         private static readonly int[] epmv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                         1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1};
 
-        internal static int[,] EdgeColor = { { F, U }, { L, U }, { B, U }, { R, U }, { B, D }, { L, D }, { F, D }, { R, D }, { F, L }, { B, L }, { B, R }, { F, R } };
+        private static readonly int[][] edgeColor =
+        {
+            new int[] { F, U },
+            new int[] { L, U },
+            new int[] { B, U },
+            new int[] { R, U },
+            new int[] { B, D },
+            new int[] { L, D },
+            new int[] { F, D },
+            new int[] { R, D },
+            new int[] { F, L },
+            new int[] { B, L },
+            new int[] { B, R },
+            new int[] { F, R }
+        };
 
-        internal static int[] EdgeMap = { F2, L2, B2, R2, B8, L8, F8, R8, F4, B6, B4, F6, U8, U4, U2, U6, D8, D4, D2, D6, L6, L4, R6, R4 };
+        private static readonly int[] EdgeMap = { F2, L2, B2, R2, B8, L8, F8, R8, F4, B6, B4, F6, U8, U4, U2, U6, D8, D4, D2, D6, L6, L4, R6, R4 };
 
-        internal sbyte[] ep = new sbyte[24];
+        public sbyte[] Ep { get; } = new sbyte[24];
 
-        internal EdgeCube()
+        public EdgeCube()
         {
             for (sbyte i = 0; i < 24; i++)
             {
-                ep[i] = i;
+                Ep[i] = i;
             }
         }
 
-        internal EdgeCube(EdgeCube c)
+        public EdgeCube(EdgeCube c)
         {
-            copy(c);
+            Copy(c);
         }
 
-        internal EdgeCube(Random r) : this()
+        public EdgeCube(Random r) : this()
         {
             for (int i = 0; i < 23; i++)
             {
                 int t = i + r.Next(24 - i);
                 if (t != i)
                 {
-                    sbyte m = ep[i];
-                    ep[i] = ep[t];
-                    ep[t] = m;
+                    sbyte m = Ep[i];
+                    Ep[i] = Ep[t];
+                    Ep[t] = m;
                 }
             }
         }
 
-        internal EdgeCube(int[] moveseq) : this()
+        public EdgeCube(int[] moveseq) : this()
         {
             for (int m = 0; m < moveseq.Length; m++)
             {
-                move(m);
+                Move(m);
             }
         }
 
-        internal int getParity()
+        public int GetParity()
         {
-            return Util.parity(ep);
+            return Util.Parity(Ep);
         }
 
-        internal void copy(EdgeCube c)
-        {
-            for (int i = 0; i < 24; i++)
-            {
-                this.ep[i] = c.ep[i];
-            }
-        }
-
-        //internal void print()
-        //{
-        //    for (int i = 0; i < 24; i++)
-        //    {
-        //        System.out.print(ep[i]);
-        //        System.out.print('\t');
-        //    }
-        //    System.out.println();
-        //}
-
-        internal void fill333Facelet(char[] facelet)
+        public void Copy(EdgeCube c)
         {
             for (int i = 0; i < 24; i++)
             {
-                facelet[EdgeMap[i]] = colorMap4to3[EdgeColor[ep[i] % 12, ep[i] / 12]];
+                Ep[i] = c.Ep[i];
             }
         }
 
-        internal bool checkEdge()
+        public void Fill333Facelet(char[] facelet)
+        {
+            for (int i = 0; i < 24; i++)
+            {
+                facelet[EdgeMap[i]] = Util.ColorMap4to3[edgeColor[Ep[i] % 12][Ep[i] / 12]];
+            }
+        }
+
+        public bool CheckEdge()
         {
             int ck = 0;
             bool parity = false;
             for (int i = 0; i < 12; i++)
             {
-                ck |= 1 << ep[i];
-                parity = parity != ep[i] >= 12;
+                ck |= 1 << Ep[i];
+                parity = parity != Ep[i] >= 12;
             }
             ck &= ck >> 12;
             return ck == 0 && !parity;
@@ -148,68 +149,67 @@ namespace TNoodle.Solvers.threephase
              *             |************|
              */
 
-        internal void move(int m)
+        public void Move(int m)
         {
             int key = m % 3;
             m /= 3;
             switch (m)
             {
                 case 0: //U
-                    swap(ep, 0, 1, 2, 3, key);
-                    swap(ep, 12, 13, 14, 15, key);
+                    Util.Swap(Ep, 0, 1, 2, 3, key);
+                    Util.Swap(Ep, 12, 13, 14, 15, key);
                     break;
                 case 1: //R
-                    swap(ep, 11, 15, 10, 19, key);
-                    swap(ep, 23, 3, 22, 7, key);
+                    Util.Swap(Ep, 11, 15, 10, 19, key);
+                    Util.Swap(Ep, 23, 3, 22, 7, key);
                     break;
                 case 2: //F
-                    swap(ep, 0, 11, 6, 8, key);
-                    swap(ep, 12, 23, 18, 20, key);
+                    Util.Swap(Ep, 0, 11, 6, 8, key);
+                    Util.Swap(Ep, 12, 23, 18, 20, key);
                     break;
                 case 3: //D
-                    swap(ep, 4, 5, 6, 7, key);
-                    swap(ep, 16, 17, 18, 19, key);
+                    Util.Swap(Ep, 4, 5, 6, 7, key);
+                    Util.Swap(Ep, 16, 17, 18, 19, key);
                     break;
                 case 4: //L
-                    swap(ep, 1, 20, 5, 21, key);
-                    swap(ep, 13, 8, 17, 9, key);
+                    Util.Swap(Ep, 1, 20, 5, 21, key);
+                    Util.Swap(Ep, 13, 8, 17, 9, key);
                     break;
                 case 5: //B
-                    swap(ep, 2, 9, 4, 10, key);
-                    swap(ep, 14, 21, 16, 22, key);
+                    Util.Swap(Ep, 2, 9, 4, 10, key);
+                    Util.Swap(Ep, 14, 21, 16, 22, key);
                     break;
                 case 6: //u
-                    swap(ep, 0, 1, 2, 3, key);
-                    swap(ep, 12, 13, 14, 15, key);
-                    swap(ep, 9, 22, 11, 20, key);
+                    Util.Swap(Ep, 0, 1, 2, 3, key);
+                    Util.Swap(Ep, 12, 13, 14, 15, key);
+                    Util.Swap(Ep, 9, 22, 11, 20, key);
                     break;
                 case 7: //r
-                    swap(ep, 11, 15, 10, 19, key);
-                    swap(ep, 23, 3, 22, 7, key);
-                    swap(ep, 2, 16, 6, 12, key);
+                    Util.Swap(Ep, 11, 15, 10, 19, key);
+                    Util.Swap(Ep, 23, 3, 22, 7, key);
+                    Util.Swap(Ep, 2, 16, 6, 12, key);
                     break;
                 case 8: //f
-                    swap(ep, 0, 11, 6, 8, key);
-                    swap(ep, 12, 23, 18, 20, key);
-                    swap(ep, 3, 19, 5, 13, key);
+                    Util.Swap(Ep, 0, 11, 6, 8, key);
+                    Util.Swap(Ep, 12, 23, 18, 20, key);
+                    Util.Swap(Ep, 3, 19, 5, 13, key);
                     break;
                 case 9: //d
-                    swap(ep, 4, 5, 6, 7, key);
-                    swap(ep, 16, 17, 18, 19, key);
-                    swap(ep, 8, 23, 10, 21, key);
+                    Util.Swap(Ep, 4, 5, 6, 7, key);
+                    Util.Swap(Ep, 16, 17, 18, 19, key);
+                    Util.Swap(Ep, 8, 23, 10, 21, key);
                     break;
                 case 10://l
-                    swap(ep, 1, 20, 5, 21, key);
-                    swap(ep, 13, 8, 17, 9, key);
-                    swap(ep, 14, 0, 18, 4, key);
+                    Util.Swap(Ep, 1, 20, 5, 21, key);
+                    Util.Swap(Ep, 13, 8, 17, 9, key);
+                    Util.Swap(Ep, 14, 0, 18, 4, key);
                     break;
                 case 11://b
-                    swap(ep, 2, 9, 4, 10, key);
-                    swap(ep, 14, 21, 16, 22, key);
-                    swap(ep, 7, 15, 1, 17, key);
+                    Util.Swap(Ep, 2, 9, 4, 10, key);
+                    Util.Swap(Ep, 14, 21, 16, 22, key);
+                    Util.Swap(Ep, 7, 15, 1, 17, key);
                     break;
             }
         }
     }
-
 }

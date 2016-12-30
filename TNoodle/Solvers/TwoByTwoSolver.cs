@@ -184,8 +184,8 @@ namespace TNoodle.Solvers
         /**
          * Fill the arrays to move permutation and orientation coordinates.
          */
-        private static readonly int[][] movePerm = Functions.CreateJaggedArray<int>(N_PERM, N_MOVES);
-        private static readonly int[][] moveOrient = Functions.CreateJaggedArray<int>(N_ORIENT, N_MOVES);
+        private static readonly int[][] movePerm = Functions.New<int>(N_PERM, N_MOVES);
+        private static readonly int[][] moveOrient = Functions.New<int>(N_ORIENT, N_MOVES);
         private static void InitMoves()
         {
             int[] cubies1 = new int[7];

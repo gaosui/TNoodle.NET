@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TNoodle.Solvers.threephase.Util;
-using static TNoodle.Solvers.threephase.Moves;
+using TNoodle.Utils;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
     /*
                 0	1
@@ -21,19 +20,18 @@ namespace TNoodle.Solvers.threephase
 
     internal sealed class Center1
     {
+        public static int[][] Ctsmv { get; } = Functions.New<int>(15582, 36);
+        private static readonly int[] sym2raw = new int[15582];
+        public static sbyte[] Csprun { get; } = new sbyte[15582];
 
-        internal static int[,] ctsmv = new int[15582, 36];
-        internal static int[] sym2raw = new int[15582];
-        internal static sbyte[] csprun = new sbyte[15582];
+        public static int[][] Symmult { get; } = Functions.New<int>(48, 48);
+        public static int[][] Symmove { get; } = Functions.New<int>(48, 36);
+        public static int[] Syminv { get; } = new int[48];
+        public static int[] Finish { get; } = new int[48];
 
-        internal static int[,] symmult = new int[48, 48];
-        internal static int[,] symmove = new int[48, 36];
-        internal static int[] syminv = new int[48];
-        internal static int[] finish = new int[48];
+        public static int[] Raw2sym { get; set; }
 
-        internal static int[] raw2sym;
-
-        internal static void initSym2Raw()
+        public static void InitSym2Raw()
         {
             Center1 c = new Center1();
             int[] occ = new int[735471 / 32 + 1];
@@ -42,34 +40,29 @@ namespace TNoodle.Solvers.threephase
             {
                 if ((occ[(uint)i >> 5] & (1 << (i & 0x1f))) == 0)
                 {
-                    c.set(i);
+                    c.Set(i);
                     for (int j = 0; j < 48; j++)
                     {
-                        int idx = c.get();
+                        int idx = c.Get();
                         occ[(uint)idx >> 5] |= (1 << (idx & 0x1f));
-                        if (raw2sym != null)
+                        if (Raw2sym != null)
                         {
-                            raw2sym[idx] = count << 6 | syminv[j];
+                            Raw2sym[idx] = count << 6 | Syminv[j];
                         }
-                        c.rot(0);
-                        if (j % 2 == 1) c.rot(1);
-                        if (j % 8 == 7) c.rot(2);
-                        if (j % 16 == 15) c.rot(3);
+                        c.Rot(0);
+                        if (j % 2 == 1) c.Rot(1);
+                        if (j % 8 == 7) c.Rot(2);
+                        if (j % 16 == 15) c.Rot(3);
                     }
                     sym2raw[count++] = i;
                 }
             }
-            //assert count == 15582;
         }
 
-        internal static void createPrun()
+        public static void CreatePrun()
         {
-            //Arrays.fill(csprun, (byte)-1);
-            for (int i = 0; i < csprun.Length; i++)
-            {
-                csprun[i] = -1;
-            }
-            csprun[0] = 0;
+            Functions.Fill(Csprun, (sbyte)-1);
+            Csprun[0] = 0;
             int depth = 0;
             int done = 1;
 
@@ -81,226 +74,221 @@ namespace TNoodle.Solvers.threephase
                 depth++;
                 for (int i = 0; i < 15582; i++)
                 {
-                    if (csprun[i] != select)
+                    if (Csprun[i] != select)
                     {
                         continue;
                     }
                     for (int m = 0; m < 27; m++)
                     {
-                        int idx = (int)((uint)ctsmv[i, m] >> 6);
-                        if (csprun[idx] != check)
+                        int idx = (int)((uint)Ctsmv[i][m] >> 6);
+                        if (Csprun[idx] != check)
                         {
                             continue;
                         }
                         ++done;
                         if (inv)
                         {
-                            csprun[i] = (sbyte)depth;
+                            Csprun[i] = (sbyte)depth;
                             break;
                         }
                         else
                         {
-                            csprun[idx] = (sbyte)depth;
+                            Csprun[idx] = (sbyte)depth;
                         }
                     }
                 }
-                //			System.out.println(String.format("%2d%10d", depth, done));
             }
-
         }
 
-        internal static void createMoveTable()
+        public static void CreateMoveTable()
         {
-            //System.out.println("Create Phase1 Center Move Table...");
             Center1 c = new Center1();
             Center1 d = new Center1();
             for (int i = 0; i < 15582; i++)
             {
-                d.set(sym2raw[i]);
+                d.Set(sym2raw[i]);
                 for (int m = 0; m < 36; m++)
                 {
-                    c.set(d);
-                    c.move(m);
-                    ctsmv[i, m] = c.getsym();
+                    c.Set(d);
+                    c.Move(m);
+                    Ctsmv[i][m] = c.Getsym();
                 }
             }
         }
 
-        internal sbyte[] ct = new sbyte[24];
+        public sbyte[] Ct { get; } = new sbyte[24];
 
-        internal Center1()
+        public Center1()
         {
             for (int i = 0; i < 8; i++)
             {
-                ct[i] = 1;
+                Ct[i] = 1;
             }
             for (int i = 8; i < 24; i++)
             {
-                ct[i] = 0;
+                Ct[i] = 0;
             }
         }
 
-        internal Center1(sbyte[] ct)
+        public Center1(sbyte[] ct)
         {
             for (int i = 0; i < 24; i++)
             {
-                this.ct[i] = ct[i];
+                Ct[i] = ct[i];
             }
         }
 
-        internal Center1(CenterCube c, int urf)
+        public Center1(CenterCube c, int urf)
         {
             for (int i = 0; i < 24; i++)
             {
-                this.ct[i] = (sbyte)((c.ct[i] / 2 == urf) ? 1 : 0);
+                Ct[i] = (sbyte)((c.Ct[i] / 2 == urf) ? 1 : 0);
             }
         }
 
-        internal void move(int m)
+        public void Move(int m)
         {
             int key = m % 3;
             m /= 3;
             switch (m)
             {
                 case 0: //U
-                    swap(ct, 0, 1, 2, 3, key);
+                    Util.Swap(Ct, 0, 1, 2, 3, key);
                     break;
                 case 1: //R
-                    Util.swap(ct, 16, 17, 18, 19, key);
+                    Util.Swap(Ct, 16, 17, 18, 19, key);
                     break;
                 case 2: //F
-                    Util.swap(ct, 8, 9, 10, 11, key);
+                    Util.Swap(Ct, 8, 9, 10, 11, key);
                     break;
                 case 3: //D
-                    Util.swap(ct, 4, 5, 6, 7, key);
+                    Util.Swap(Ct, 4, 5, 6, 7, key);
                     break;
                 case 4: //L
-                    Util.swap(ct, 20, 21, 22, 23, key);
+                    Util.Swap(Ct, 20, 21, 22, 23, key);
                     break;
                 case 5: //B
-                    Util.swap(ct, 12, 13, 14, 15, key);
+                    Util.Swap(Ct, 12, 13, 14, 15, key);
                     break;
                 case 6: //u
-                    Util.swap(ct, 0, 1, 2, 3, key);
-                    Util.swap(ct, 8, 20, 12, 16, key);
-                    Util.swap(ct, 9, 21, 13, 17, key);
+                    Util.Swap(Ct, 0, 1, 2, 3, key);
+                    Util.Swap(Ct, 8, 20, 12, 16, key);
+                    Util.Swap(Ct, 9, 21, 13, 17, key);
                     break;
                 case 7: //r
-                    Util.swap(ct, 16, 17, 18, 19, key);
-                    Util.swap(ct, 1, 15, 5, 9, key);
-                    Util.swap(ct, 2, 12, 6, 10, key);
+                    Util.Swap(Ct, 16, 17, 18, 19, key);
+                    Util.Swap(Ct, 1, 15, 5, 9, key);
+                    Util.Swap(Ct, 2, 12, 6, 10, key);
                     break;
                 case 8: //f
-                    Util.swap(ct, 8, 9, 10, 11, key);
-                    Util.swap(ct, 2, 19, 4, 21, key);
-                    Util.swap(ct, 3, 16, 5, 22, key);
+                    Util.Swap(Ct, 8, 9, 10, 11, key);
+                    Util.Swap(Ct, 2, 19, 4, 21, key);
+                    Util.Swap(Ct, 3, 16, 5, 22, key);
                     break;
                 case 9: //d
-                    Util.swap(ct, 4, 5, 6, 7, key);
-                    Util.swap(ct, 10, 18, 14, 22, key);
-                    Util.swap(ct, 11, 19, 15, 23, key);
+                    Util.Swap(Ct, 4, 5, 6, 7, key);
+                    Util.Swap(Ct, 10, 18, 14, 22, key);
+                    Util.Swap(Ct, 11, 19, 15, 23, key);
                     break;
                 case 10://l
-                    Util.swap(ct, 20, 21, 22, 23, key);
-                    Util.swap(ct, 0, 8, 4, 14, key);
-                    Util.swap(ct, 3, 11, 7, 13, key);
+                    Util.Swap(Ct, 20, 21, 22, 23, key);
+                    Util.Swap(Ct, 0, 8, 4, 14, key);
+                    Util.Swap(Ct, 3, 11, 7, 13, key);
                     break;
                 case 11://b
-                    Util.swap(ct, 12, 13, 14, 15, key);
-                    Util.swap(ct, 1, 20, 7, 18, key);
-                    Util.swap(ct, 0, 23, 6, 17, key);
+                    Util.Swap(Ct, 12, 13, 14, 15, key);
+                    Util.Swap(Ct, 1, 20, 7, 18, key);
+                    Util.Swap(Ct, 0, 23, 6, 17, key);
                     break;
             }
         }
 
-        internal void set(int idx)
+        private void Set(int idx)
         {
             int r = 8;
             for (int i = 23; i >= 0; i--)
             {
-                ct[i] = 0;
-                if (idx >= Util.Cnk[i, r])
+                Ct[i] = 0;
+                if (idx >= Util.Cnk[i][r])
                 {
-                    idx -= Util.Cnk[i, r--];
-                    ct[i] = 1;
+                    idx -= Util.Cnk[i][r--];
+                    Ct[i] = 1;
                 }
             }
         }
 
-        internal int get()
+        private int Get()
         {
             int idx = 0;
             int r = 8;
             for (int i = 23; i >= 0; i--)
             {
-                if (ct[i] == 1)
+                if (Ct[i] == 1)
                 {
-                    idx += Util.Cnk[i, r--];
+                    idx += Util.Cnk[i][r--];
                 }
             }
             return idx;
         }
 
-        internal int getsym()
+        public int Getsym()
         {
-            if (raw2sym != null)
+            if (Raw2sym != null)
             {
-                return raw2sym[get()];
+                return Raw2sym[Get()];
             }
             for (int j = 0; j < 48; j++)
             {
-                int cord = raw2symMth(get());
+                int cord = Raw2symMth(Get());
                 if (cord != -1)
                     return cord * 64 + j;
-                rot(0);
-                if (j % 2 == 1) rot(1);
-                if (j % 8 == 7) rot(2);
-                if (j % 16 == 15) rot(3);
+                Rot(0);
+                if (j % 2 == 1) Rot(1);
+                if (j % 8 == 7) Rot(2);
+                if (j % 16 == 15) Rot(3);
             }
-            //System.out.print('e');
             return -1;
         }
 
-        internal static int raw2symMth(int n)
+        private static int Raw2symMth(int n)
         {
-            //int m = Arrays.binarySearch(sym2raw, n);
             int m = Array.BinarySearch(sym2raw, n);
             return (m >= 0 ? m : -1);
         }
 
-        internal void set(Center1 c)
+        private void Set(Center1 c)
         {
             for (int i = 0; i < 24; i++)
             {
-                this.ct[i] = c.ct[i];
+                Ct[i] = c.Ct[i];
             }
         }
 
-        internal void rot(int r)
+        private void Rot(int r)
         {
             switch (r)
             {
                 case 0:
-                    move(ux2);
-                    move(Moves.dx2);
+                    Move(Moves.ux2);
+                    Move(Moves.dx2);
                     break;
                 case 1:
-                    move(Moves.rx1);
-                    move(Moves.lx3);
+                    Move(Moves.rx1);
+                    Move(Moves.lx3);
                     break;
                 case 2:
-                    Util.swap(ct, 0, 3, 1, 2, 1);
-                    Util.swap(ct, 8, 11, 9, 10, 1);
-                    Util.swap(ct, 4, 7, 5, 6, 1);
-                    Util.swap(ct, 12, 15, 13, 14, 1);
-                    Util.swap(ct, 16, 19, 21, 22, 1);
-                    Util.swap(ct, 17, 18, 20, 23, 1);
+                    Util.Swap(Ct, 0, 3, 1, 2, 1);
+                    Util.Swap(Ct, 8, 11, 9, 10, 1);
+                    Util.Swap(Ct, 4, 7, 5, 6, 1);
+                    Util.Swap(Ct, 12, 15, 13, 14, 1);
+                    Util.Swap(Ct, 16, 19, 21, 22, 1);
+                    Util.Swap(Ct, 17, 18, 20, 23, 1);
                     break;
                 case 3:
-                    move(Moves.ux1);
-                    move(Moves.dx3);
-                    move(Moves.fx1);
-                    move(Moves.bx3);
+                    Move(Moves.ux1);
+                    Move(Moves.dx3);
+                    Move(Moves.fx1);
+                    Move(Moves.bx3);
                     break;
             }
         }
@@ -330,31 +318,31 @@ namespace TNoodle.Solvers.threephase
         38	yz2
         39	y'z2
          */
-        internal static string[] rot2str = {"", "y2", "x", "x y2", "x2", "z2", "x'", "x' y2", "", "", "", "", "", "", "", "",
+        public static string[] Rot2str { get; } = {"", "y2", "x", "x y2", "x2", "z2", "x'", "x' y2", "", "", "", "", "", "", "", "",
         "y z", "y' z'", "y2 z", "z'", "y' z", "y z'", "z", "z y2", "", "", "", "", "", "", "", "",
         "y' x'", "y x", "y'", "y", "y' x", "y x'", "y z2", "y' z2",  "", "", "", "", "", "", "", ""};
 
 
-        internal void rotate(int r)
+        private void Rotate(int r)
         {
             for (int j = 0; j < r; j++)
             {
-                rot(0);
-                if (j % 2 == 1) rot(1);
-                if (j % 8 == 7) rot(2);
-                if (j % 16 == 15) rot(3);
+                Rot(0);
+                if (j % 2 == 1) Rot(1);
+                if (j % 8 == 7) Rot(2);
+                if (j % 16 == 15) Rot(3);
             }
         }
 
-        internal static int getSolvedSym(CenterCube cube)
+        public static int GetSolvedSym(CenterCube cube)
         {
-            Center1 c = new Center1(cube.ct);
+            Center1 c = new Center1(cube.Ct);
             for (int j = 0; j < 48; j++)
             {
                 bool check = true;
                 for (int i = 0; i < 24; i++)
                 {
-                    if (c.ct[i] != i / 4)
+                    if (c.Ct[i] != i / 4)
                     {
                         check = false;
                         break;
@@ -364,10 +352,10 @@ namespace TNoodle.Solvers.threephase
                 {
                     return j;
                 }
-                c.rot(0);
-                if (j % 2 == 1) c.rot(1);
-                if (j % 8 == 7) c.rot(2);
-                if (j % 16 == 15) c.rot(3);
+                c.Rot(0);
+                if (j % 2 == 1) c.Rot(1);
+                if (j % 8 == 7) c.Rot(2);
+                if (j % 16 == 15) c.Rot(3);
             }
             return -1;
         }
@@ -384,7 +372,7 @@ namespace TNoodle.Solvers.threephase
                 Center1 c = (Center1)obj;
                 for (int i = 0; i < 24; i++)
                 {
-                    if (ct[i] != c.ct[i])
+                    if (Ct[i] != c.Ct[i])
                     {
                         return false;
                     }
@@ -394,16 +382,16 @@ namespace TNoodle.Solvers.threephase
             return false;
         }
 
-        internal static void initSym()
+        public static void InitSym()
         {
             Center1 c = new Center1();
             for (sbyte i = 0; i < 24; i++)
             {
-                c.ct[i] = i;
+                c.Ct[i] = i;
             }
-            Center1 d = new Center1(c.ct);
-            Center1 e = new Center1(c.ct);
-            Center1 f = new Center1(c.ct);
+            Center1 d = new Center1(c.Ct);
+            Center1 e = new Center1(c.Ct);
+            Center1 f = new Center1(c.Ct);
 
             for (int i = 0; i < 48; i++)
             {
@@ -413,60 +401,59 @@ namespace TNoodle.Solvers.threephase
                     {
                         if (c.Equals(d))
                         {
-                            symmult[i, j] = k;
+                            Symmult[i][j] = k;
                             if (k == 0)
                             {
-                                syminv[i] = j;
+                                Syminv[i] = j;
                             }
                         }
-                        d.rot(0);
-                        if (k % 2 == 1) d.rot(1);
-                        if (k % 8 == 7) d.rot(2);
-                        if (k % 16 == 15) d.rot(3);
+                        d.Rot(0);
+                        if (k % 2 == 1) d.Rot(1);
+                        if (k % 8 == 7) d.Rot(2);
+                        if (k % 16 == 15) d.Rot(3);
                     }
-                    c.rot(0);
-                    if (j % 2 == 1) c.rot(1);
-                    if (j % 8 == 7) c.rot(2);
-                    if (j % 16 == 15) c.rot(3);
+                    c.Rot(0);
+                    if (j % 2 == 1) c.Rot(1);
+                    if (j % 8 == 7) c.Rot(2);
+                    if (j % 16 == 15) c.Rot(3);
                 }
-                c.rot(0);
-                if (i % 2 == 1) c.rot(1);
-                if (i % 8 == 7) c.rot(2);
-                if (i % 16 == 15) c.rot(3);
+                c.Rot(0);
+                if (i % 2 == 1) c.Rot(1);
+                if (i % 8 == 7) c.Rot(2);
+                if (i % 16 == 15) c.Rot(3);
             }
 
             for (int i = 0; i < 48; i++)
             {
-                c.set(e);
-                c.rotate(syminv[i]);
+                c.Set(e);
+                c.Rotate(Syminv[i]);
                 for (int j = 0; j < 36; j++)
                 {
-                    d.set(c);
-                    d.move(j);
-                    d.rotate(i);
+                    d.Set(c);
+                    d.Move(j);
+                    d.Rotate(i);
                     for (int k = 0; k < 36; k++)
                     {
-                        f.set(e);
-                        f.move(k);
+                        f.Set(e);
+                        f.Move(k);
                         if (f.Equals(d))
                         {
-                            symmove[i, j] = k;
+                            Symmove[i][j] = k;
                             break;
                         }
                     }
                 }
             }
 
-            c.set(0);
+            c.Set(0);
             for (int i = 0; i < 48; i++)
             {
-                finish[syminv[i]] = c.get();
-                c.rot(0);
-                if (i % 2 == 1) c.rot(1);
-                if (i % 8 == 7) c.rot(2);
-                if (i % 16 == 15) c.rot(3);
+                Finish[Syminv[i]] = c.Get();
+                c.Rot(0);
+                if (i % 2 == 1) c.Rot(1);
+                if (i % 8 == 7) c.Rot(2);
+                if (i % 16 == 15) c.Rot(3);
             }
         }
     }
-
 }

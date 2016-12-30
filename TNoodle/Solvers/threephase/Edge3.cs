@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TNoodle.Utils;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
 
 
@@ -23,32 +24,32 @@ namespace TNoodle.Solvers.threephase
                         2	14	
      */
 
-    public class Edge3
+    internal class Edge3
     {
-        internal const bool IS_64BIT_PLATFORM = false;
+        private const bool IS_64BIT_PLATFORM = false;
 
-        internal const int N_SYM = 1538;
-        internal const int N_RAW = 20160;
-        internal const int N_EPRUN = N_SYM * N_RAW;
-        internal const int MAX_DEPTH = 10;
+        private const int N_SYM = 1538;
+        public const int N_RAW = 20160;
+        private const int N_EPRUN = N_SYM * N_RAW;
+        private const int MAX_DEPTH = 10;
 
-        internal static readonly int[] prunValues = { 1, 4, 16, 55, 324, 1922, 12275, 77640, 485359, 2778197, 11742425, 27492416, 31002941, 31006080 };
+        private static readonly int[] prunValues = { 1, 4, 16, 55, 324, 1922, 12275, 77640, 485359, 2778197, 11742425, 27492416, 31002941, 31006080 };
 
-        internal static int[] eprun = new int[N_EPRUN / 16];
+        private static readonly int[] eprun = new int[N_EPRUN / 16];
 
-        internal static int[] sym2raw = new int[N_SYM];
-        internal static char[] symstate = new char[N_SYM];
-        internal static int[] raw2sym = new int[11880];
+        private static readonly int[] sym2raw = new int[N_SYM];
+        private static readonly char[] symstate = new char[N_SYM];
+        public static int[] Raw2sym { get; } = new int[11880];
 
-        internal static int[] syminv = { 0, 1, 6, 3, 4, 5, 2, 7 };
+        private static readonly int[] syminv = { 0, 1, 6, 3, 4, 5, 2, 7 };
 
-        internal int[] edge = new int[12];
-        internal int[] edgeo = new int[12];
-        internal int[] temp;
-        internal bool isStd = true;
+        public int[] Edge { get; } = new int[12];
+        private int[] edgeo = new int[12];
+        private int[] temp;
+        private bool isStd = true;
 
-        internal static int[][] mvrot;// = new int[20 * 8, 12];
-        internal static int[][] mvroto;// = new int[20 * 8, 12];
+        private static readonly int[][] mvrot; // = new int[20 * 8, 12];
+        private static readonly int[][] mvroto;// = new int[20 * 8, 12];
 
         static Edge3()
         {
@@ -61,30 +62,30 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        internal static int[] factX = { 1, 1, 2 / 2, 6 / 2, 24 / 2, 120 / 2, 720 / 2, 5040 / 2, 40320 / 2, 362880 / 2, 3628800 / 2, 39916800 / 2, 479001600 / 2 };
+        private static readonly int[] factX = { 1, 1, 2 / 2, 6 / 2, 24 / 2, 120 / 2, 720 / 2, 5040 / 2, 40320 / 2, 362880 / 2, 3628800 / 2, 39916800 / 2, 479001600 / 2 };
 
-        internal static int done = 0;
+        private static int done = 0;
 
-        public static double initStatus()
+        public static double InitStatus()
         {
             return done * 1.0 / prunValues[MAX_DEPTH - 1];
         }
 
-        internal static void initMvrot()
+        public static void InitMvrot()
         {
             Edge3 e = new Edge3();
             for (int m = 0; m < 20; m++)
             {
                 for (int r = 0; r < 8; r++)
                 {
-                    e.set(0);
-                    e.move(m);
-                    e.rotate(r);
+                    e.Set(0);
+                    e.Move(m);
+                    e.Rotate(r);
                     for (int i = 0; i < 12; i++)
                     {
-                        mvrot[m << 3 | r][i] = e.edge[i];
+                        mvrot[m << 3 | r][i] = e.Edge[i];
                     }
-                    e.std();
+                    e.Std();
                     for (int i = 0; i < 12; i++)
                     {
                         mvroto[m << 3 | r][i] = e.temp[i];
@@ -93,7 +94,7 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        internal static void initRaw2Sym()
+        public static void InitRaw2Sym()
         {
             Edge3 e = new Edge3();
             sbyte[] occ = new sbyte[11880 / 8];
@@ -102,42 +103,41 @@ namespace TNoodle.Solvers.threephase
             {
                 if ((occ[(uint)i >> 3] & (1 << (i & 7))) == 0)
                 {
-                    e.set(i * factX[8]);
+                    e.Set(i * factX[8]);
                     for (int j = 0; j < 8; j++)
                     {
-                        int idx = e.get(4);
+                        int idx = e.Get(4);
                         if (idx == i)
                         {
                             symstate[count] |= (char)(1 << j);
                         }
                         occ[idx >> 3] |= (sbyte)(1 << (idx & 7));
-                        raw2sym[idx] = count << 3 | syminv[j];
-                        e.rot(0);
+                        Raw2sym[idx] = count << 3 | syminv[j];
+                        e.Rot(0);
                         if (j % 2 == 1)
                         {
-                            e.rot(1);
-                            e.rot(2);
+                            e.Rot(1);
+                            e.Rot(2);
                         }
                     }
                     sym2raw[count++] = i;
                 }
             }
-            //assert count == 1538;
         }
 
-        internal static void setPruning(int[] table, int index, int value)
+        private static void SetPruning(int[] table, int index, int value)
         {
             table[index >> 4] ^= (0x3 ^ value) << ((index & 0xf) << 1);
         }
 
-        internal static int getPruning(int[] table, int index)
+        private static int GetPruning(int[] table, int index)
         {
             return (table[index >> 4] >> ((index & 0xf) << 1)) & 0x3;
         }
 
-        internal static int getprun(int edge, int prun)
+        public static int Getprun(int edge, int prun)
         {
-            int depm3 = getPruning(eprun, edge);
+            int depm3 = GetPruning(eprun, edge);
             if (depm3 == 0x3)
             {
                 return MAX_DEPTH;
@@ -145,11 +145,11 @@ namespace TNoodle.Solvers.threephase
             return (depm3 - prun + 16) % 3 + prun - 1;
         }
 
-        internal static int getprun(int edge)
+        public static int Getprun(int edge)
         {
             Edge3 e = new Edge3();
             int depth = 0;
-            int depm3 = getPruning(eprun, edge);
+            int depm3 = GetPruning(eprun, edge);
             if (depm3 == 0x3)
             {
                 return MAX_DEPTH;
@@ -168,17 +168,17 @@ namespace TNoodle.Solvers.threephase
                 int symcord1 = edge / N_RAW;
                 int cord1 = sym2raw[symcord1];
                 int cord2 = edge % N_RAW;
-                e.set(cord1 * N_RAW + cord2);
+                e.Set(cord1 * N_RAW + cord2);
 
                 for (int m = 0; m < 17; m++)
                 {
-                    int cord1x = getmvrot(e.edge, m << 3, 4);
-                    int symcord1x = raw2sym[cord1x];
+                    int cord1x = Getmvrot(e.Edge, m << 3, 4);
+                    int symcord1x = Raw2sym[cord1x];
                     int symx = symcord1x & 0x7;
                     symcord1x >>= 3;
-                    int cord2x = getmvrot(e.edge, m << 3 | symx, 10) % N_RAW;
+                    int cord2x = Getmvrot(e.Edge, m << 3 | symx, 10) % N_RAW;
                     int idx = symcord1x * N_RAW + cord2x;
-                    if (getPruning(eprun, idx) == depm3)
+                    if (GetPruning(eprun, idx) == depm3)
                     {
                         depth++;
                         edge = idx;
@@ -189,20 +189,17 @@ namespace TNoodle.Solvers.threephase
             return depth;
         }
 
-        internal static void createPrun()
+        public static void CreatePrun()
         {
             Edge3 e = new Edge3();
             Edge3 f = new Edge3();
             Edge3 g = new Edge3();
 
-            //Arrays.fill(eprun, -1);
-            for (int i = 0; i < eprun.Length; i++)
-            {
-                eprun[i] = -1;
-            }
+            Functions.Fill(eprun, -1);
+
             int depth = 0;
             done = 1;
-            setPruning(eprun, 0, 0);
+            SetPruning(eprun, 0, 0);
 
             while (done != N_EPRUN)
             {
@@ -233,25 +230,23 @@ namespace TNoodle.Solvers.threephase
                         int symcord1 = i / N_RAW;
                         int cord1 = sym2raw[symcord1];
                         int cord2 = i % N_RAW;
-                        e.set(cord1 * N_RAW + cord2);
+                        e.Set(cord1 * N_RAW + cord2);
 
                         for (int m = 0; m < 17; m++)
                         {
-                            int cord1x = getmvrot(e.edge, m << 3, 4);
-                            int symcord1x = raw2sym[cord1x];
+                            int cord1x = Getmvrot(e.Edge, m << 3, 4);
+                            int symcord1x = Raw2sym[cord1x];
                             int symx = symcord1x & 0x7;
                             symcord1x >>= 3;
-                            int cord2x = getmvrot(e.edge, m << 3 | symx, 10) % N_RAW;
+                            int cord2x = Getmvrot(e.Edge, m << 3 | symx, 10) % N_RAW;
                             int idx = symcord1x * N_RAW + cord2x;
-                            if (getPruning(eprun, idx) != chk)
+                            if (GetPruning(eprun, idx) != chk)
                             {
                                 continue;
                             }
-                            setPruning(eprun, inv ? i : idx, dep1m3);
+                            SetPruning(eprun, inv ? i : idx, dep1m3);
                             done++;
-                            // if ((done & 0x3ffff) == 0) {
-                            // 	System.out.print(String.format("%d\r", done));
-                            // }
+
                             if (inv)
                             {
                                 break;
@@ -261,49 +256,46 @@ namespace TNoodle.Solvers.threephase
                             {
                                 continue;
                             }
-                            f.set(e);
-                            f.move(m);
-                            f.rotate(symx);
+                            f.Set(e);
+                            f.Move(m);
+                            f.Rotate(symx);
                             for (int j = 1; (symState >>= 1) != 0; j++)
                             {
                                 if ((symState & 1) != 1)
                                 {
                                     continue;
                                 }
-                                g.set(f);
-                                g.rotate(j);
-                                int idxx = symcord1x * N_RAW + g.get(10) % N_RAW;
-                                if (getPruning(eprun, idxx) == chk)
+                                g.Set(f);
+                                g.Rotate(j);
+                                int idxx = symcord1x * N_RAW + g.Get(10) % N_RAW;
+                                if (GetPruning(eprun, idxx) == chk)
                                 {
-                                    setPruning(eprun, idxx, dep1m3);
+                                    SetPruning(eprun, idxx, dep1m3);
                                     done++;
-                                    // if ((done & 0x3ffff) == 0) {
-                                    // 	System.out.print(String.format("%d\r", done));
-                                    // }
+
                                 }
                             }
                         }
                     }
                 }
                 depth++;
-                //System.out.println(depth + "\t" + done);
             }
         }
 
-        internal static int[] FullEdgeMap = { 0, 2, 4, 6, 1, 3, 7, 5, 8, 9, 10, 11 };
+        private static readonly int[] fullEdgeMap = { 0, 2, 4, 6, 1, 3, 7, 5, 8, 9, 10, 11 };
 
-        internal int getsym()
+        public int Getsym()
         {
-            int cord1x = get(4);
-            int symcord1x = raw2sym[cord1x];
+            int cord1x = Get(4);
+            int symcord1x = Raw2sym[cord1x];
             int symx = symcord1x & 0x7;
             symcord1x >>= 3;
-            rotate(symx);
-            int cord2x = get(10) % N_RAW;
+            Rotate(symx);
+            int cord2x = Get(10) % N_RAW;
             return symcord1x * N_RAW + cord2x;
         }
 
-        internal int set(EdgeCube c)
+        public int Set(EdgeCube c)
         {
             if (temp == null)
             {
@@ -312,16 +304,16 @@ namespace TNoodle.Solvers.threephase
             for (int i = 0; i < 12; i++)
             {
                 temp[i] = i;
-                edge[i] = c.ep[FullEdgeMap[i] + 12] % 12;
+                Edge[i] = c.Ep[fullEdgeMap[i] + 12] % 12;
             }
             int parity = 1; //because of FullEdgeMap
             for (int i = 0; i < 12; i++)
             {
-                while (edge[i] != i)
+                while (Edge[i] != i)
                 {
-                    int t = edge[i];
-                    edge[i] = edge[t];
-                    edge[t] = t;
+                    int t = Edge[i];
+                    Edge[i] = Edge[t];
+                    Edge[t] = t;
                     int s = temp[i];
                     temp[i] = temp[t];
                     temp[t] = s;
@@ -330,22 +322,22 @@ namespace TNoodle.Solvers.threephase
             }
             for (int i = 0; i < 12; i++)
             {
-                edge[i] = temp[c.ep[FullEdgeMap[i]] % 12];
+                Edge[i] = temp[c.Ep[fullEdgeMap[i]] % 12];
             }
             return parity;
         }
 
-        internal void set(Edge3 e)
+        private void Set(Edge3 e)
         {
             for (int i = 0; i < 12; i++)
             {
-                edge[i] = e.edge[i];
+                Edge[i] = e.Edge[i];
                 edgeo[i] = e.edgeo[i];
             }
             isStd = e.isStd;
         }
 
-        internal static int getmvrot(int[] ep, int mrIdx, int end)
+        public static int Getmvrot(int[] ep, int mrIdx, int end)
         {
             int[] movo = mvroto[mrIdx];
             int[] mov = mvrot[mrIdx];
@@ -387,7 +379,7 @@ namespace TNoodle.Solvers.threephase
 
         }
 
-        internal void std()
+        private void Std()
         {
             if (temp == null)
             {
@@ -400,23 +392,23 @@ namespace TNoodle.Solvers.threephase
 
             for (int i = 0; i < 12; i++)
             {
-                edge[i] = temp[edge[i]];
+                Edge[i] = temp[Edge[i]];
                 edgeo[i] = i;
             }
             isStd = true;
         }
 
-        internal int get(int end)
+        public int Get(int end)
         {
             if (!isStd)
             {
-                std();
+                Std();
             }
             int idx = 0;
             long val = 0xba9876543210L;
             for (int i = 0; i < end; i++)
             {
-                int v = edge[i] << 2;
+                int v = Edge[i] << 2;
                 idx *= 12 - i;
                 idx += (int)((val >> v) & 0xf);
                 val -= 0x111111111110L << v;
@@ -424,7 +416,7 @@ namespace TNoodle.Solvers.threephase
             return idx;
         }
 
-        internal void set(int idx)
+        public void Set(int idx)
         {
             long val = 0xba9876543210L;
             int parity = 0;
@@ -435,18 +427,18 @@ namespace TNoodle.Solvers.threephase
                 idx = idx % p;
                 parity ^= v;
                 v <<= 2;
-                edge[i] = (int)((val >> v) & 0xf);
+                Edge[i] = (int)((val >> v) & 0xf);
                 long m = (1L << v) - 1;
                 val = (val & m) + ((val >> 4) & ~m);
             }
             if ((parity & 1) == 0)
             {
-                edge[11] = (int)val;
+                Edge[11] = (int)val;
             }
             else
             {
-                edge[11] = edge[10];
-                edge[10] = (int)val;
+                Edge[11] = Edge[10];
+                Edge[10] = (int)val;
             }
             for (int i = 0; i < 12; i++)
             {
@@ -455,150 +447,150 @@ namespace TNoodle.Solvers.threephase
             isStd = true;
         }
 
-        internal void move(int i)
+        private void Move(int i)
         {
             isStd = false;
             switch (i)
             {
                 case 0:     //U
-                    circle(edge, 0, 4, 1, 5);
-                    circle(edgeo, 0, 4, 1, 5);
+                    Circle(Edge, 0, 4, 1, 5);
+                    Circle(edgeo, 0, 4, 1, 5);
                     break;
                 case 1:     //U2
-                    swap(edge, 0, 4, 1, 5);
-                    swap(edgeo, 0, 4, 1, 5);
+                    Swap(Edge, 0, 4, 1, 5);
+                    Swap(edgeo, 0, 4, 1, 5);
                     break;
                 case 2:     //U'
-                    circle(edge, 0, 5, 1, 4);
-                    circle(edgeo, 0, 5, 1, 4);
+                    Circle(Edge, 0, 5, 1, 4);
+                    Circle(edgeo, 0, 5, 1, 4);
                     break;
                 case 3:     //R2
-                    swap(edge, 5, 10, 6, 11);
-                    swap(edgeo, 5, 10, 6, 11);
+                    Swap(Edge, 5, 10, 6, 11);
+                    Swap(edgeo, 5, 10, 6, 11);
                     break;
                 case 4:     //F
-                    circle(edge, 0, 11, 3, 8);
-                    circle(edgeo, 0, 11, 3, 8);
+                    Circle(Edge, 0, 11, 3, 8);
+                    Circle(edgeo, 0, 11, 3, 8);
                     break;
                 case 5:     //F2
-                    swap(edge, 0, 11, 3, 8);
-                    swap(edgeo, 0, 11, 3, 8);
+                    Swap(Edge, 0, 11, 3, 8);
+                    Swap(edgeo, 0, 11, 3, 8);
                     break;
                 case 6:     //F'
-                    circle(edge, 0, 8, 3, 11);
-                    circle(edgeo, 0, 8, 3, 11);
+                    Circle(Edge, 0, 8, 3, 11);
+                    Circle(edgeo, 0, 8, 3, 11);
                     break;
                 case 7:     //D
-                    circle(edge, 2, 7, 3, 6);
-                    circle(edgeo, 2, 7, 3, 6);
+                    Circle(Edge, 2, 7, 3, 6);
+                    Circle(edgeo, 2, 7, 3, 6);
                     break;
                 case 8:     //D2
-                    swap(edge, 2, 7, 3, 6);
-                    swap(edgeo, 2, 7, 3, 6);
+                    Swap(Edge, 2, 7, 3, 6);
+                    Swap(edgeo, 2, 7, 3, 6);
                     break;
                 case 9:     //D'
-                    circle(edge, 2, 6, 3, 7);
-                    circle(edgeo, 2, 6, 3, 7);
+                    Circle(Edge, 2, 6, 3, 7);
+                    Circle(edgeo, 2, 6, 3, 7);
                     break;
                 case 10:    //L2
-                    swap(edge, 4, 8, 7, 9);
-                    swap(edgeo, 4, 8, 7, 9);
+                    Swap(Edge, 4, 8, 7, 9);
+                    Swap(edgeo, 4, 8, 7, 9);
                     break;
                 case 11:    //B
-                    circle(edge, 1, 9, 2, 10);
-                    circle(edgeo, 1, 9, 2, 10);
+                    Circle(Edge, 1, 9, 2, 10);
+                    Circle(edgeo, 1, 9, 2, 10);
                     break;
                 case 12:    //B2
-                    swap(edge, 1, 9, 2, 10);
-                    swap(edgeo, 1, 9, 2, 10);
+                    Swap(Edge, 1, 9, 2, 10);
+                    Swap(edgeo, 1, 9, 2, 10);
                     break;
                 case 13:    //B'
-                    circle(edge, 1, 10, 2, 9);
-                    circle(edgeo, 1, 10, 2, 9);
+                    Circle(Edge, 1, 10, 2, 9);
+                    Circle(edgeo, 1, 10, 2, 9);
                     break;
                 case 14:    //u2
-                    swap(edge, 0, 4, 1, 5);
-                    swap(edgeo, 0, 4, 1, 5);
-                    swap(edge, 9, 11);
-                    swap(edgeo, 8, 10);
+                    Swap(Edge, 0, 4, 1, 5);
+                    Swap(edgeo, 0, 4, 1, 5);
+                    Swap(Edge, 9, 11);
+                    Swap(edgeo, 8, 10);
                     break;
                 case 15:    //r2
-                    swap(edge, 5, 10, 6, 11);
-                    swap(edgeo, 5, 10, 6, 11);
-                    swap(edge, 1, 3);
-                    swap(edgeo, 0, 2);
+                    Swap(Edge, 5, 10, 6, 11);
+                    Swap(edgeo, 5, 10, 6, 11);
+                    Swap(Edge, 1, 3);
+                    Swap(edgeo, 0, 2);
                     break;
                 case 16:    //f2
-                    swap(edge, 0, 11, 3, 8);
-                    swap(edgeo, 0, 11, 3, 8);
-                    swap(edge, 5, 7);
-                    swap(edgeo, 4, 6);
+                    Swap(Edge, 0, 11, 3, 8);
+                    Swap(edgeo, 0, 11, 3, 8);
+                    Swap(Edge, 5, 7);
+                    Swap(edgeo, 4, 6);
                     break;
                 case 17:    //d2
-                    swap(edge, 2, 7, 3, 6);
-                    swap(edgeo, 2, 7, 3, 6);
-                    swap(edge, 8, 10);
-                    swap(edgeo, 9, 11);
+                    Swap(Edge, 2, 7, 3, 6);
+                    Swap(edgeo, 2, 7, 3, 6);
+                    Swap(Edge, 8, 10);
+                    Swap(edgeo, 9, 11);
                     break;
                 case 18:    //l2
-                    swap(edge, 4, 8, 7, 9);
-                    swap(edgeo, 4, 8, 7, 9);
-                    swap(edge, 0, 2);
-                    swap(edgeo, 1, 3);
+                    Swap(Edge, 4, 8, 7, 9);
+                    Swap(edgeo, 4, 8, 7, 9);
+                    Swap(Edge, 0, 2);
+                    Swap(edgeo, 1, 3);
                     break;
                 case 19:    //b2
-                    swap(edge, 1, 9, 2, 10);
-                    swap(edgeo, 1, 9, 2, 10);
-                    swap(edge, 4, 6);
-                    swap(edgeo, 5, 7);
+                    Swap(Edge, 1, 9, 2, 10);
+                    Swap(edgeo, 1, 9, 2, 10);
+                    Swap(Edge, 4, 6);
+                    Swap(edgeo, 5, 7);
                     break;
             }
         }
 
-        internal void rot(int r)
+        private void Rot(int r)
         {
             isStd = false;
             switch (r)
             {
                 case 0:
-                    move(14);
-                    move(17);
+                    Move(14);
+                    Move(17);
                     break;
                 case 1:
-                    circlex(11, 5, 10, 6);//r
-                    circlex(5, 10, 6, 11);
-                    circlex(1, 2, 3, 0);
-                    circlex(4, 9, 7, 8);//l'
-                    circlex(8, 4, 9, 7);
-                    circlex(0, 1, 2, 3);
+                    Circlex(11, 5, 10, 6);//r
+                    Circlex(5, 10, 6, 11);
+                    Circlex(1, 2, 3, 0);
+                    Circlex(4, 9, 7, 8);//l'
+                    Circlex(8, 4, 9, 7);
+                    Circlex(0, 1, 2, 3);
                     break;
                 case 2:
-                    swapx(4, 5); swapx(5, 4);
-                    swapx(11, 8); swapx(8, 11);
-                    swapx(7, 6); swapx(6, 7);
-                    swapx(9, 10); swapx(10, 9);
-                    swapx(1, 1); swapx(0, 0);
-                    swapx(3, 3); swapx(2, 2);
+                    Swapx(4, 5); Swapx(5, 4);
+                    Swapx(11, 8); Swapx(8, 11);
+                    Swapx(7, 6); Swapx(6, 7);
+                    Swapx(9, 10); Swapx(10, 9);
+                    Swapx(1, 1); Swapx(0, 0);
+                    Swapx(3, 3); Swapx(2, 2);
                     break;
             }
         }
 
-        internal void rotate(int r)
+        private void Rotate(int r)
         {
             while (r >= 2)
             {
                 r -= 2;
-                rot(1);
-                rot(2);
+                Rot(1);
+                Rot(2);
             }
             if (r != 0)
             {
-                rot(0);
+                Rot(0);
             }
         }
 
 
-        internal void circle(int[] arr, int a, int b, int c, int d)
+        private void Circle(int[] arr, int a, int b, int c, int d)
         {
             int temp = arr[d];
             arr[d] = arr[c];
@@ -607,7 +599,7 @@ namespace TNoodle.Solvers.threephase
             arr[a] = temp;
         }
 
-        internal void swap(int[] arr, int a, int b, int c, int d)
+        private void Swap(int[] arr, int a, int b, int c, int d)
         {
             int temp = arr[a];
             arr[a] = arr[c];
@@ -617,28 +609,27 @@ namespace TNoodle.Solvers.threephase
             arr[d] = temp;
         }
 
-        internal void swap(int[] arr, int x, int y)
+        private void Swap(int[] arr, int x, int y)
         {
             int temp = arr[x];
             arr[x] = arr[y];
             arr[y] = temp;
         }
 
-        internal void swapx(int x, int y)
+        private void Swapx(int x, int y)
         {
-            int temp = edge[x];
-            edge[x] = edgeo[y];
+            int temp = Edge[x];
+            Edge[x] = edgeo[y];
             edgeo[y] = temp;
         }
 
-        internal void circlex(int a, int b, int c, int d)
+        private void Circlex(int a, int b, int c, int d)
         {
             int temp = edgeo[d];
-            edgeo[d] = edge[c];
-            edge[c] = edgeo[b];
-            edgeo[b] = edge[a];
-            edge[a] = temp;
+            edgeo[d] = Edge[c];
+            Edge[c] = edgeo[b];
+            edgeo[b] = Edge[a];
+            Edge[a] = temp;
         }
     }
-
 }

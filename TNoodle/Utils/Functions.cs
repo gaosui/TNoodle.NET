@@ -10,7 +10,9 @@ namespace TNoodle.Utils
 {
     public static class Functions
     {
-        public static T[][] CreateJaggedArray<T>(int l1, int l2)
+        #region Array
+
+        public static T[][] New<T>(int l1, int l2)
         {
             T[][] res = new T[l1][];
             for (int i = 0; i < l1; i++)
@@ -19,6 +21,16 @@ namespace TNoodle.Utils
             }
             return res;
         }
+
+        public static void Fill<T>(T[] arr, T value)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = value;
+            }
+        }
+
+        #endregion
         public static int BitCount(int value)
         {
             uint v = (uint)value;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using TNoodle.Solvers.threephase;
+using TNoodle.Solvers.Threephase;
 
 namespace TNoodle.Puzzles
 {
@@ -20,12 +20,12 @@ namespace TNoodle.Puzzles
 
         public override double GetInitializationStatus()
         {
-            return Edge3.initStatus();
+            return Edge3.InitStatus();
         }
 
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            string scramble = threePhaseSearcher.Value.randomState(r);
+            string scramble = threePhaseSearcher.Value.RandomState(r);
             AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
             try
             {

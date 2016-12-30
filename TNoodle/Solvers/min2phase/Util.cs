@@ -117,9 +117,9 @@ namespace TNoodle.Solvers.Min2phase
             new sbyte[] { B4, R6 }
         };
 
-        internal static int[][] Cnk { get; } = Functions.CreateJaggedArray<int>(12, 12);
+        internal static int[][] Cnk { get; } = Functions.New<int>(12, 12);
         internal static int[] Fact { get; } = new int[13];
-        internal static int[][] PermMult { get; } = Functions.CreateJaggedArray<int>(24, 24);
+        internal static int[][] PermMult { get; } = Functions.New<int>(24, 24);
         internal static string[] Move2str { get; } =
         {
             "U", "U2", "U'", "R", "R2", "R'", "F", "F2", "F'",
@@ -130,7 +130,7 @@ namespace TNoodle.Solvers.Min2phase
         internal static int[] Ud2std { get; } = { Ux1, Ux2, Ux3, Rx2, Fx2, Dx1, Dx2, Dx3, Lx2, Bx2 };
         internal static int[] Std2ud { get; } = new int[18];
 
-        internal static bool[][] Ckmv2 { get; } = Functions.CreateJaggedArray<bool>(11, 10);
+        internal static bool[][] Ckmv2 { get; } = Functions.New<bool>(11, 10);
 
         static Util()
         {

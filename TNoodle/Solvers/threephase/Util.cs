@@ -3,30 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TNoodle.Solvers.threephase.Moves;
+using TNoodle.Utils;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
-
     internal static class Util
     {
-
-        internal static int[,] Cnk = new int[25, 25];
-        internal static int[] fact = new int[13];
-        internal static char[] colorMap4to3 = { 'U', 'D', 'F', 'B', 'R', 'L' };
+        public static int[][] Cnk { get; } = Functions.New<int>(25, 25);
+        private static readonly int[] fact = new int[13];
+        public static char[] ColorMap4to3 { get; } = { 'U', 'D', 'F', 'B', 'R', 'L' };
 
         static Util()
         {
             for (int i = 0; i < 25; i++)
             {
-                Cnk[i, i] = 1;
-                Cnk[i, 0] = 1;
+                Cnk[i][i] = 1;
+                Cnk[i][0] = 1;
             }
             for (int i = 1; i < 25; i++)
             {
                 for (int j = 1; j <= i; j++)
                 {
-                    Cnk[i, j] = Cnk[i - 1, j] + Cnk[i - 1, j - 1];
+                    Cnk[i][j] = Cnk[i - 1][j] + Cnk[i - 1][j - 1];
                 }
             }
             fact[0] = 1;
@@ -36,7 +34,7 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        public static int[] tomove(string s)
+        public static int[] Tomove(string s)
         {
             s = s.Replace(" ", "");
             int[] arr = new int[s.Length];
@@ -81,17 +79,7 @@ namespace TNoodle.Solvers.threephase
             return ret;
         }
 
-        public static string tostr(int[] moves)
-        {
-            StringBuilder s = new StringBuilder();
-            foreach (int m in moves)
-            {
-                s.Append(move2str[m]).Append(' ');
-            }
-            return s.ToString();
-        }
-
-        public static void swap(int[] arr, int a, int b, int c, int d, int key)
+        public static void Swap(int[] arr, int a, int b, int c, int d, int key)
         {
             int temp;
             switch (key)
@@ -121,7 +109,7 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        public static void swap(sbyte[] arr, int a, int b, int c, int d, int key)
+        public static void Swap(sbyte[] arr, int a, int b, int c, int d, int key)
         {
             sbyte temp;
             switch (key)
@@ -151,7 +139,7 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        internal static void set8Perm(sbyte[] arr, int idx)
+        public static void Set8Perm(sbyte[] arr, int idx)
         {
             int val = 0x76543210;
             for (int i = 0; i < 7; i++)
@@ -167,7 +155,7 @@ namespace TNoodle.Solvers.threephase
             arr[7] = (sbyte)val;
         }
 
-        internal static int parity(sbyte[] arr)
+        public static int Parity(sbyte[] arr)
         {
             int parity = 0;
             for (int i = 0, len = arr.Length; i < len; i++)

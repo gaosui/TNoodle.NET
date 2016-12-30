@@ -15,19 +15,19 @@ namespace TNoodle.Solvers.Min2phase
         internal const int N_MPERM = 24;
 
         //phase1
-        internal static char[][] UDSliceMove { get; } = Functions.CreateJaggedArray<char>(N_SLICE, N_MOVES);
-        internal static char[][] TwistMove { get; } = Functions.CreateJaggedArray<char>(N_TWIST_SYM, N_MOVES);
-        internal static char[][] FlipMove { get; } = Functions.CreateJaggedArray<char>(N_FLIP_SYM, N_MOVES);
-        internal static char[][] UDSliceConj { get; } = Functions.CreateJaggedArray<char>(N_SLICE, 8);
+        internal static char[][] UDSliceMove { get; } = Functions.New<char>(N_SLICE, N_MOVES);
+        internal static char[][] TwistMove { get; } = Functions.New<char>(N_TWIST_SYM, N_MOVES);
+        internal static char[][] FlipMove { get; } = Functions.New<char>(N_FLIP_SYM, N_MOVES);
+        internal static char[][] UDSliceConj { get; } = Functions.New<char>(N_SLICE, 8);
         internal static int[] UDSliceTwistPrun { get; } = new int[N_SLICE * N_TWIST_SYM / 8 + 1];
         internal static int[] UDSliceFlipPrun { get; } = new int[N_SLICE * N_FLIP_SYM / 8];
         internal static int[] TwistFlipPrun { get; } = Tools.USE_TWIST_FLIP_PRUN ? new int[N_FLIP_SYM * N_TWIST_SYM * 8 / 8] : null;
 
         //phase2
-        internal static char[][] CPermMove { get; } = Functions.CreateJaggedArray<char>(N_PERM_SYM, N_MOVES);
-        internal static char[][] EPermMove { get; } = Functions.CreateJaggedArray<char>(N_PERM_SYM, N_MOVES2);
-        internal static char[][] MPermMove { get; } = Functions.CreateJaggedArray<char>(N_MPERM, N_MOVES2);
-        internal static char[][] MPermConj { get; } = Functions.CreateJaggedArray<char>(N_MPERM, 16);
+        internal static char[][] CPermMove { get; } = Functions.New<char>(N_PERM_SYM, N_MOVES);
+        internal static char[][] EPermMove { get; } = Functions.New<char>(N_PERM_SYM, N_MOVES2);
+        internal static char[][] MPermMove { get; } = Functions.New<char>(N_MPERM, N_MOVES2);
+        internal static char[][] MPermConj { get; } = Functions.New<char>(N_MPERM, 16);
         internal static int[] MCPermPrun { get; } = new int[N_MPERM * N_PERM_SYM / 8];
         internal static int[] MEPermPrun { get; } = new int[N_MPERM * N_PERM_SYM / 8];
 

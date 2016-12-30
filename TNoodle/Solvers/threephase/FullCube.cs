@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TNoodle.Solvers.threephase.Moves;
-using static TNoodle.Solvers.threephase.Center1;
+using static TNoodle.Solvers.Threephase.Moves;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
     /*
     Edge Cubies: 
@@ -59,14 +58,11 @@ namespace TNoodle.Solvers.threephase
 
     public class FullCube : IComparable<FullCube>
     {
-
-
         public class ValueComparator : IComparer<FullCube>
         {
-
             public int Compare(FullCube c1, FullCube c2)
             {
-                return c2.value - c1.value;
+                return c2.Value - c1.Value;
             }
         }
 
@@ -74,15 +70,15 @@ namespace TNoodle.Solvers.threephase
         private CenterCube center;
         private CornerCube corner;
 
-        internal int value = 0;
-        internal bool add1 = false;
-        internal int length1 = 0;
-        internal int length2 = 0;
-        internal int length3 = 0;
+        internal int Value { get; set; } = 0;
+        internal bool Add1 { get; set; } = false;
+        internal int Length1 { get; set; } = 0;
+        internal int Length2 { get; set; } = 0;
+        private int length3 = 0;
 
         public int CompareTo(FullCube c)
         {
-            return value - c.value;
+            return Value - c.Value;
         }
 
         public FullCube()
@@ -94,7 +90,7 @@ namespace TNoodle.Solvers.threephase
 
         public FullCube(FullCube c) : this()
         {
-            copy(c);
+            Copy(c);
         }
 
         public FullCube(Random r)
@@ -108,67 +104,62 @@ namespace TNoodle.Solvers.threephase
         {
             foreach (int m in moveseq)
             {
-                doMove(m);
+                DoMove(m);
             }
         }
 
-        public void copy(FullCube c)
+        public void Copy(FullCube c)
         {
-            edge.copy(c.edge);
-            center.copy(c.center);
-            corner.copy(c.corner);
+            edge.Copy(c.edge);
+            center.Copy(c.center);
+            corner.Copy(c.corner);
 
-            this.value = c.value;
-            this.add1 = c.add1;
-            this.length1 = c.length1;
-            this.length2 = c.length2;
-            this.length3 = c.length3;
+            Value = c.Value;
+            Add1 = c.Add1;
+            Length1 = c.Length1;
+            Length2 = c.Length2;
+            length3 = c.length3;
 
-            this.sym = c.sym;
+            Sym = c.Sym;
 
             for (int i = 0; i < 60; i++)
             {
-                this.moveBuffer[i] = c.moveBuffer[i];
+                moveBuffer[i] = c.moveBuffer[i];
             }
-            this.moveLength = c.moveLength;
-            this.edgeAvail = c.edgeAvail;
-            this.centerAvail = c.centerAvail;
-            this.cornerAvail = c.cornerAvail;
+            moveLength = c.moveLength;
+            edgeAvail = c.edgeAvail;
+            centerAvail = c.centerAvail;
+            cornerAvail = c.cornerAvail;
         }
 
-        //	public void print() {	
-        //		getCenter().print();
-        //		getEdge().print();
-        //	}
-
-        public bool checkEdge()
+        public bool CheckEdge()
         {
-            return getEdge().checkEdge();
+            return GetEdge().CheckEdge();
         }
 
-        public string getMoveString(bool inverse, bool rotation)
+        public string GetMoveString(bool inverse, bool rotation)
         {
-            int[] fixedMoves = new int[moveLength - (add1 ? 2 : 0)];
+            int[] fixedMoves = new int[moveLength - (Add1 ? 2 : 0)];
             int idx = 0;
-            for (int i = 0; i < length1; i++)
+            for (int i = 0; i < Length1; i++)
             {
                 fixedMoves[idx++] = moveBuffer[i];
             }
-            int sym = this.sym;
-            for (int i = length1 + (add1 ? 2 : 0); i < moveLength; i++)
+            int sym = this.Sym;
+            for (int i = Length1 + (Add1 ? 2 : 0); i < moveLength; i++)
             {
-                if (symmove[sym, moveBuffer[i]] >= dx1)
+                if (Center1.Symmove[sym][moveBuffer[i]] >= dx1)
                 {
-                    fixedMoves[idx++] = symmove[sym, moveBuffer[i]] - 9;
-                    int rot = move2rot[symmove[sym, moveBuffer[i]] - dx1];
-                    sym = symmult[sym, rot];
+                    fixedMoves[idx++] = Center1.Symmove[sym][moveBuffer[i]] - 9;
+                    int rot = move2rot[Center1.Symmove[sym][moveBuffer[i]] - dx1];
+                    sym = Center1.Symmult[sym][rot];
                 }
                 else
                 {
-                    fixedMoves[idx++] = symmove[sym, moveBuffer[i]];
+                    fixedMoves[idx++] = Center1.Symmove[sym][moveBuffer[i]];
                 }
             }
-            int finishSym = symmult[syminv[sym], Center1.getSolvedSym(getCenter())];
+            int finishSym = Center1.Symmult[Center1.Syminv[sym]][Center1.GetSolvedSym(GetCenter())];
 
             StringBuilder sb = new StringBuilder();
             sym = finishSym;
@@ -178,94 +169,93 @@ namespace TNoodle.Solvers.threephase
                 {
                     int move = fixedMoves[i];
                     move = move / 3 * 3 + (2 - move % 3);
-                    if (symmove[sym, move] >= dx1)
+                    if (Center1.Symmove[sym][move] >= dx1)
                     {
-                        sb.Append(move2str[symmove[sym, move] - 9]).Append(' ');
-                        int rot = move2rot[symmove[sym, move] - dx1];
-                        sym = symmult[sym, rot];
+                        sb.Append(Move2str[Center1.Symmove[sym][move] - 9]).Append(' ');
+                        int rot = move2rot[Center1.Symmove[sym][move] - dx1];
+                        sym = Center1.Symmult[sym][rot];
                     }
                     else
                     {
-                        sb.Append(move2str[symmove[sym, move]]).Append(' ');
+                        sb.Append(Move2str[Center1.Symmove[sym][move]]).Append(' ');
                     }
                 }
                 if (rotation)
                 {
-                    sb.Append(Center1.rot2str[syminv[sym]] + " ");//cube rotation after solution. for wca scramble, it should be omitted.
+                    sb.Append(Center1.Rot2str[Center1.Syminv[sym]] + " ");//cube rotation after solution. for wca scramble, it should be omitted.
                 }
             }
             else
             {
                 for (int i = 0; i < idx; i++)
                 {
-                    sb.Append(move2str[fixedMoves[i]]).Append(' ');
+                    sb.Append(Move2str[fixedMoves[i]]).Append(' ');
                 }
                 if (rotation)
                 {
-                    sb.Append(Center1.rot2str[finishSym]);//cube rotation after solution.
+                    sb.Append(Center1.Rot2str[finishSym]);//cube rotation after solution.
                 }
             }
             return sb.ToString();
         }
 
-        private static int[] move2rot = { 35, 1, 34, 2, 4, 6, 22, 5, 19 };
+        private static readonly int[] move2rot = { 35, 1, 34, 2, 4, 6, 22, 5, 19 };
 
-        internal String to333Facelet()
+        internal string To333Facelet()
         {
             char[] ret = new char[54];
-            getEdge().fill333Facelet(ret);
-            getCenter().fill333Facelet(ret);
-            getCorner().fill333Facelet(ret);
-            return new String(ret);
+            GetEdge().Fill333Facelet(ret);
+            GetCenter().Fill333Facelet(ret);
+            GetCorner().Fill333Facelet(ret);
+            return new string(ret);
         }
 
-        internal sbyte[] moveBuffer = new sbyte[60];
+        private sbyte[] moveBuffer = new sbyte[60];
         private int moveLength = 0;
         private int edgeAvail = 0;
         private int centerAvail = 0;
         private int cornerAvail = 0;
 
-        internal int sym = 0;
+        internal int Sym { get; set; } = 0;
 
-        internal void move(int m)
+        internal void Move(int m)
         {
             moveBuffer[moveLength++] = (sbyte)m;
             return;
         }
 
-        internal void doMove(int m)
+        private void DoMove(int m)
         {
-            getEdge().move(m);
-            getCenter().move(m);
-            getCorner().move(m % 18);
+            GetEdge().Move(m);
+            GetCenter().Move(m);
+            GetCorner().Move(m % 18);
         }
 
-        internal EdgeCube getEdge()
+        internal EdgeCube GetEdge()
         {
             while (edgeAvail < moveLength)
             {
-                edge.move(moveBuffer[edgeAvail++]);
+                edge.Move(moveBuffer[edgeAvail++]);
             }
             return edge;
         }
 
-        internal CenterCube getCenter()
+        internal CenterCube GetCenter()
         {
             while (centerAvail < moveLength)
             {
-                center.move(moveBuffer[centerAvail++]);
+                center.Move(moveBuffer[centerAvail++]);
             }
             return center;
         }
 
-        internal CornerCube getCorner()
+        internal CornerCube GetCorner()
         {
             while (cornerAvail < moveLength)
             {
-                corner.move(moveBuffer[cornerAvail++] % 18);
+                corner.Move(moveBuffer[cornerAvail++] % 18);
             }
             return corner;
         }
     }
-
 }

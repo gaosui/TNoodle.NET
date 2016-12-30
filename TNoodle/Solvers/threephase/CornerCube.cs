@@ -3,64 +3,71 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static TNoodle.Solvers.threephase.Moves;
+using static TNoodle.Solvers.Threephase.Moves;
 
-namespace TNoodle.Solvers.threephase
+namespace TNoodle.Solvers.Threephase
 {
-
     internal class CornerCube
     {
-
         /**
          * 18 move cubes
          */
-        private static CornerCube[] moveCube = new CornerCube[18];
+        private static readonly CornerCube[] moveCube = new CornerCube[18];
 
         private static readonly int[] cpmv = {1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1,
                                         1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1};
 
-        private sbyte[] cp = { 0, 1, 2, 3, 4, 5, 6, 7 };
-        private sbyte[] co = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        private readonly sbyte[] cp = { 0, 1, 2, 3, 4, 5, 6, 7 };
+        private readonly sbyte[] co = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-        internal CornerCube temps = null;//new CornerCube();
+        private CornerCube temps;//new CornerCube();
 
-        internal CornerCube()
+        public CornerCube()
         {
         }
 
-        internal CornerCube(Random r) : this(r.Next(40320), r.Next(2187))
+        public CornerCube(Random r) : this(r.Next(40320), r.Next(2187))
         {
         }
 
-        internal CornerCube(int cperm, int twist)
+        public CornerCube(int cperm, int twist)
         {
-            this.setCPerm(cperm);
-            this.setTwist(twist);
+            SetCPerm(cperm);
+            SetTwist(twist);
         }
 
-        internal CornerCube(CornerCube c)
+        public CornerCube(CornerCube c)
         {
-            copy(c);
+            Copy(c);
         }
 
-        internal void copy(CornerCube c)
+        public void Copy(CornerCube c)
         {
             for (int i = 0; i < 8; i++)
             {
-                this.cp[i] = c.cp[i];
-                this.co[i] = c.co[i];
+                cp[i] = c.cp[i];
+                co[i] = c.co[i];
             }
         }
 
-        internal int getParity()
+        public int GetParity()
         {
-            return Util.parity(cp);
+            return Util.Parity(cp);
         }
 
-        internal static readonly sbyte[,] cornerFacelet = { { U9, R1, F3 }, { U7, F1, L3 }, { U1, L1, B3 }, { U3, B1, R3 },
-            { D3, F9, R7 }, { D1, L9, F7 }, { D7, B9, L7 }, { D9, R9, B7 } };
+        private static readonly sbyte[][] cornerFacelet = 
+        { 
+            new sbyte[] { U9, R1, F3 }, 
+            new sbyte[] { U7, F1, L3 }, 
+            new sbyte[] { U1, L1, B3 }, 
+            new sbyte[] { U3, B1, R3 },
+            new sbyte[] { D3, F9, R7 }, 
+            new sbyte[] { D1, L9, F7 }, 
+            new sbyte[] { D7, B9, L7 }, 
+            new sbyte[] { D9, R9, B7 }
+        };
 
-        internal void fill333Facelet(char[] facelet)
+        public void Fill333Facelet(char[] facelet)
         {
             for (int corn = 0; corn < 8; corn++)
             {
@@ -68,7 +75,7 @@ namespace TNoodle.Solvers.threephase
                 int ori = co[corn];
                 for (int n = 0; n < 3; n++)
                 {
-                    facelet[cornerFacelet[corn, (n + ori) % 3]] = "URFDLB"[cornerFacelet[j, n] / 9];
+                    facelet[cornerFacelet[corn][(n + ori) % 3]] = "URFDLB"[cornerFacelet[j][n] / 9];
                 }
             }
         }
@@ -76,7 +83,7 @@ namespace TNoodle.Solvers.threephase
         /**
          * prod = a * b, Corner Only.
          */
-        internal static void CornMult(CornerCube a, CornerCube b, CornerCube prod)
+        private static void CornMult(CornerCube a, CornerCube b, CornerCube prod)
         {
             for (int corn = 0; corn < 8; corn++)
             {
@@ -94,7 +101,7 @@ namespace TNoodle.Solvers.threephase
             }
         }
 
-        internal void setTwist(int idx)
+        private void SetTwist(int idx)
         {
             int twst = 0;
             for (int i = 6; i >= 0; i--)
@@ -105,28 +112,27 @@ namespace TNoodle.Solvers.threephase
             co[7] = (sbyte)((15 - twst) % 3);
         }
 
-        internal void setCPerm(int idx)
+        private void SetCPerm(int idx)
         {
-            Util.set8Perm(cp, idx);
+            Util.Set8Perm(cp, idx);
         }
 
-        internal void move(int idx)
+        public void Move(int idx)
         {
             if (temps == null)
             {
                 temps = new CornerCube();
             }
             CornMult(this, moveCube[idx], temps);
-            copy(temps);
+            Copy(temps);
         }
 
         static CornerCube()
         {
-
-            initMove();
+            InitMove();
         }
 
-        internal static void initMove()
+        private static void InitMove()
         {
             moveCube[0] = new CornerCube(15120, 0);
             moveCube[3] = new CornerCube(21021, 1494);
@@ -144,5 +150,4 @@ namespace TNoodle.Solvers.threephase
             }
         }
     }
-
 }
