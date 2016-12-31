@@ -29,7 +29,7 @@ namespace Test
                 state = new FullCube(r);
                 watch.Start();
 
-                Console.WriteLine(solver.Solve(state));
+                solver.Calc(state);
 
                 watch.Stop();
                 tick += watch.ElapsedTicks;

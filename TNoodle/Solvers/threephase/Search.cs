@@ -262,6 +262,12 @@ namespace TNoodle.Solvers.Threephase
             totlen = length1 + length2 + length + len333;
         }
 
+        public void Calc(FullCube s)
+        {
+            cubeToSolve = s;
+            DoSearch();
+        }
+
         private bool Search1(int ct, int sym, int maxl, int lm, int depth)
         {
             if (ct == 0)
