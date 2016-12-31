@@ -10,12 +10,12 @@ namespace TNoodle.Solvers.Min2phase
         internal static CubieCube[] MoveCube { get; } = new CubieCube[18];
 
         internal static int[] SymInv { get; } = new int[16];
-        internal static int[][] SymMult { get; } = Functions.New<int>(16, 16);
-        internal static int[][] SymMove { get; } = Functions.New<int>(16, 18);
-        internal static int[][] Sym8Mult { get; } = Functions.New<int>(8, 8);
-        internal static int[][] Sym8Move { get; } = Functions.New<int>(8, 18);
-        internal static int[][] Sym8MultInv { get; } = Functions.New<int>(8, 8);
-        internal static int[][] SymMoveUD { get; } = Functions.New<int>(16, 10);
+		internal static int[][] SymMult { get; } = ArrayExtension.New<int>(16, 16);
+		internal static int[][] SymMove { get; } = ArrayExtension.New<int>(16, 18);
+		internal static int[][] Sym8Mult { get; } = ArrayExtension.New<int>(8, 8);
+		internal static int[][] Sym8Move { get; } = ArrayExtension.New<int>(8, 18);
+		internal static int[][] Sym8MultInv { get; } = ArrayExtension.New<int>(8, 8);
+		internal static int[][] SymMoveUD { get; } = ArrayExtension.New<int>(16, 10);
 
         internal static char[] FlipS2R { get; } = new char[336];
         internal static char[] TwistS2R { get; } = new char[324];

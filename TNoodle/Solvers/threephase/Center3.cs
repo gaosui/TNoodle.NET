@@ -21,7 +21,7 @@ namespace TNoodle.Solvers.Threephase
 
     internal class Center3
     {
-        public static char[][] Ctmove { get; } = Functions.New<char>(35 * 35 * 12 * 2, 20);
+		public static char[][] Ctmove { get; } = ArrayExtension.New<char>(35 * 35 * 12 * 2, 20);
         private static readonly int[] pmove = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 };
 
         public static sbyte[] Prun { get; } = new sbyte[35 * 35 * 12 * 2];

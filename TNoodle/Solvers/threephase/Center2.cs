@@ -24,10 +24,10 @@ namespace TNoodle.Solvers.Threephase
         private readonly int[] ct = new int[16];
         private int parity = 0;
 
-        public static int[][] Rlmv { get; } = Functions.New<int>(70, 28);
-        public static char[][] Ctmv { get; } = Functions.New<char>(6435, 28);
-        private static readonly int[][] rlrot = Functions.New<int>(70, 16);
-        private static readonly char[][] ctrot = Functions.New<char>(6435, 16);
+		public static int[][] Rlmv { get; } = ArrayExtension.New<int>(70, 28);
+		public static char[][] Ctmv { get; } = ArrayExtension.New<char>(6435, 28);
+		private static readonly int[][] rlrot = ArrayExtension.New<int>(70, 16);
+		private static readonly char[][] ctrot = ArrayExtension.New<char>(6435, 16);
         public static sbyte[] Ctprun { get; } = new sbyte[6435 * 35 * 2];
 
         private static readonly int[] pmv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,

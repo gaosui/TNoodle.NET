@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +19,7 @@ namespace TNoodle.Puzzles
             string firstAxisRestriction;
             if (randomOrientation.Length > 0)
             {
-                CubeFace restrictedFace = randomOrientation[0].Face;
+                Face restrictedFace = randomOrientation[0].Face;
                 // Restrictions are for an entire axis, so this will also
                 // prevent the opposite of restrictedFace from being the first
                 // move of our solution. This ensures that randomOrientation will

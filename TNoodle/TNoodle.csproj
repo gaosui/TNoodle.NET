@@ -86,6 +86,8 @@
     <Compile Include="Solvers\threephase\Util.cs" />
     <Compile Include="Solvers\TwoByTwoSolver.cs" />
     <Compile Include="Utils\Functions.cs" />
+    <Compile Include="Utils\Assertion.cs" />
+    <Compile Include="Utils\ArrayExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="MissingFeatures.txt" />

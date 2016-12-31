@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TNoodle.Puzzles;
+using static TNoodle.Puzzles.CubePuzzle;
 
 namespace TNoodle.Utils
 {
@@ -12,15 +13,7 @@ namespace TNoodle.Utils
     {
         #region Array
 
-        public static T[][] New<T>(int l1, int l2)
-        {
-            T[][] res = new T[l1][];
-            for (int i = 0; i < l1; i++)
-            {
-                res[i] = new T[l2];
-            }
-            return res;
-        }
+
 
         public static void Fill<T>(T[] arr, T value)
         {
@@ -125,9 +118,9 @@ namespace TNoodle.Utils
             return result;
         }
 
-        public static CubeFace oppositeFace(this CubeFace f)
+        public static Face OppositeFace(this Face f)
         {
-            return (CubeFace)(((int)f + 3) % 6);
+            return (Face)(((int)f + 3) % 6);
         }
 
         // TODO We could rename faces so we can just do +6 mod 12 here instead.
@@ -164,14 +157,8 @@ namespace TNoodle.Utils
             }
         }
 
-        public static LinkedHashMap<B, A> ReverseHashMap<A, B>(this LinkedHashMap<A, B> map)
-        {
-            LinkedHashMap<B, A> reverseMap = new LinkedHashMap<B, A>();
-            foreach (var pair in map)
-            {
-                reverseMap.Add(pair.Value, pair.Key);
-            }
-            return reverseMap;
-        }
+
+
+
     }
 }

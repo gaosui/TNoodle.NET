@@ -20,12 +20,12 @@ namespace TNoodle.Solvers.Threephase
 
     internal sealed class Center1
     {
-        public static int[][] Ctsmv { get; } = Functions.New<int>(15582, 36);
+		public static int[][] Ctsmv { get; } = ArrayExtension.New<int>(15582, 36);
         private static readonly int[] sym2raw = new int[15582];
         public static sbyte[] Csprun { get; } = new sbyte[15582];
 
-        public static int[][] Symmult { get; } = Functions.New<int>(48, 48);
-        public static int[][] Symmove { get; } = Functions.New<int>(48, 36);
+		public static int[][] Symmult { get; } = ArrayExtension.New<int>(48, 48);
+		public static int[][] Symmove { get; } = ArrayExtension.New<int>(48, 36);
         public static int[] Syminv { get; } = new int[48];
         public static int[] Finish { get; } = new int[48];
 

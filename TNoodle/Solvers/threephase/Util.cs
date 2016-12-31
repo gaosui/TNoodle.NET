@@ -9,7 +9,7 @@ namespace TNoodle.Solvers.Threephase
 {
     internal static class Util
     {
-        public static int[][] Cnk { get; } = Functions.New<int>(25, 25);
+		public static int[][] Cnk { get; } = ArrayExtension.New<int>(25, 25);
         private static readonly int[] fact = new int[13];
         public static char[] ColorMap4to3 { get; } = { 'U', 'D', 'F', 'B', 'R', 'L' };
 

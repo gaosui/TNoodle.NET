@@ -119,9 +119,9 @@ namespace TNoodle.Solvers.Threephase
         private static readonly int[] std2move = new int[37];
         private static readonly int[] std3move = new int[37];
 
-        public static bool[][] Ckmv { get; } = Functions.New<bool>(37, 36);
-        public static bool[][] Ckmv2 { get; } = Functions.New<bool>(29, 28);
-        public static bool[][] Ckmv3 { get; } = Functions.New<bool>(21, 20);
+		public static bool[][] Ckmv { get; } = ArrayExtension.New<bool>(37, 36);
+		public static bool[][] Ckmv2 { get; } = ArrayExtension.New<bool>(29, 28);
+		public static bool[][] Ckmv3 { get; } = ArrayExtension.New<bool>(21, 20);
 
         private static int[] skipAxis = new int[36];
         public static int[] SkipAxis2 { get; } = new int[28];
