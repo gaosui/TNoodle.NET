@@ -83,7 +83,7 @@ namespace TNoodle.Puzzles
             // and we need to make sure that sol_0' doesn't cancel with the first move of
             // scrambleSuffix:
             String solutionFirstAxisRestriction = scrambleSuffix[0].Substring(0, 1);
-            PuzzleStateAndGenerator psag = base.generateRandomMoves(r, solutionFirstAxisRestriction, solutionLastAxisRestriction);
+            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r, solutionFirstAxisRestriction, solutionLastAxisRestriction);
             AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.NO_MERGING);
             try
             {

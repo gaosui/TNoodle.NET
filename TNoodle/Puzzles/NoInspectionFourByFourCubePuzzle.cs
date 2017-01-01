@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +36,7 @@ namespace TNoodle.Puzzles
                 ab.appendAlgorithm(psag.generator);
                 foreach (CubeMove cm in randomOrientation)
                 {
-                    ab.appendMove(cm.ToString());
+                    ab.AppendMove(cm.ToString());
                 }
 
                 psag = ab.getStateAndGenerator();

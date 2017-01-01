@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +28,7 @@ namespace TNoodle.Puzzles
             PuzzleState state;
             try
             {
-                state = GetSolvedState().applyAlgorithm(scramble);
+                state = GetSolvedState().ApplyAlgorithm(scramble);
             }
             catch //(InvalidScrambleException e)
             {

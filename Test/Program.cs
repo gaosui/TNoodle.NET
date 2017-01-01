@@ -20,7 +20,7 @@ namespace Test
 			double tick = 0;
 			int count = 50;
 
-			var puzzle = new TwoByTwoCubePuzzle();
+			var puzzle = new ThreeByThreeCubePuzzle();
 			string result;
 
 			for (int i = 0; i < count; i++)

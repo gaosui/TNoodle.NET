@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +40,7 @@ namespace TNoodle.Puzzles
                 // with no redundant turns, and I can't see how it could hurt the
                 // quality of our scrambles to do this.
                 String firstReorientMove = randomOrientation[0].ToString();
-                while (ab.isRedundant(firstReorientMove))
+                while (ab.IsRedundant(firstReorientMove))
                 {
                     //azzert(discardRedundantMoves);
                     IndexAndMove im = ab.findBestIndexForMove(firstReorientMove, MergingMode.CANONICALIZE_MOVES);
@@ -48,7 +48,7 @@ namespace TNoodle.Puzzles
                 }
                 foreach (CubeMove cm in randomOrientation)
                 {
-                    ab.appendMove(cm.ToString());
+                    ab.AppendMove(cm.ToString());
                 }
 
                 psag = ab.getStateAndGenerator();

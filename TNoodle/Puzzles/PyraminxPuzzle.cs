@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,7 +29,7 @@ namespace TNoodle.Puzzles
             PuzzleState pState;
             try
             {
-                pState = GetSolvedState().applyAlgorithm(scramble);
+                pState = GetSolvedState().ApplyAlgorithm(scramble);
             }
             catch //(InvalidScrambleException e)
             {
@@ -309,7 +309,7 @@ namespace TNoodle.Puzzles
                 return state;
             }
 
-            public override String solveIn(int n)
+            public override String SolveIn(int n)
             {
                 return puzzle.pyraminxSolver.solveIn(toPyraminxSolverState(), n, SCRAMBLE_LENGTH_INCLUDES_TIPS);
             }

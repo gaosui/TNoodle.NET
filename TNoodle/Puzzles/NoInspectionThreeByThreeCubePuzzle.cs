@@ -31,7 +31,7 @@ namespace TNoodle.Puzzles
                 firstAxisRestriction = null;
             }
             string lastAxisRestriction = null;
-            PuzzleStateAndGenerator psag = base.generateRandomMoves(r, firstAxisRestriction, lastAxisRestriction);
+            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r, firstAxisRestriction, lastAxisRestriction);
             psag = NoInspectionFiveByFiveCubePuzzle.applyOrientation(this, randomOrientation, psag, false);
             return psag;
         }

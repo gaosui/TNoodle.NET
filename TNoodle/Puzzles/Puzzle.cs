@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TNoodle.Utils;
+using static TNoodle.Utils.Assertion;
 
 namespace TNoodle.Puzzles
 {
-    /**
+	/**
      * Puzzle and TwistyPuzzle encapsulate all the information to filter out
      * scrambles <= wcaMinScrambleDistance (defaults to 1)
      * move away from solved (see generateWcaScramble),
@@ -18,37 +18,37 @@ namespace TNoodle.Puzzles
      * @author jeremy
      *
      */
-    public abstract class Puzzle
-    {
-        public int WcaMinScrambleDistance { get; protected set; }
+	public abstract class Puzzle
+	{
+		public int WcaMinScrambleDistance { get; protected set; }
 
-        /**
+		/**
          * Returns a String describing this Scrambler
          * appropriate for use in a url. This shouldn't contain any periods.
          * @return a url appropriate String unique to this Scrambler
          */
-        public abstract string GetShortName();
+		public abstract string GetShortName();
 
-        /**
+		/**
          * Returns a String fully describing this Scrambler.
          * Unlike shortName(), may contain spaces and other url-inappropriate characters.
          * This will also be used for the toString method of this Scrambler.
          * @return a String
          */
-        public abstract string GetLongName();
+		public abstract string GetLongName();
 
-        /**
+		/**
          * Returns a number between 0 and 1 representing how "initialized" this
          * Scrambler is. 0 means nothing has been accomplished, and 1 means
          * we're done, and are generating scrambles.
          * @return A double between 0 and 1, inclusive.
          */
-        public virtual double GetInitializationStatus()
-        {
-            return 1;
-        }
+		public virtual double GetInitializationStatus()
+		{
+			return 1;
+		}
 
-        /**
+		/**
          * Generates a scramble appropriate for this Scrambler. It's important to note that
          * it's ok if this method takes some time to run, as it's going to be called many times and get queued up
          * by ScrambleCacher.
@@ -57,395 +57,456 @@ namespace TNoodle.Puzzles
          * @param r The instance of Random you must use as your source of randomness when generating scrambles.
          * @return A String containing the scramble, where turns are assumed to be separated by whitespace.
          */
-        public string GenerateWcaScramble(Random r)
-        {
-            PuzzleStateAndGenerator psag;
-            do
-            {
-                psag = GenerateRandomMoves(r);
-            } while (psag.state.solveIn(WcaMinScrambleDistance - 1) != null);
-            return psag.generator;
-        }
+		public string GenerateWcaScramble(Random r)
+		{
+			PuzzleStateAndGenerator psag;
+			do
+			{
+				psag = GenerateRandomMoves(r);
+			} while (psag.state.SolveIn(WcaMinScrambleDistance - 1) != null);
+			return psag.generator;
+		}
 
-        /**
+		/**
          * @return Simply returns getLongName()
          */
-        public override string ToString()
-        {
-            return GetLongName();
-        }
+		public override string ToString()
+		{
+			return GetLongName();
+		}
 
-        protected virtual string SolveIn(PuzzleState ps, int n)
-        {
-            if (ps.isSolved())
-            {
-                return "";
-            }
+		public class Bucket<H> : IComparable<Bucket<H>>
+		{
+			LinkedList<H> contents = new LinkedList<H>();
+			public int Value { get; }
 
-            Dictionary<PuzzleState, int> seenSolved = new Dictionary<PuzzleState, int>();
-            SortedBuckets<PuzzleState> fringeSolved = new SortedBuckets<PuzzleState>();
-            Dictionary<PuzzleState, int> seenScrambled = new Dictionary<PuzzleState, int>();
-            SortedBuckets<PuzzleState> fringeScrambled = new SortedBuckets<PuzzleState>();
+			public Bucket(int value)
+			{
+				Value = value;
+			}
 
-            // We're only interested in solutions of cost <= n
-            int bestIntersectionCost = n + 1;
-            PuzzleState bestIntersection = null;
+			public H Pop()
+			{
+				var last = contents.Last.Value;
+				contents.RemoveLast();
+				return last;
+			}
 
-            PuzzleState solvedNormalized = GetSolvedState().GetNormalized();
-            fringeSolved.add(solvedNormalized, 0);
-            seenSolved[solvedNormalized] = 0;
-            fringeScrambled.add(ps.GetNormalized(), 0);
-            seenScrambled[ps.GetNormalized()] = 0;
+			public void Push(H element)
+			{
+				contents.AddLast(element);
+			}
 
-            //TimedLogRecordStart start = new TimedLogRecordStart(Level.FINER, "Searching for solution in " + n + " moves.");
-            //l.log(start);
+			public bool IsEmpty()
+			{
+				return contents.Count == 0;
+			}
 
-            int fringeTies = 0;
+			public override string ToString()
+			{
+				return "#: " + Value + ": " + contents;
+			}
 
-            // The task here is to do a breadth-first search starting from both the solved state and the scrambled state.
-            // When we got an intersection from the two hash maps, we are done!
-            int minFringeScrambled = -1, minFringeSolved = -1;
-            while (!fringeSolved.isEmpty() || !fringeScrambled.isEmpty())
-            {
-                // We have to choose on which side we are extending our search.
-                // I'm choosing the non empty fringe with the node nearest
-                // its origin. In the event of a tie, we make sure to alternate.
-                if (!fringeScrambled.isEmpty())
-                {
-                    minFringeScrambled = fringeScrambled.smallestValue();
-                }
-                if (!fringeSolved.isEmpty())
-                {
-                    minFringeSolved = fringeSolved.smallestValue();
-                }
-                bool extendSolved;
-                if (fringeSolved.isEmpty() || fringeScrambled.isEmpty())
-                {
-                    // If the solved fringe is not empty, we'll expand it.
-                    // Otherwise, we're expanding the scrambled fringe.
-                    extendSolved = !fringeSolved.isEmpty();
-                }
-                else
-                {
-                    if (minFringeSolved < minFringeScrambled)
-                    {
-                        extendSolved = true;
-                    }
-                    else if (minFringeSolved > minFringeScrambled)
-                    {
-                        extendSolved = false;
-                    }
-                    else
-                    {
-                        extendSolved = (fringeTies++) % 2 == 0;
-                    }
-                }
+			public int CompareTo(Bucket<H> other)
+			{
+				return Value - other.Value;
+			}
 
-                // We are using references for a more concise code.
-                Dictionary<PuzzleState, int> seenExtending;
-                SortedBuckets<PuzzleState> fringeExtending;
-                Dictionary<PuzzleState, int> seenComparing;
-                SortedBuckets<PuzzleState> fringeComparing;
-                int minExtendingFringe, minComparingFringe;
-                if (extendSolved)
-                {
-                    seenExtending = seenSolved;
-                    fringeExtending = fringeSolved;
-                    minExtendingFringe = minFringeSolved;
-                    seenComparing = seenScrambled;
-                    fringeComparing = fringeScrambled;
-                    minComparingFringe = minFringeScrambled;
-                }
-                else
-                {
-                    seenExtending = seenScrambled;
-                    fringeExtending = fringeScrambled;
-                    minExtendingFringe = minFringeScrambled;
-                    seenComparing = seenSolved;
-                    fringeComparing = fringeSolved;
-                    minComparingFringe = minFringeSolved;
-                }
+			public override int GetHashCode()
+			{
+				return Value;
+			}
 
-                PuzzleState node = fringeExtending.pop();
-                int distance = seenExtending[node];
-                if (seenComparing.ContainsKey(node))
-                {
-                    // We found an intersection! Compute the total cost of the
-                    // path going through this node.
-                    int cost = seenComparing[node] + distance;
-                    if (cost < bestIntersectionCost)
-                    {
-                        bestIntersection = node;
-                        bestIntersectionCost = cost;
-                    }
-                    continue;
-                }
-                // The best possible solution involving this node would
-                // be through a child of this node that gets us across to
-                // the other fringe's smallest distance node.
-                int bestPossibleSolution = distance + minComparingFringe;
-                if (bestPossibleSolution >= bestIntersectionCost)
-                {
-                    continue;
-                }
-                if (distance >= (n + 1) / 2)
-                {
-                    // The +1 is because if n is odd, we would have to search
-                    // from one side with distance n/2 and from the other side
-                    // distance n/2 + 1. Because we don't know which is which,
-                    // let's take (n+1)/2 for both.
-                    continue;
-                }
+			public override bool Equals(object obj)
+			{
+				var other = (Bucket<H>)obj;
+				return Value == other.Value;
+			}
+		}
 
+		public class SortedBuckets<H>
+		{
+			SortedSet<Bucket<H>> buckets = new SortedSet<Bucket<H>>();
 
-                LinkedHashMap<PuzzleState, string> movesByState = node.GetCanonicalMovesByState();
-                foreach (PuzzleState next in movesByState.Keys)
-                {
-                    int moveCost = node.getMoveCost(movesByState[next]);
-                    int nextDistance = distance + moveCost;
-                    //next = next.getNormalized();
-                    var nNext = next.GetNormalized();
-                    if (seenExtending.ContainsKey(nNext))
-                    {
-                        if (nextDistance >= seenExtending[nNext])
-                        {
-                            // We already found a better path to next.
-                            continue;
-                        }
-                        // Go on to clobber seenExtending with our updated
-                        // distance. Unfortunately, we're going have 2 copies
-                        // of next in our fringe. This doesn't change correctness,
-                        // it just means a bit of wasted work when we get around
-                        // to popping off the second one.
-                    }
-                    fringeExtending.add(nNext, nextDistance);
-                    seenExtending[nNext] = nextDistance;
-                }
-            }
+			public void Add(H element, int value)
+			{
+				Bucket<H> bucket;
+				var searchBucket = new Bucket<H>(value);
+				if (!buckets.Contains(searchBucket))
+				{
+					// There is no bucket yet for value, so we create one.
+					bucket = searchBucket;
+					buckets.Add(bucket);
+				}
+				else
+				{
+					bucket = buckets.First(b => b.CompareTo(searchBucket) >= 0);
+				}
+				bucket.Push(element);
+			}
 
-            //l.log(start.finishedNow("expanded " + (seenSolved.size() + seenScrambled.size()) + " nodes"));
+			public int SmallestValue()
+			{
+				return buckets.First().Value;
+			}
 
-            if (bestIntersection == null)
-            {
-                return null;
-            }
+			public bool IsEmpty()
+			{
+				return buckets.Count == 0;
+			}
 
-            // We have found a solution, but we still have to recover the move sequence.
-            // the `bestIntersection` is the bound between the solved and the scrambled states.
-            // We can travel from `bestIntersection` to either states, like that:
-            // solved <----- bestIntersection -----> scrambled
-            // However, to build a solution, we need to travel like that:
-            // solved <----- bestIntersection <----- scrambled
-            // So we have to travel backward for the scrambled side.
+			public H Pop()
+			{
+				var bucket = buckets.First();
+				var h = bucket.Pop();
+				if (bucket.IsEmpty())
+				{
+					// We just removed the last element from this bucket,
+					// so we can trash the bucket now.
+					buckets.Remove(bucket);
+				}
+				return h;
+			}
 
-            // Step 1: bestIntersection -----> scrambled
+			public override string ToString()
+			{
+				return buckets.ToString();
+			}
 
-            //azzert(bestIntersection.isNormalized());
-            PuzzleState state = bestIntersection;
-            int distanceFromScrambled = seenScrambled[state];
+			public override int GetHashCode()
+			{
+				throw new NotSupportedException();
+			}
 
-            // We have to keep track of all states we have visited
-            PuzzleState[] linkedStates = new PuzzleState[distanceFromScrambled + 1];
-            linkedStates[distanceFromScrambled] = state;
+			public override bool Equals(object obj)
+			{
+				throw new NotSupportedException();
+			}
+		}
 
-            while (distanceFromScrambled > 0)
-            {
-                foreach (PuzzleState next in state.GetCanonicalMovesByState().Keys)
-                {
-                    var nNext = next.GetNormalized();
-                    if (seenScrambled.ContainsKey(nNext))
-                    {
-                        int newDistanceFromScrambled = seenScrambled[nNext];
-                        if (newDistanceFromScrambled < distanceFromScrambled)
-                        {
-                            state = nNext;
-                            distanceFromScrambled = newDistanceFromScrambled;
-                            linkedStates[distanceFromScrambled] = state;
-                            goto outer1;
-                        }
-                    }
-                }
-            outer1: { }
-                //azzert(false);
-            }
+		protected virtual string SolveIn(PuzzleState ps, int n)
+		{
+			if (ps.IsSolved())
+			{
+				return "";
+			}
 
-            // Step 2: bestIntersection <----- scrambled
+			var seenSolved = new Dictionary<PuzzleState, int>();
+			var fringeSolved = new SortedBuckets<PuzzleState>();
+			var seenScrambled = new Dictionary<PuzzleState, int>();
+			var fringeScrambled = new SortedBuckets<PuzzleState>();
 
-            AlgorithmBuilder solution = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES, ps);
-            state = ps;
-            distanceFromScrambled = 0;
+			// We're only interested in solutions of cost <= n
+			int bestIntersectionCost = n + 1;
+			PuzzleState bestIntersection = null;
 
-            while (!state.equalsNormalized(bestIntersection))
-            {
-                foreach (var next in state.GetCanonicalMovesByState())
-                {
-                    PuzzleState nextState = next.Key;
-                    string moveName = next.Value;
-                    if (nextState.equalsNormalized(linkedStates[distanceFromScrambled + 1]))
-                    {
-                        state = nextState;
-                        try
-                        {
-                            solution.appendMove(moveName);
-                        }
-                        catch
-                        {
-                            //azzert(false, e);
-                        }
-                        distanceFromScrambled = seenScrambled[state.GetNormalized()];
-                        goto outer2;
-                    }
-                }
-            outer2: { }
-                //azzert(false);
-            }
+			var solvedNormalized = GetSolvedState().GetNormalized();
+			fringeSolved.Add(solvedNormalized, 0);
+			seenSolved[solvedNormalized] = 0;
+			fringeScrambled.Add(ps.GetNormalized(), 0);
+			seenScrambled[ps.GetNormalized()] = 0;
 
-            // Step 3: solved <----- bestIntersection
+			//TimedLogRecordStart start = new TimedLogRecordStart(Level.FINER, "Searching for solution in " + n + " moves.");
+			//l.log(start);
 
-            int distanceFromSolved = seenSolved[state.GetNormalized()];
-            while (distanceFromSolved > 0)
-            {
-                foreach (var next in state.GetCanonicalMovesByState())
-                {
-                    PuzzleState nextState = next.Key;
-                    PuzzleState nextStateNormalized = nextState.GetNormalized();
-                    string moveName = next.Value;
-                    if (seenSolved.ContainsKey(nextStateNormalized))
-                    {
-                        int newDistanceFromSolved = seenSolved[nextStateNormalized];
-                        if (newDistanceFromSolved < distanceFromSolved)
-                        {
-                            state = nextState;
-                            distanceFromSolved = newDistanceFromSolved;
-                            try
-                            {
-                                solution.appendMove(moveName);
-                            }
-                            catch //(InvalidMoveException e)
-                            {
-                                ///azzert(false, e);
-                            }
-                            goto outer3;
-                        }
-                    }
-                }
-            outer3: { }
-                //azzert(false);
-            }
+			int fringeTies = 0;
 
-            return solution.ToString();
-        }
+			// The task here is to do a breadth-first search starting from both the solved state and the scrambled state.
+			// When we got an intersection from the two hash maps, we are done!
+			int minFringeScrambled = -1, minFringeSolved = -1;
+			while (!fringeSolved.IsEmpty() || !fringeScrambled.IsEmpty())
+			{
+				// We have to choose on which side we are extending our search.
+				// I'm choosing the non empty fringe with the node nearest
+				// its origin. In the event of a tie, we make sure to alternate.
+				if (!fringeScrambled.IsEmpty())
+				{
+					minFringeScrambled = fringeScrambled.SmallestValue();
+				}
+				if (!fringeSolved.IsEmpty())
+				{
+					minFringeSolved = fringeSolved.SmallestValue();
+				}
+				bool extendSolved;
+				if (fringeSolved.IsEmpty() || fringeScrambled.IsEmpty())
+				{
+					// If the solved fringe is not empty, we'll expand it.
+					// Otherwise, we're expanding the scrambled fringe.
+					extendSolved = !fringeSolved.IsEmpty();
+				}
+				else
+				{
+					if (minFringeSolved < minFringeScrambled)
+					{
+						extendSolved = true;
+					}
+					else if (minFringeSolved > minFringeScrambled)
+					{
+						extendSolved = false;
+					}
+					else
+					{
+						extendSolved = (fringeTies++) % 2 == 0;
+					}
+				}
+
+				// We are using references for a more concise code.
+				Dictionary<PuzzleState, int> seenExtending;
+				SortedBuckets<PuzzleState> fringeExtending;
+				Dictionary<PuzzleState, int> seenComparing;
+				SortedBuckets<PuzzleState> fringeComparing;
+				int minExtendingFringe, minComparingFringe;
+				if (extendSolved)
+				{
+					seenExtending = seenSolved;
+					fringeExtending = fringeSolved;
+					minExtendingFringe = minFringeSolved;
+					seenComparing = seenScrambled;
+					fringeComparing = fringeScrambled;
+					minComparingFringe = minFringeScrambled;
+				}
+				else
+				{
+					seenExtending = seenScrambled;
+					fringeExtending = fringeScrambled;
+					minExtendingFringe = minFringeScrambled;
+					seenComparing = seenSolved;
+					fringeComparing = fringeSolved;
+					minComparingFringe = minFringeSolved;
+				}
+
+				var node = fringeExtending.Pop();
+				int distance = seenExtending[node];
+				if (seenComparing.ContainsKey(node))
+				{
+					// We found an intersection! Compute the total cost of the
+					// path going through this node.
+					int cost = seenComparing[node] + distance;
+					if (cost < bestIntersectionCost)
+					{
+						bestIntersection = node;
+						bestIntersectionCost = cost;
+					}
+					continue;
+				}
+				// The best possible solution involving this node would
+				// be through a child of this node that gets us across to
+				// the other fringe's smallest distance node.
+				int bestPossibleSolution = distance + minComparingFringe;
+				if (bestPossibleSolution >= bestIntersectionCost)
+				{
+					continue;
+				}
+				if (distance >= (n + 1) / 2)
+				{
+					// The +1 is because if n is odd, we would have to search
+					// from one side with distance n/2 and from the other side
+					// distance n/2 + 1. Because we don't know which is which,
+					// let's take (n+1)/2 for both.
+					continue;
+				}
 
 
-        /**
-         * @return A PuzzleState representing the solved state of our puzzle
-         * from where we will begin scrambling.
-         */
-        public abstract PuzzleState GetSolvedState();
+				var movesByState = node.GetCanonicalMovesByState();
+				foreach (var next in movesByState.Keys)
+				{
+					var moveCost = node.getMoveCost(movesByState[next]);
+					int nextDistance = distance + moveCost;
+					//next = next.getNormalized();
+					var nNext = next.GetNormalized();
+					if (seenExtending.ContainsKey(nNext))
+					{
+						if (nextDistance >= seenExtending[nNext])
+						{
+							// We already found a better path to next.
+							continue;
+						}
+						// Go on to clobber seenExtending with our updated
+						// distance. Unfortunately, we're going have 2 copies
+						// of next in our fringe. This doesn't change correctness,
+						// it just means a bit of wasted work when we get around
+						// to popping off the second one.
+					}
+					fringeExtending.Add(nNext, nextDistance);
+					seenExtending[nNext] = nextDistance;
+				}
+			}
 
-        /**
-         * @return The number of random moves we must apply to call a puzzle
-         * sufficiently scrambled.
-         */
-        protected abstract int GetRandomMoveCount();
+			//l.log(start.finishedNow("expanded " + (seenSolved.size() + seenScrambled.size()) + " nodes"));
 
-        /**
-         * This function will generate getRandomTurnCount() number of non cancelling,
-         * random turns. If a puzzle wants to provide custom scrambles
-         * (for example: Pochmann style megaminx or MRSS), it should override this method.
-         *
-         * NOTE: It is assumed that this method is thread safe! That means that if you're
-         * overriding this method and you don't know what you're doing,
-         * use the synchronized keyword when implementing this method:<br>
-         * <code>protected synchronized String generateScramble(Random r);</code>
-         * @param r An instance of Random
-         * @return A PuzzleStateAndGenerator that contains a scramble string, and the
-         *         state achieved by applying that scramble.
-         */
-        public virtual PuzzleStateAndGenerator GenerateRandomMoves(Random r)
-        {
-            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.NO_MERGING);
-            while (ab.getTotalCost() < GetRandomMoveCount())
-            {
-                LinkedHashMap<string, PuzzleState> successors = ab.getState().GetScrambleSuccessors();
-                string move;
+			if (bestIntersection == null)
+			{
+				return null;
+			}
 
-                do
-                {
-                    move = GwtSafeUtils.choose(r, successors.Keys);
-                    // If this move happens to be redundant, there is no
-                    // reason to select this move again in vain.
-                    successors.Remove(move);
-                } while (ab.isRedundant(move));
-                ab.appendMove(move);
-            }
-            return ab.getStateAndGenerator();
-        }
+			// We have found a solution, but we still have to recover the move sequence.
+			// the `bestIntersection` is the bound between the solved and the scrambled states.
+			// We can travel from `bestIntersection` to either states, like that:
+			// solved <----- bestIntersection -----> scrambled
+			// However, to build a solution, we need to travel like that:
+			// solved <----- bestIntersection <----- scrambled
+			// So we have to travel backward for the scrambled side.
 
-        public abstract class PuzzleState
-        {
-            private Puzzle puzzle;
-            public PuzzleState(Puzzle p)
-            {
-                puzzle = p;
-            }
+			// Step 1: bestIntersection -----> scrambled
 
-            /**
+			Assert(bestIntersection.IsNormalized());
+			PuzzleState state = bestIntersection;
+			int distanceFromScrambled = seenScrambled[state];
+
+			// We have to keep track of all states we have visited
+			PuzzleState[] linkedStates = new PuzzleState[distanceFromScrambled + 1];
+			linkedStates[distanceFromScrambled] = state;
+
+			while (distanceFromScrambled > 0)
+			{
+				foreach (var next in state.GetCanonicalMovesByState().Keys)
+				{
+					var nNext = next.GetNormalized();
+					if (seenScrambled.ContainsKey(nNext))
+					{
+						int newDistanceFromScrambled = seenScrambled[nNext];
+						if (newDistanceFromScrambled < distanceFromScrambled)
+						{
+							state = nNext;
+							distanceFromScrambled = newDistanceFromScrambled;
+							linkedStates[distanceFromScrambled] = state;
+							goto outer1;
+						}
+					}
+				}
+				Assert(false);
+			outer1:;
+			}
+
+			// Step 2: bestIntersection <----- scrambled
+
+			var solution = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES, ps);
+			state = ps;
+			distanceFromScrambled = 0;
+
+			while (!state.EqualsNormalized(bestIntersection))
+			{
+				foreach (var next in state.GetCanonicalMovesByState())
+				{
+					PuzzleState nextState = next.Key;
+					string moveName = next.Value;
+					if (nextState.EqualsNormalized(linkedStates[distanceFromScrambled + 1]))
+					{
+						state = nextState;
+						try
+						{
+							solution.AppendMove(moveName);
+						}
+						catch (InvalidMoveException e)
+						{
+							Assert(false, e.Message, e);
+						}
+						distanceFromScrambled = seenScrambled[state.GetNormalized()];
+						goto outer2;
+					}
+				}
+				Assert(false);
+			outer2: { }
+			}
+
+			// Step 3: solved <----- bestIntersection
+
+			int distanceFromSolved = seenSolved[state.GetNormalized()];
+			while (distanceFromSolved > 0)
+			{
+				foreach (var next in state.GetCanonicalMovesByState())
+				{
+					PuzzleState nextState = next.Key;
+					var nextStateNormalized = nextState.GetNormalized();
+					string moveName = next.Value;
+					if (seenSolved.ContainsKey(nextStateNormalized))
+					{
+						int newDistanceFromSolved = seenSolved[nextStateNormalized];
+						if (newDistanceFromSolved < distanceFromSolved)
+						{
+							state = nextState;
+							distanceFromSolved = newDistanceFromSolved;
+							try
+							{
+								solution.AppendMove(moveName);
+							}
+							catch (InvalidMoveException e)
+							{
+								Assert(false, e.Message, e);
+							}
+							goto outer3;
+						}
+					}
+				}
+				Assert(false);
+			outer3: { }
+			}
+
+			return solution.ToString();
+		}
+
+		public abstract class PuzzleState
+		{
+			Puzzle puzzle;
+			protected PuzzleState(Puzzle p)
+			{
+				puzzle = p;
+			}
+
+			/**
              *
              * @param algorithm A space separated String of moves to apply to state
              * @return The resulting PuzzleState
              * @throws InvalidScrambleException
              */
-            public virtual PuzzleState applyAlgorithm(string algorithm)
-            {
-                PuzzleState state = this;
-                foreach (string move in AlgorithmBuilder.splitAlgorithm(algorithm))
-                {
-                    try
-                    {
-                        state = state.apply(move);
-                    }
-                    catch (InvalidMoveException e)
-                    {
-                        throw new InvalidScrambleException(algorithm, e);
-                    }
-                }
-                return state;
-            }
+			public virtual PuzzleState ApplyAlgorithm(string algorithm)
+			{
+				PuzzleState state = this;
+				foreach (var move in AlgorithmBuilder.splitAlgorithm(algorithm))
+				{
+					try
+					{
+						state = state.Apply(move);
+					}
+					catch (InvalidMoveException e)
+					{
+						throw new InvalidScrambleException(algorithm, e);
+					}
+				}
+				return state;
+			}
 
-            /**
+			/**
              * Canonical successors are all the successor states that
              * are "normalized" unique.
              * @return A mapping of canonical PuzzleState's to the name of
              *         the move that gets you to them.
              */
-            public virtual LinkedHashMap<PuzzleState, string> GetCanonicalMovesByState()
-            {
-                LinkedHashMap<string, PuzzleState> successorsByName =
-                      GetSuccessorsByName();
-                LinkedHashMap<PuzzleState, string> uniqueSuccessors =
-                    new LinkedHashMap<PuzzleState, string>();
-                HashSet<PuzzleState> statesSeenNormalized = new HashSet<PuzzleState>();
-                // We're not interested in any successor states are just a
-                // rotation away.
-                statesSeenNormalized.Add(this.GetNormalized());
-                foreach (var next in successorsByName)
-                {
-                    PuzzleState nextState = next.Value;
-                    PuzzleState nextStateNormalized = nextState.GetNormalized();
-                    string moveName = next.Key;
-                    // Only add nextState if it's "unique"
-                    if (!statesSeenNormalized.Contains(nextStateNormalized))
-                    {
-                        uniqueSuccessors[nextState] = moveName;
-                        statesSeenNormalized.Add(nextStateNormalized);
-                    }
-                }
+			public virtual LinkedHashMap<PuzzleState, string> GetCanonicalMovesByState()
+			{
+				var successorsByName = GetSuccessorsByName();
+				var uniqueSuccessors = new LinkedHashMap<PuzzleState, string>();
+				var statesSeenNormalized = new HashSet<PuzzleState>();
+				// We're not interested in any successor states are just a
+				// rotation away.
+				statesSeenNormalized.Add(GetNormalized());
+				foreach (var next in successorsByName)
+				{
+					PuzzleState nextState = next.Value;
+					var nextStateNormalized = nextState.GetNormalized();
+					string moveName = next.Key;
+					// Only add nextState if it's "unique"
+					if (!statesSeenNormalized.Contains(nextStateNormalized))
+					{
+						uniqueSuccessors[nextState] = moveName;
+						statesSeenNormalized.Add(nextStateNormalized);
+					}
+				}
 
-                return uniqueSuccessors;
-            }
+				return uniqueSuccessors;
+			}
 
-            /**
+			/**
              * There exist PuzzleState's that are 0 moves apart, but are
              * not .equal(). This is because we consider the visibly different
              * PuzzleState's to be not equals (consider the state achieved by
@@ -468,17 +529,17 @@ namespace TNoodle.Puzzles
              *        we can just do an alphabetical sort of these and return the
              *        min or max.
              */
-            public virtual PuzzleState GetNormalized()
-            {
-                return this;
-            }
+			public virtual PuzzleState GetNormalized()
+			{
+				return this;
+			}
 
-            public virtual bool IsNormalized()
-            {
-                return this.Equals(GetNormalized());
-            }
+			public virtual bool IsNormalized()
+			{
+				return Equals(GetNormalized());
+			}
 
-            /**
+			/**
              * Most puzzles are happy to split an algorithm by turns, and declare
              * each turn a move. However, this simple model doesn't work for all
              * puzzles. For example, square one may wish to declare (3,3) as 1
@@ -487,12 +548,12 @@ namespace TNoodle.Puzzles
              * @param move
              * @return The cost of doing this move.
              */
-            public virtual int getMoveCost(string move)
-            {
-                return 1;
-            }
+			public virtual int getMoveCost(string move)
+			{
+				return 1;
+			}
 
-            /**
+			/**
              * @return A LinkedHashMap mapping move Strings to resulting PuzzleStates.
              *         The move Strings may not contain spaces.
              *         Multiple keys (moves) in the returned LinkedHashMap may
@@ -500,9 +561,9 @@ namespace TNoodle.Puzzles
              *         Preferred notations should appear earlier in the
              *         LinkedHashMap.
              */
-            public abstract LinkedHashMap<string, PuzzleState> GetSuccessorsByName();
+			public abstract LinkedHashMap<string, PuzzleState> GetSuccessorsByName();
 
-            /**
+			/**
              * By default, this method returns getSuccessorsByName(). Some
              * puzzles may wish to override this method to provide a reduced set
              * of moves to be used for scrambling.
@@ -532,69 +593,69 @@ namespace TNoodle.Puzzles
              * @return A HashMap mapping move Strings to resulting PuzzleStates.
              *         The move Strings may not contain spaces.
              */
-            public virtual LinkedHashMap<string, PuzzleState> GetScrambleSuccessors()
-            {
-                return GwtSafeUtils.reverseHashMap(GetCanonicalMovesByState());
-            }
+			public virtual LinkedHashMap<string, PuzzleState> GetScrambleSuccessors()
+			{
+				return GetCanonicalMovesByState().ReverseHashMap();
+			}
 
-            /**
+			/**
              * Returns true if this state is equal to other.
              * Note that a puzzle like 4x4 must compare all orientations of the puzzle, otherwise
              * generateRandomMoves() will allow for trivial sequences of turns like Lw Rw'.
              * @param other
              * @return true if this is equal to other
              */
-            public override abstract bool Equals(object other);
+			public override abstract bool Equals(object obj);
 
-            public override abstract int GetHashCode();
+			public override abstract int GetHashCode();
 
-            public bool equalsNormalized(PuzzleState other)
-            {
-                return GetNormalized().Equals(other.GetNormalized());
-            }
+			public bool EqualsNormalized(PuzzleState other)
+			{
+				return GetNormalized().Equals(other.GetNormalized());
+			}
 
-            /**
+			/**
              * Draws the state of the puzzle.
              * NOTE: It is assumed that this method is thread safe! That means unless you know what you're doing,
              * use the synchronized keyword when implementing this method:<br>
              * <code>protected synchronized void drawScramble();</code>
              * @return An Svg instance representing this scramble.
              */
-            //protected abstract Svg drawScramble(HashMap<String, Color> colorScheme);
+			//protected abstract Svg drawScramble(HashMap<String, Color> colorScheme);
 
-            public virtual Puzzle getPuzzle()
-            {
-                return puzzle;
-            }
+			public virtual Puzzle GetPuzzle()
+			{
+				return puzzle;
+			}
 
-            public virtual bool isSolved()
-            {
-                return equalsNormalized(getPuzzle().GetSolvedState());
-            }
+			public virtual bool IsSolved()
+			{
+				return EqualsNormalized(GetPuzzle().GetSolvedState());
+			}
 
-            /**
+			/**
              * Applies the given move to this PuzzleState. This method is non destructive,
              * that is, it does not mutate the current state, instead it returns a new state.
              * @param move The move to apply
              * @return The PuzzleState achieved after applying move
              * @throws InvalidMoveException if the move is unrecognized.
              */
-            public virtual PuzzleState apply(string move)
-            {
-                LinkedHashMap<string, PuzzleState> successors = GetSuccessorsByName();
-                if (!successors.Any(p => p.Key == move))
-                {
-                    throw new InvalidMoveException("Unrecognized turn " + move);
-                }
-                return successors.Single(p => p.Key == move).Value;
-            }
+			public virtual PuzzleState Apply(string move)
+			{
+				var successors = GetSuccessorsByName();
+				if (!successors.ContainsKey(move))
+				{
+					throw new InvalidMoveException("Unrecognized turn " + move);
+				}
+				return successors[move];
+			}
 
-            public virtual string solveIn(int n)
-            {
-                return getPuzzle().SolveIn(this, n);
-            }
+			public virtual string SolveIn(int n)
+			{
+				return GetPuzzle().SolveIn(this, n);
+			}
 
-            /**
+			/**
              * Two moves A and B commute on a puzzle if regardless of
              * the order you apply A and B, you end up in the same state.
              * Interestingly enough, the set of moves that commute can change
@@ -604,19 +665,72 @@ namespace TNoodle.Puzzles
              * @param move2
              * @return True iff move1 and move2 commute.
              */
-            internal bool movesCommute(string move1, string move2)
-            {
-                try
-                {
-                    PuzzleState state1 = apply(move1).apply(move2);
-                    PuzzleState state2 = apply(move2).apply(move1);
-                    return state1.Equals(state2);
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-    }
+			internal bool MovesCommute(string move1, string move2)
+			{
+				try
+				{
+					var state1 = Apply(move1).Apply(move2);
+					var state2 = Apply(move2).Apply(move1);
+					return state1.Equals(state2);
+				}
+				catch
+				{
+					return false;
+				}
+			}
+		}
+
+
+		/**
+         * @return A PuzzleState representing the solved state of our puzzle
+         * from where we will begin scrambling.
+         */
+		public abstract PuzzleState GetSolvedState();
+
+		/**
+         * @return The number of random moves we must apply to call a puzzle
+         * sufficiently scrambled.
+         */
+		protected abstract int GetRandomMoveCount();
+
+		/**
+         * This function will generate getRandomTurnCount() number of non cancelling,
+         * random turns. If a puzzle wants to provide custom scrambles
+         * (for example: Pochmann style megaminx or MRSS), it should override this method.
+         *
+         * NOTE: It is assumed that this method is thread safe! That means that if you're
+         * overriding this method and you don't know what you're doing,
+         * use the synchronized keyword when implementing this method:<br>
+         * <code>protected synchronized String generateScramble(Random r);</code>
+         * @param r An instance of Random
+         * @return A PuzzleStateAndGenerator that contains a scramble string, and the
+         *         state achieved by applying that scramble.
+         */
+		public virtual PuzzleStateAndGenerator GenerateRandomMoves(Random r)
+		{
+			var ab = new AlgorithmBuilder(this, MergingMode.NO_MERGING);
+			while (ab.getTotalCost() < GetRandomMoveCount())
+			{
+				var successors = ab.getState().GetScrambleSuccessors();
+				string move;
+				try
+				{
+					do
+					{
+						move = Functions.Choose(r, successors.Keys);
+						// If this move happens to be redundant, there is no
+						// reason to select this move again in vain.
+						successors.Remove(move);
+					} while (ab.IsRedundant(move));
+					ab.AppendMove(move);
+				}
+				catch (InvalidMoveException e)
+				{
+					Assert(false, e.Message, e);
+					return null;
+				}
+			}
+			return ab.getStateAndGenerator();
+		}
+	}
 }

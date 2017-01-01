@@ -36,22 +36,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Puzzles\Bucket.cs" />
     <Compile Include="Puzzles\ClockPuzzle.cs" />
-    <Compile Include="Puzzles\CubeFace.cs" />
     <Compile Include="Puzzles\FourByFourCubePuzzle.cs" />
-    <Compile Include="Puzzles\IndexAndMove.cs" />
     <Compile Include="Puzzles\MegaminxPuzzle.cs" />
-    <Compile Include="Puzzles\MergingMode.cs" />
     <Compile Include="Puzzles\NoInspectionFiveByFiveCubePuzzle.cs" />
     <Compile Include="Puzzles\NoInspectionFourByFourCubePuzzle.cs" />
     <Compile Include="Puzzles\NoInspectionThreeByThreeCubePuzzle.cs" />
     <Compile Include="Puzzles\Puzzle.cs" />
     <Compile Include="Puzzles\LinkedHashMap.cs" />
-    <Compile Include="Puzzles\PuzzleState.cs" />
     <Compile Include="Puzzles\PyraminxPuzzle.cs" />
     <Compile Include="Puzzles\SkewbPuzzle.cs" />
-    <Compile Include="Puzzles\SortedBucket.cs" />
     <Compile Include="Puzzles\SquareOnePuzzle.cs" />
     <Compile Include="Puzzles\ThreeByThreeCubeFewestMovesPuzzle.cs" />
     <Compile Include="Solvers\min2phase\CoordCube.cs" />
@@ -91,9 +85,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="MissingFeatures.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Puzzles\GwtSafeUtils.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

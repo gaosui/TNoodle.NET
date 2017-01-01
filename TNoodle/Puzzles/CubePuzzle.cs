@@ -99,9 +99,9 @@ namespace TNoodle.Puzzles
 			};
 			CubeMove[][] randomOrientationMoves = new CubeMove[randomUFaceMoves.Length * randomFFaceMoves.Length][];
 			int i = 0;
-			foreach (CubeMove randomUFaceMove in randomUFaceMoves)
+			foreach (var randomUFaceMove in randomUFaceMoves)
 			{
-				foreach (CubeMove randomFFaceMove in randomFFaceMoves)
+				foreach (var randomFFaceMove in randomFFaceMoves)
 				{
 					var moves = new List<CubeMove>();
 					if (randomUFaceMove != null)
@@ -526,7 +526,7 @@ namespace TNoodle.Puzzles
 				Assert(puzzle.Size == 3);
 				string state = "";
 				Face[] faces = { Face.U, Face.R, Face.F, Face.D, Face.L, Face.B };
-				foreach (Face f in faces)
+				foreach (var f in faces)
 				{
 					int[][] faceArr = image[(int)f];
 					for (int i = 0; i < faceArr.Length; i++)
@@ -592,9 +592,9 @@ namespace TNoodle.Puzzles
 				return successors;
 			}
 
-			public override bool Equals(object other)
+			public override bool Equals(object obj)
 			{
-				return image.DeepEquals(((CubeState)other).image);
+				return image.DeepEquals(((CubeState)obj).image);
 			}
 
 			public override int GetHashCode()
