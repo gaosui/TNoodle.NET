@@ -34,7 +34,7 @@ namespace TNoodle.Puzzles
             try
             {
                 AlgorithmBuilder ab = new AlgorithmBuilder(puzzle, MergingMode.NoMerging);
-                ab.AppendAlgorithm(psag.generator);
+                ab.AppendAlgorithm(psag.Generator);
                 // Check if our reorientation is going to cancel with the last
                 // turn of our scramble. If it does, then we just discard
                 // that last turn of our scramble. This ensures we have a scramble

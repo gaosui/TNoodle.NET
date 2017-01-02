@@ -89,7 +89,7 @@ namespace TNoodle.Puzzles
             try
             {
                 ab.AppendAlgorithms(scramblePrefix);
-                ab.AppendAlgorithm(psag.generator);
+                ab.AppendAlgorithm(psag.Generator);
                 ab.AppendAlgorithms(scrambleSuffix);
             }
             catch //(InvalidMoveException e)

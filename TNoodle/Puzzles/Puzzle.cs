@@ -64,8 +64,8 @@ namespace TNoodle.Puzzles
             do
             {
                 psag = GenerateRandomMoves(r);
-            } while (psag.state.SolveIn(WcaMinScrambleDistance - 1) != null);
-            return psag.generator;
+            } while (psag.State.SolveIn(WcaMinScrambleDistance - 1) != null);
+            return psag.Generator;
         }
 
         /**

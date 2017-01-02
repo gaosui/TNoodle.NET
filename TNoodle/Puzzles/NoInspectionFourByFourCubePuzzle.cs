@@ -34,7 +34,7 @@ namespace TNoodle.Puzzles
             try
             {
                 AlgorithmBuilder ab = new AlgorithmBuilder(puzzle, MergingMode.NoMerging);
-                ab.AppendAlgorithm(psag.generator);
+                ab.AppendAlgorithm(psag.Generator);
                 foreach (CubeMove cm in randomOrientation)
                 {
                     ab.AppendMove(cm.ToString());

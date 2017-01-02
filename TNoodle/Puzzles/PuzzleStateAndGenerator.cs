@@ -1,13 +1,16 @@
-﻿namespace TNoodle.Puzzles
+﻿using static TNoodle.Puzzles.Puzzle;
+
+namespace TNoodle.Puzzles
 {
     public class PuzzleStateAndGenerator
     {
-        public Puzzle.PuzzleState state;
-        public string generator;
-        public PuzzleStateAndGenerator(Puzzle.PuzzleState state, string generator)
+        public PuzzleState State { get; }
+        public string Generator { get; }
+
+        public PuzzleStateAndGenerator(PuzzleState state, string generator)
         {
-            this.state = state;
-            this.generator = generator;
+            State = state;
+            Generator = generator;
         }
     }
 }
