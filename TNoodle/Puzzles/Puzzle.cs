@@ -372,7 +372,7 @@ namespace TNoodle.Puzzles
 
             // Step 2: bestIntersection <----- scrambled
 
-            var solution = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES, ps);
+            var solution = new AlgorithmBuilder(MergingMode.CanonicalizeMoves, ps);
             state = ps;
             distanceFromScrambled = 0;
 
@@ -449,7 +449,7 @@ namespace TNoodle.Puzzles
             public PuzzleState ApplyAlgorithm(string algorithm)
             {
                 var state = this;
-                foreach (var move in splitAlgorithm(algorithm))
+                foreach (var move in SplitAlgorithm(algorithm))
                 {
                     try
                     {
@@ -677,10 +677,10 @@ namespace TNoodle.Puzzles
          */
         public virtual PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            var ab = new AlgorithmBuilder(this, MergingMode.NO_MERGING);
-            while (ab.getTotalCost() < GetRandomMoveCount())
+            var ab = new AlgorithmBuilder(this, MergingMode.NoMerging);
+            while (ab.GetTotalCost() < GetRandomMoveCount())
             {
-                var successors = ab.getState().GetScrambleSuccessors();
+                var successors = ab.GetState().GetScrambleSuccessors();
                 try
                 {
                     string move;
@@ -699,7 +699,7 @@ namespace TNoodle.Puzzles
                     return null;
                 }
             }
-            return ab.getStateAndGenerator();
+            return ab.GetStateAndGenerator();
         }
     }
 }

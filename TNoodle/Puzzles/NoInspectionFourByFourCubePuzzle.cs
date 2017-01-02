@@ -33,14 +33,14 @@ namespace TNoodle.Puzzles
             // Append reorientation to scramble.
             try
             {
-                AlgorithmBuilder ab = new AlgorithmBuilder(puzzle, MergingMode.NO_MERGING);
-                ab.appendAlgorithm(psag.generator);
+                AlgorithmBuilder ab = new AlgorithmBuilder(puzzle, MergingMode.NoMerging);
+                ab.AppendAlgorithm(psag.generator);
                 foreach (CubeMove cm in randomOrientation)
                 {
                     ab.AppendMove(cm.ToString());
                 }
 
-                psag = ab.getStateAndGenerator();
+                psag = ab.GetStateAndGenerator();
                 return psag;
             }
             catch //(InvalidMoveException e)

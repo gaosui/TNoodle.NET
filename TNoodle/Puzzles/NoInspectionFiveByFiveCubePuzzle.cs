@@ -33,8 +33,8 @@ namespace TNoodle.Puzzles
             // Append reorientation to scramble.
             try
             {
-                AlgorithmBuilder ab = new AlgorithmBuilder(puzzle, MergingMode.NO_MERGING);
-                ab.appendAlgorithm(psag.generator);
+                AlgorithmBuilder ab = new AlgorithmBuilder(puzzle, MergingMode.NoMerging);
+                ab.AppendAlgorithm(psag.generator);
                 // Check if our reorientation is going to cancel with the last
                 // turn of our scramble. If it does, then we just discard
                 // that last turn of our scramble. This ensures we have a scramble
@@ -44,15 +44,15 @@ namespace TNoodle.Puzzles
                 while (ab.IsRedundant(firstReorientMove))
                 {
                     //azzert(discardRedundantMoves);
-                    IndexAndMove im = ab.FindBestIndexForMove(firstReorientMove, MergingMode.CANONICALIZE_MOVES);
-                    ab.popMove(im.Index);
+                    IndexAndMove im = ab.FindBestIndexForMove(firstReorientMove, MergingMode.CanonicalizeMoves);
+                    ab.PopMove(im.Index);
                 }
                 foreach (CubeMove cm in randomOrientation)
                 {
                     ab.AppendMove(cm.ToString());
                 }
 
-                psag = ab.getStateAndGenerator();
+                psag = ab.GetStateAndGenerator();
                 return psag;
             }
             catch //(InvalidMoveException e)

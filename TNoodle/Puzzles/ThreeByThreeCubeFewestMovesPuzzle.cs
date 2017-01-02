@@ -66,8 +66,8 @@ namespace TNoodle.Puzzles
             // finger-tricky/reversible the current prefix is.)  Just my two cents,
             // 'tho.
             // END MICHAEL MESSSAGE
-            String[] scramblePrefix = AlgorithmBuilder.splitAlgorithm("R' U' F");
-            String[] scrambleSuffix = AlgorithmBuilder.splitAlgorithm("R' U' F");
+            String[] scramblePrefix = AlgorithmBuilder.SplitAlgorithm("R' U' F");
+            String[] scrambleSuffix = AlgorithmBuilder.SplitAlgorithm("R' U' F");
 
             // super.generateRandomMoves(...) will pick a random state S and find a solution:
             //  solution = sol_0, sol_1, ..., sol_n-1, sol_n
@@ -85,19 +85,19 @@ namespace TNoodle.Puzzles
             // scrambleSuffix:
             String solutionFirstAxisRestriction = scrambleSuffix[0].Substring(0, 1);
             PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r, solutionFirstAxisRestriction, solutionLastAxisRestriction);
-            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.NO_MERGING);
+            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.NoMerging);
             try
             {
-                ab.appendAlgorithms(scramblePrefix);
-                ab.appendAlgorithm(psag.generator);
-                ab.appendAlgorithms(scrambleSuffix);
+                ab.AppendAlgorithms(scramblePrefix);
+                ab.AppendAlgorithm(psag.generator);
+                ab.AppendAlgorithms(scrambleSuffix);
             }
             catch //(InvalidMoveException e)
             {
                 //azzert(false, e);
                 return null;
             }
-            return ab.getStateAndGenerator();
+            return ab.GetStateAndGenerator();
         }
 
         public override string GetShortName()

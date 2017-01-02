@@ -27,16 +27,16 @@ namespace TNoodle.Puzzles
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             string scramble = threePhaseSearcher.Value.RandomState(r);
-            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
+            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
             try
             {
-                ab.appendAlgorithm(scramble);
+                ab.AppendAlgorithm(scramble);
             }
             catch //(InvalidMoveException e)
             {
                 //azzert(false, new InvalidScrambleException(scramble, e));
             }
-            return ab.getStateAndGenerator();
+            return ab.GetStateAndGenerator();
         }
     }
 }

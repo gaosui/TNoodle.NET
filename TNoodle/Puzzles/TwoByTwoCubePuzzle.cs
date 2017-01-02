@@ -20,17 +20,17 @@ namespace TNoodle.Puzzles
 			var state = twoSolver.RandomState(r);
 			var scramble = twoSolver.GenerateExactly(state, TWO_BY_TWO_MIN_SCRAMBLE_LENGTH);
 
-			var ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
+			var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
 			try
 			{
 
-				ab.appendAlgorithm(scramble);
+				ab.AppendAlgorithm(scramble);
 			}
 			catch (InvalidMoveException e)
 			{
 				Assert(false, e.Message, new InvalidScrambleException(scramble, e));
 			}
-			return ab.getStateAndGenerator();
+			return ab.GetStateAndGenerator();
 		}
 
 		protected override string SolveIn(PuzzleState ps, int n)

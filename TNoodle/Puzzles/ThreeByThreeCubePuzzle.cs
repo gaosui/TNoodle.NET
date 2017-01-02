@@ -64,16 +64,16 @@ namespace TNoodle.Puzzles
 			var randomState = Tools.RandomCube(r);
 			var scramble = twoPhaseSearcher.Value.Solution(randomState, THREE_BY_THREE_MAX_SCRAMBLE_LENGTH, THREE_BY_THREE_TIMEOUT, THREE_BY_THREE_TIMEMIN, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
-			var ab = new AlgorithmBuilder(this, MergingMode.CANONICALIZE_MOVES);
+			var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
 			try
 			{
-				ab.appendAlgorithm(scramble);
+				ab.AppendAlgorithm(scramble);
 			}
 			catch (InvalidMoveException e)
 			{
 				Assert(false, e.Message, new InvalidScrambleException(scramble, e));
 			}
-			return ab.getStateAndGenerator();
+			return ab.GetStateAndGenerator();
 		}
 
 		public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
