@@ -195,7 +195,7 @@ namespace TNoodle.Puzzles
             {
                 // This move is redundant.
                 //azzert(mergingMode != MergingMode.NO_MERGING);
-                oldCostMove = states[indexAndMove.Index].getMoveCost(moves[indexAndMove.Index]);
+                oldCostMove = states[indexAndMove.Index].GetMoveCost(moves[indexAndMove.Index]);
                 if (indexAndMove.Move == null)
                 {
                     // newMove cancelled perfectly with the move at
@@ -208,13 +208,13 @@ namespace TNoodle.Puzzles
                 {
                     // newMove merged with the move at indexAndMove.index.
                     moves[indexAndMove.Index] = indexAndMove.Move;
-                    newCostMove = states[indexAndMove.Index].getMoveCost(indexAndMove.Move);
+                    newCostMove = states[indexAndMove.Index].GetMoveCost(indexAndMove.Move);
                 }
             }
             else
             {
                 oldCostMove = 0;
-                newCostMove = states[states.Count - 1].getMoveCost(indexAndMove.Move);
+                newCostMove = states[states.Count - 1].GetMoveCost(indexAndMove.Move);
                 // This move is not redundant.
                 moves.Add(indexAndMove.Move);
                 // The code to update the states array is right below us,

@@ -2,6 +2,7 @@
 using TNoodle.Solvers.Min2phase;
 using System.Threading;
 using static TNoodle.Utils.Assertion;
+using static TNoodle.Puzzles.AlgorithmBuilder;
 
 namespace TNoodle.Puzzles
 {

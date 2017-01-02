@@ -1,6 +1,7 @@
 ﻿using System;
 using TNoodle.Solvers;
 using static TNoodle.Utils.Assertion;
+using static TNoodle.Puzzles.AlgorithmBuilder;
 
 namespace TNoodle.Puzzles
 {

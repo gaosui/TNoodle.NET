@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TNoodle.Puzzles.AlgorithmBuilder;
 
 namespace TNoodle.Puzzles
 {
@@ -43,8 +44,8 @@ namespace TNoodle.Puzzles
                 while (ab.IsRedundant(firstReorientMove))
                 {
                     //azzert(discardRedundantMoves);
-                    IndexAndMove im = ab.findBestIndexForMove(firstReorientMove, MergingMode.CANONICALIZE_MOVES);
-                    ab.popMove(im.index);
+                    IndexAndMove im = ab.FindBestIndexForMove(firstReorientMove, MergingMode.CANONICALIZE_MOVES);
+                    ab.popMove(im.Index);
                 }
                 foreach (CubeMove cm in randomOrientation)
                 {

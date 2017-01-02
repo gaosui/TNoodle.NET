@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using TNoodle.Solvers.Threephase;
+using static TNoodle.Puzzles.AlgorithmBuilder;
 
 namespace TNoodle.Puzzles
 {

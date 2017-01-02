@@ -198,7 +198,7 @@ namespace TNoodle.Puzzles
                 return newPieces;
             }
 
-            public override int getMoveCost(String move)
+            public override int GetMoveCost(String move)
             {
                 // TODO - We do a lookup here rather than string parsing because
                 // this is a very performance critical section of code.
