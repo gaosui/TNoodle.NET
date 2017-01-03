@@ -1,25 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TNoodle.Puzzles
 {
     public class NoInspectionThreeByThreeCubePuzzle : ThreeByThreeCubePuzzle
     {
-        public NoInspectionThreeByThreeCubePuzzle() : base()
-        {
-        }
-
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            CubeMove[][] randomOrientationMoves = GetRandomOrientationMoves(Size / 2);
-            CubeMove[] randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
+            var randomOrientationMoves = GetRandomOrientationMoves(Size / 2);
+            var randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
             string firstAxisRestriction;
             if (randomOrientation.Length > 0)
             {
-                Face restrictedFace = randomOrientation[0].Face;
+                var restrictedFace = randomOrientation[0].Face;
                 // Restrictions are for an entire axis, so this will also
                 // prevent the opposite of restrictedFace from being the first
                 // move of our solution. This ensures that randomOrientation will
@@ -30,9 +22,8 @@ namespace TNoodle.Puzzles
             {
                 firstAxisRestriction = null;
             }
-            string lastAxisRestriction = null;
-            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r, firstAxisRestriction, lastAxisRestriction);
-            psag = NoInspectionFiveByFiveCubePuzzle.applyOrientation(this, randomOrientation, psag, false);
+            var psag = GenerateRandomMoves(r, firstAxisRestriction, null);
+            psag = NoInspectionFiveByFiveCubePuzzle.ApplyOrientation(this, randomOrientation, psag, false);
             return psag;
         }
 

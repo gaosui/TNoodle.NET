@@ -1,51 +1,40 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TNoodle.Puzzles.AlgorithmBuilder;
+using static TNoodle.Utils.Assertion;
 
 namespace TNoodle.Puzzles
 {
     public class NoInspectionFourByFourCubePuzzle : FourByFourCubePuzzle
     {
-        public NoInspectionFourByFourCubePuzzle()
-        {
-        }
-
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            CubeMove[][] randomOrientationMoves = GetRandomOrientationMoves(Size - 1);
-            CubeMove[] randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
-            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r);
-            psag = applyOrientation(this, randomOrientation, psag, true);
+            var randomOrientationMoves = GetRandomOrientationMoves(Size - 1);
+            var randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
+            var psag = base.GenerateRandomMoves(r);
+            psag = ApplyOrientation(this, randomOrientation, psag, true);
             return psag;
         }
 
-        public static PuzzleStateAndGenerator applyOrientation(CubePuzzle puzzle, CubeMove[] randomOrientation, PuzzleStateAndGenerator psag, bool discardRedundantMoves)
+        public static PuzzleStateAndGenerator ApplyOrientation(CubePuzzle puzzle, CubeMove[] randomOrientation,
+            PuzzleStateAndGenerator psag, bool discardRedundantMoves)
         {
             if (randomOrientation.Length == 0)
-            {
-                // No reorientation required
                 return psag;
-            }
 
             // Append reorientation to scramble.
             try
             {
-                AlgorithmBuilder ab = new AlgorithmBuilder(MergingMode.NoMerging, puzzle.GetSolvedState());
+                var ab = new AlgorithmBuilder(MergingMode.NoMerging, puzzle.GetSolvedState());
                 ab.AppendAlgorithm(psag.Generator);
-                foreach (CubeMove cm in randomOrientation)
-                {
+                foreach (var cm in randomOrientation)
                     ab.AppendMove(cm.ToString());
-                }
 
                 psag = ab.GetStateAndGenerator();
                 return psag;
             }
-            catch //(InvalidMoveException e)
+            catch (InvalidMoveException e)
             {
-                //azzert(false, e);
+                Assert(false, e.Message, e);
                 return null;
             }
         }

@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TNoodle.Puzzles.AlgorithmBuilder;
+using static TNoodle.Utils.Assertion;
 
 namespace TNoodle.Puzzles
 {
@@ -15,49 +12,45 @@ namespace TNoodle.Puzzles
 
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            CubeMove[][] randomOrientationMoves = GetRandomOrientationMoves(Size / 2);
-            CubeMove[] randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
-            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r);
-            psag = applyOrientation(this, randomOrientation, psag, true);
+            var randomOrientationMoves = GetRandomOrientationMoves(Size / 2);
+            var randomOrientation = randomOrientationMoves[r.Next(randomOrientationMoves.Length)];
+            var psag = base.GenerateRandomMoves(r);
+            psag = ApplyOrientation(this, randomOrientation, psag, true);
             return psag;
         }
 
-        public static PuzzleStateAndGenerator applyOrientation(CubePuzzle puzzle, CubeMove[] randomOrientation, PuzzleStateAndGenerator psag, bool discardRedundantMoves)
+        public static PuzzleStateAndGenerator ApplyOrientation(CubePuzzle puzzle, CubeMove[] randomOrientation,
+            PuzzleStateAndGenerator psag, bool discardRedundantMoves)
         {
             if (randomOrientation.Length == 0)
-            {
-                // No reorientation required
                 return psag;
-            }
 
             // Append reorientation to scramble.
             try
             {
-                AlgorithmBuilder ab = new AlgorithmBuilder(MergingMode.NoMerging, puzzle.GetSolvedState());
+                var ab = new AlgorithmBuilder(MergingMode.NoMerging, puzzle.GetSolvedState());
                 ab.AppendAlgorithm(psag.Generator);
                 // Check if our reorientation is going to cancel with the last
                 // turn of our scramble. If it does, then we just discard
                 // that last turn of our scramble. This ensures we have a scramble
                 // with no redundant turns, and I can't see how it could hurt the
                 // quality of our scrambles to do this.
-                String firstReorientMove = randomOrientation[0].ToString();
+                var firstReorientMove = randomOrientation[0].ToString();
                 while (ab.IsRedundant(firstReorientMove))
                 {
                     //azzert(discardRedundantMoves);
-                    IndexAndMove im = ab.FindBestIndexForMove(firstReorientMove, MergingMode.CanonicalizeMoves);
+                    var im = ab.FindBestIndexForMove(firstReorientMove, MergingMode.CanonicalizeMoves);
                     ab.PopMove(im.Index);
                 }
-                foreach (CubeMove cm in randomOrientation)
-                {
+                foreach (var cm in randomOrientation)
                     ab.AppendMove(cm.ToString());
-                }
 
                 psag = ab.GetStateAndGenerator();
                 return psag;
             }
-            catch //(InvalidMoveException e)
+            catch (InvalidMoveException e)
             {
-                //azzert(false, e);
+                Assert(false, e.Message, e);
                 return null;
             }
         }
