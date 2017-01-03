@@ -19,6 +19,7 @@ namespace TNoodle.Puzzles
      * @author jeremy
      *
      */
+
     public abstract class Puzzle
     {
         public int WcaMinScrambleDistance { get; protected set; }
@@ -44,6 +45,7 @@ namespace TNoodle.Puzzles
          * we're done, and are generating scrambles.
          * @return A double between 0 and 1, inclusive.
          */
+
         public virtual double GetInitializationStatus()
         {
             return 1;
@@ -58,6 +60,7 @@ namespace TNoodle.Puzzles
          * @param r The instance of Random you must use as your source of randomness when generating scrambles.
          * @return A String containing the scramble, where turns are assumed to be separated by whitespace.
          */
+
         public string GenerateWcaScramble(Random r)
         {
             PuzzleStateAndGenerator psag;
@@ -71,126 +74,16 @@ namespace TNoodle.Puzzles
         /**
          * @return Simply returns getLongName()
          */
+
         public override string ToString()
         {
             return GetLongName();
         }
 
-        public class Bucket<T> : IComparable<Bucket<T>>
-        {
-            private readonly LinkedList<T> _contents = new LinkedList<T>();
-            public int Value { get; }
-
-            public Bucket(int value)
-            {
-                Value = value;
-            }
-
-            public T Pop()
-            {
-                var last = _contents.Last.Value;
-                _contents.RemoveLast();
-                return last;
-            }
-
-            public void Push(T element)
-            {
-                _contents.AddLast(element);
-            }
-
-            public bool IsEmpty()
-            {
-                return _contents.Count == 0;
-            }
-
-            public override string ToString()
-            {
-                return "#: " + Value + ": " + _contents;
-            }
-
-            public int CompareTo(Bucket<T> other)
-            {
-                return Value - other.Value;
-            }
-
-            public override int GetHashCode()
-            {
-                return Value;
-            }
-
-            public override bool Equals(object obj)
-            {
-                var other = (Bucket<T>)obj;
-                return Value == other.Value;
-            }
-        }
-
-        public class SortedBuckets<T>
-        {
-            private readonly SortedSet<Bucket<T>> _buckets = new SortedSet<Bucket<T>>();
-
-            public void Add(T element, int value)
-            {
-                Bucket<T> bucket;
-                var searchBucket = new Bucket<T>(value);
-                if (!_buckets.Contains(searchBucket))
-                {
-                    // There is no bucket yet for value, so we create one.
-                    bucket = searchBucket;
-                    _buckets.Add(bucket);
-                }
-                else
-                {
-                    bucket = _buckets.First(b => b.CompareTo(searchBucket) >= 0);
-                }
-                bucket.Push(element);
-            }
-
-            public int SmallestValue()
-            {
-                return _buckets.First().Value;
-            }
-
-            public bool IsEmpty()
-            {
-                return _buckets.Count == 0;
-            }
-
-            public T Pop()
-            {
-                var bucket = _buckets.First();
-                var h = bucket.Pop();
-                if (bucket.IsEmpty())
-                {
-                    // We just removed the last element from this bucket,
-                    // so we can trash the bucket now.
-                    _buckets.Remove(bucket);
-                }
-                return h;
-            }
-
-            public override string ToString()
-            {
-                return _buckets.ToString();
-            }
-
-            public override int GetHashCode()
-            {
-                throw new NotSupportedException();
-            }
-
-            public override bool Equals(object obj)
-            {
-                throw new NotSupportedException();
-            }
-        }
-
         protected virtual string SolveIn(PuzzleState ps, int n)
         {
             if (ps.IsSolved())
-            {
                 return "";
-            }
 
             var seenSolved = new Dictionary<PuzzleState, int>();
             var fringeSolved = new SortedBuckets<PuzzleState>();
@@ -221,13 +114,9 @@ namespace TNoodle.Puzzles
                 // I'm choosing the non empty fringe with the node nearest
                 // its origin. In the event of a tie, we make sure to alternate.
                 if (!fringeScrambled.IsEmpty())
-                {
                     minFringeScrambled = fringeScrambled.SmallestValue();
-                }
                 if (!fringeSolved.IsEmpty())
-                {
                     minFringeSolved = fringeSolved.SmallestValue();
-                }
                 bool extendSolved;
                 if (fringeSolved.IsEmpty() || fringeScrambled.IsEmpty())
                 {
@@ -238,17 +127,11 @@ namespace TNoodle.Puzzles
                 else
                 {
                     if (minFringeSolved < minFringeScrambled)
-                    {
                         extendSolved = true;
-                    }
                     else if (minFringeSolved > minFringeScrambled)
-                    {
                         extendSolved = false;
-                    }
                     else
-                    {
-                        extendSolved = (fringeTies++) % 2 == 0;
-                    }
+                        extendSolved = fringeTies++ % 2 == 0;
                 }
 
                 // We are using references for a more concise code.
@@ -290,17 +173,9 @@ namespace TNoodle.Puzzles
                 // the other fringe's smallest distance node.
                 var bestPossibleSolution = distance + minComparingFringe;
                 if (bestPossibleSolution >= bestIntersectionCost)
-                {
                     continue;
-                }
                 if (distance >= (n + 1) / 2)
-                {
-                    // The +1 is because if n is odd, we would have to search
-                    // from one side with distance n/2 and from the other side
-                    // distance n/2 + 1. Because we don't know which is which,
-                    // let's take (n+1)/2 for both.
                     continue;
-                }
 
 
                 var movesByState = node.GetCanonicalMovesByState();
@@ -311,18 +186,8 @@ namespace TNoodle.Puzzles
                     //next = next.getNormalized();
                     var nNext = next.GetNormalized();
                     if (seenExtending.ContainsKey(nNext))
-                    {
                         if (nextDistance >= seenExtending[nNext])
-                        {
-                            // We already found a better path to next.
                             continue;
-                        }
-                        // Go on to clobber seenExtending with our updated
-                        // distance. Unfortunately, we're going have 2 copies
-                        // of next in our fringe. This doesn't change correctness,
-                        // it just means a bit of wasted work when we get around
-                        // to popping off the second one.
-                    }
                     fringeExtending.Add(nNext, nextDistance);
                     seenExtending[nNext] = nextDistance;
                 }
@@ -331,9 +196,7 @@ namespace TNoodle.Puzzles
             //l.log(start.finishedNow("expanded " + (seenSolved.size() + seenScrambled.size()) + " nodes"));
 
             if (bestIntersection == null)
-            {
                 return null;
-            }
 
             // We have found a solution, but we still have to recover the move sequence.
             // the `bestIntersection` is the bound between the solved and the scrambled states.
@@ -367,7 +230,8 @@ namespace TNoodle.Puzzles
                     goto outer1;
                 }
                 Assert(false);
-            outer1:;
+                outer1:
+                ;
             }
 
             // Step 2: bestIntersection <----- scrambled
@@ -396,7 +260,8 @@ namespace TNoodle.Puzzles
                     goto outer2;
                 }
                 Assert(false);
-            outer2:;
+                outer2:
+                ;
             }
 
             // Step 3: solved <----- bestIntersection
@@ -425,20 +290,180 @@ namespace TNoodle.Puzzles
                     goto outer3;
                 }
                 Assert(false);
-            outer3:;
+                outer3:
+                ;
             }
 
             return solution.ToString();
         }
 
+        /**
+         * @return A PuzzleState representing the solved state of our puzzle
+         * from where we will begin scrambling.
+         */
+        public abstract PuzzleState GetSolvedState();
+
+        /**
+         * @return The number of random moves we must apply to call a puzzle
+         * sufficiently scrambled.
+         */
+        protected abstract int GetRandomMoveCount();
+
+        /**
+         * This function will generate getRandomTurnCount() number of non cancelling,
+         * random turns. If a puzzle wants to provide custom scrambles
+         * (for example: Pochmann style megaminx or MRSS), it should override this method.
+         *
+         * NOTE: It is assumed that this method is thread safe! That means that if you're
+         * overriding this method and you don't know what you're doing,
+         * use the synchronized keyword when implementing this method:<br>
+         * <code>protected synchronized String generateScramble(Random r);</code>
+         * @param r An instance of Random
+         * @return A PuzzleStateAndGenerator that contains a scramble string, and the
+         *         state achieved by applying that scramble.
+         */
+
+        public virtual PuzzleStateAndGenerator GenerateRandomMoves(Random r)
+        {
+            var ab = new AlgorithmBuilder(MergingMode.NoMerging, GetSolvedState());
+            while (ab.GetTotalCost() < GetRandomMoveCount())
+            {
+                var successors = ab.GetState().GetScrambleSuccessors();
+                try
+                {
+                    string move;
+                    do
+                    {
+                        move = Functions.Choose(r, successors.Keys);
+                        // If this move happens to be redundant, there is no
+                        // reason to select this move again in vain.
+                        successors.Remove(move);
+                    } while (ab.IsRedundant(move));
+                    ab.AppendMove(move);
+                }
+                catch (InvalidMoveException e)
+                {
+                    Assert(false, e.Message, e);
+                    return null;
+                }
+            }
+            return ab.GetStateAndGenerator();
+        }
+
+        public class Bucket<T> : IComparable<Bucket<T>>
+        {
+            private readonly LinkedList<T> _contents = new LinkedList<T>();
+
+            public Bucket(int value)
+            {
+                Value = value;
+            }
+
+            public int Value { get; }
+
+            public int CompareTo(Bucket<T> other)
+            {
+                return Value - other.Value;
+            }
+
+            public T Pop()
+            {
+                var last = _contents.Last.Value;
+                _contents.RemoveLast();
+                return last;
+            }
+
+            public void Push(T element)
+            {
+                _contents.AddLast(element);
+            }
+
+            public bool IsEmpty()
+            {
+                return _contents.Count == 0;
+            }
+
+            public override string ToString()
+            {
+                return "#: " + Value + ": " + _contents;
+            }
+
+            public override int GetHashCode()
+            {
+                return Value;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var other = (Bucket<T>) obj;
+                return Value == other.Value;
+            }
+        }
+
+        public class SortedBuckets<T>
+        {
+            private readonly SortedSet<Bucket<T>> _buckets = new SortedSet<Bucket<T>>();
+
+            public void Add(T element, int value)
+            {
+                Bucket<T> bucket;
+                var searchBucket = new Bucket<T>(value);
+                if (!_buckets.Contains(searchBucket))
+                {
+                    // There is no bucket yet for value, so we create one.
+                    bucket = searchBucket;
+                    _buckets.Add(bucket);
+                }
+                else
+                {
+                    bucket = _buckets.First(b => b.CompareTo(searchBucket) >= 0);
+                }
+                bucket.Push(element);
+            }
+
+            public int SmallestValue()
+            {
+                return _buckets.First().Value;
+            }
+
+            public bool IsEmpty()
+            {
+                return _buckets.Count == 0;
+            }
+
+            public T Pop()
+            {
+                var bucket = _buckets.First();
+                var h = bucket.Pop();
+                if (bucket.IsEmpty())
+                    _buckets.Remove(bucket);
+                return h;
+            }
+
+            public override string ToString()
+            {
+                return _buckets.ToString();
+            }
+
+            public override int GetHashCode()
+            {
+                throw new NotSupportedException();
+            }
+
+            public override bool Equals(object obj)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
         public abstract class PuzzleState
         {
-            public Puzzle Puzzle { get; }
-
             protected PuzzleState(Puzzle p)
             {
                 Puzzle = p;
             }
+
+            public Puzzle Puzzle { get; }
 
             /**
              *
@@ -446,11 +471,11 @@ namespace TNoodle.Puzzles
              * @return The resulting PuzzleState
              * @throws InvalidScrambleException
              */
+
             public PuzzleState ApplyAlgorithm(string algorithm)
             {
                 var state = this;
                 foreach (var move in SplitAlgorithm(algorithm))
-                {
                     try
                     {
                         state = state.Apply(move);
@@ -459,7 +484,6 @@ namespace TNoodle.Puzzles
                     {
                         throw new InvalidScrambleException(algorithm, e);
                     }
-                }
                 return state;
             }
 
@@ -469,11 +493,12 @@ namespace TNoodle.Puzzles
              * @return A mapping of canonical PuzzleState's to the name of
              *         the move that gets you to them.
              */
+
             public virtual LinkedHashMap<PuzzleState, string> GetCanonicalMovesByState()
             {
                 var successorsByName = GetSuccessorsByName();
                 var uniqueSuccessors = new LinkedHashMap<PuzzleState, string>();
-                var statesSeenNormalized = new HashSet<PuzzleState> { GetNormalized() };
+                var statesSeenNormalized = new HashSet<PuzzleState> {GetNormalized()};
                 // We're not interested in any successor states are just a
                 // rotation away.
                 foreach (var next in successorsByName)
@@ -513,6 +538,7 @@ namespace TNoodle.Puzzles
              *        we can just do an alphabetical sort of these and return the
              *        min or max.
              */
+
             public virtual PuzzleState GetNormalized()
             {
                 return this;
@@ -532,6 +558,7 @@ namespace TNoodle.Puzzles
              * @param move
              * @return The cost of doing this move.
              */
+
             public virtual int GetMoveCost(string move)
             {
                 return 1;
@@ -577,6 +604,7 @@ namespace TNoodle.Puzzles
              * @return A HashMap mapping move Strings to resulting PuzzleStates.
              *         The move Strings may not contain spaces.
              */
+
             public virtual LinkedHashMap<string, PuzzleState> GetScrambleSuccessors()
             {
                 return GetCanonicalMovesByState().ReverseHashMap();
@@ -610,13 +638,12 @@ namespace TNoodle.Puzzles
              * @return The PuzzleState achieved after applying move
              * @throws InvalidMoveException if the move is unrecognized.
              */
+
             public PuzzleState Apply(string move)
             {
                 var successors = GetSuccessorsByName();
                 if (!successors.ContainsKey(move))
-                {
                     throw new InvalidMoveException("Unrecognized turn " + move);
-                }
                 return successors[move];
             }
 
@@ -635,6 +662,7 @@ namespace TNoodle.Puzzles
              * @param move2
              * @return True iff move1 and move2 commute.
              */
+
             internal bool MovesCommute(string move1, string move2)
             {
                 try
@@ -648,58 +676,6 @@ namespace TNoodle.Puzzles
                     return false;
                 }
             }
-        }
-
-        /**
-         * @return A PuzzleState representing the solved state of our puzzle
-         * from where we will begin scrambling.
-         */
-        public abstract PuzzleState GetSolvedState();
-
-        /**
-         * @return The number of random moves we must apply to call a puzzle
-         * sufficiently scrambled.
-         */
-        protected abstract int GetRandomMoveCount();
-
-        /**
-         * This function will generate getRandomTurnCount() number of non cancelling,
-         * random turns. If a puzzle wants to provide custom scrambles
-         * (for example: Pochmann style megaminx or MRSS), it should override this method.
-         *
-         * NOTE: It is assumed that this method is thread safe! That means that if you're
-         * overriding this method and you don't know what you're doing,
-         * use the synchronized keyword when implementing this method:<br>
-         * <code>protected synchronized String generateScramble(Random r);</code>
-         * @param r An instance of Random
-         * @return A PuzzleStateAndGenerator that contains a scramble string, and the
-         *         state achieved by applying that scramble.
-         */
-        public virtual PuzzleStateAndGenerator GenerateRandomMoves(Random r)
-        {
-            var ab = new AlgorithmBuilder(MergingMode.NoMerging, GetSolvedState());
-            while (ab.GetTotalCost() < GetRandomMoveCount())
-            {
-                var successors = ab.GetState().GetScrambleSuccessors();
-                try
-                {
-                    string move;
-                    do
-                    {
-                        move = Functions.Choose(r, successors.Keys);
-                        // If this move happens to be redundant, there is no
-                        // reason to select this move again in vain.
-                        successors.Remove(move);
-                    } while (ab.IsRedundant(move));
-                    ab.AppendMove(move);
-                }
-                catch (InvalidMoveException e)
-                {
-                    Assert(false, e.Message, e);
-                    return null;
-                }
-            }
-            return ab.GetStateAndGenerator();
         }
     }
 }

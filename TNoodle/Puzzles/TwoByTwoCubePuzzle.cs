@@ -34,7 +34,7 @@ namespace TNoodle.Puzzles
 
         protected override string SolveIn(PuzzleState ps, int n)
         {
-            var cs = (CubeState)ps;
+            var cs = (CubeState) ps;
             var solution = _twoSolver.SolveIn(cs.ToTwoByTwoState(), n);
             return solution;
         }

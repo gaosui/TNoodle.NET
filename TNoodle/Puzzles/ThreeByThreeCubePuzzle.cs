@@ -12,6 +12,7 @@ namespace TNoodle.Puzzles
         private const int ThreeByThreeTimeout = 60 * 1000; //milliseconds
 
         private readonly Search _twoPhaseSearcher = new Search();
+
         public ThreeByThreeCubePuzzle() : base(3)
         {
         }
@@ -23,18 +24,14 @@ namespace TNoodle.Puzzles
 
         protected string SolveIn(PuzzleState ps, int n, string firstAxisRestriction, string lastAxisRestriction)
         {
-            var cs = (CubeState)ps;
+            var cs = (CubeState) ps;
             if (Equals(GetSolvedState()))
-            {
-                // TODO - apparently min2phase can't solve the solved cube
                 return "";
-            }
-            var solution = _twoPhaseSearcher.Solution(cs.ToFaceCube(), n, ThreeByThreeTimeout, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
+            var solution =
+                _twoPhaseSearcher.Solution(cs.ToFaceCube(), n, ThreeByThreeTimeout, 0, 0, firstAxisRestriction,
+                    lastAxisRestriction).Trim();
             if ("Error 7".Equals(solution))
-            {
-                // No solution exists for given depth
                 return null;
-            }
             if (!solution.StartsWith("Error", StringComparison.Ordinal)) return solution;
             // TODO - Not really sure what to do here.
             //l.severe(solution + " while searching for solution to " + cs.toFaceCube());
@@ -42,10 +39,13 @@ namespace TNoodle.Puzzles
             return null;
         }
 
-        public PuzzleStateAndGenerator GenerateRandomMoves(Random r, string firstAxisRestriction, string lastAxisRestriction)
+        public PuzzleStateAndGenerator GenerateRandomMoves(Random r, string firstAxisRestriction,
+            string lastAxisRestriction)
         {
             var randomState = Tools.RandomCube(r);
-            var scramble = _twoPhaseSearcher.Solution(randomState, ThreeByThreeMaxScrambleLength, ThreeByThreeTimeout, ThreeByThreeTimemin, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
+            var scramble =
+                _twoPhaseSearcher.Solution(randomState, ThreeByThreeMaxScrambleLength, ThreeByThreeTimeout,
+                    ThreeByThreeTimemin, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
             var ab = new AlgorithmBuilder(MergingMode.CanonicalizeMoves, GetSolvedState());
             try
