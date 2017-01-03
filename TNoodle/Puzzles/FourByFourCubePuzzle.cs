@@ -21,7 +21,7 @@ namespace TNoodle.Puzzles
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             var scramble = _threePhaseSearcher.RandomState(r);
-            var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
+            var ab = new AlgorithmBuilder(MergingMode.CanonicalizeMoves, GetSolvedState());
             try
             {
                 ab.AppendAlgorithm(scramble);

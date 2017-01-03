@@ -9,11 +9,11 @@ namespace TNoodle.Puzzles
 {
     public class AlgorithmBuilder
     {
-        readonly List<string> _moves = new List<string>();
+        private readonly List<string> _moves = new List<string>();
         /**
          * states.get(i) = state achieved by applying moves[0]...moves[i-1]
          */
-        readonly List<PuzzleState> _states = new List<PuzzleState>();
+        private readonly List<PuzzleState> _states = new List<PuzzleState>();
         /**
          * If we are in CANONICALIZE_MOVES MergingMode, then something like
          * Uw Dw' on a 4x4x4 will become Uw2. This means the state we end
@@ -22,14 +22,9 @@ namespace TNoodle.Puzzles
          * unNormalizedState keeps track of the state we would have been in
          * if we had just naively appended turns.
          */
-        PuzzleState _originalState, _unNormalizedState;
-        int _totalCost;
-        readonly MergingMode _mergingMode;
-
-        public AlgorithmBuilder(Puzzle puzzle, MergingMode mergingMode) : this(mergingMode, puzzle.GetSolvedState())
-        {
-
-        }
+        private PuzzleState _originalState, _unNormalizedState;
+        private int _totalCost;
+        private readonly MergingMode _mergingMode;
 
         public AlgorithmBuilder(MergingMode mergingMode, PuzzleState originalState)
         {
@@ -132,7 +127,9 @@ namespace TNoodle.Puzzles
             var successors = GetState().GetCanonicalMovesByState();
             // Search for the right move to do to our current state in
             // order to match up with newNormalizedState.
-            move = (from ps in successors.Keys where ps.EqualsNormalized(newNormalizedState) select successors[ps]).FirstOrDefault();
+            move = (from ps in successors.Keys
+                    where ps.EqualsNormalized(newNormalizedState)
+                    select successors[ps]).FirstOrDefault();
             // One of getStates()'s successors must be newNormalizedState.
             // If not, something has gone very wrong.
             Assert(move != null);

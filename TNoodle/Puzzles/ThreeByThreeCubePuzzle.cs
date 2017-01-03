@@ -47,7 +47,7 @@ namespace TNoodle.Puzzles
             var randomState = Tools.RandomCube(r);
             var scramble = _twoPhaseSearcher.Solution(randomState, ThreeByThreeMaxScrambleLength, ThreeByThreeTimeout, ThreeByThreeTimemin, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
-            var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
+            var ab = new AlgorithmBuilder(MergingMode.CanonicalizeMoves, GetSolvedState());
             try
             {
                 ab.AppendAlgorithm(scramble);

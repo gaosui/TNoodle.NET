@@ -677,7 +677,7 @@ namespace TNoodle.Puzzles
          */
         public virtual PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            var ab = new AlgorithmBuilder(this, MergingMode.NoMerging);
+            var ab = new AlgorithmBuilder(MergingMode.NoMerging, GetSolvedState());
             while (ab.GetTotalCost() < GetRandomMoveCount())
             {
                 var successors = ab.GetState().GetScrambleSuccessors();

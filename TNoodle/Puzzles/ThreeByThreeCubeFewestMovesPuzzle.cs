@@ -85,7 +85,7 @@ namespace TNoodle.Puzzles
             // scrambleSuffix:
             String solutionFirstAxisRestriction = scrambleSuffix[0].Substring(0, 1);
             PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r, solutionFirstAxisRestriction, solutionLastAxisRestriction);
-            AlgorithmBuilder ab = new AlgorithmBuilder(this, MergingMode.NoMerging);
+            AlgorithmBuilder ab = new AlgorithmBuilder(MergingMode.NoMerging, GetSolvedState());
             try
             {
                 ab.AppendAlgorithms(scramblePrefix);
