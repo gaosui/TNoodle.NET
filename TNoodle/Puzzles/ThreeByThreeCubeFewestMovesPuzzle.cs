@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static TNoodle.Puzzles.AlgorithmBuilder;
+using static TNoodle.Utils.Assertion;
 
 namespace TNoodle.Puzzles
 {
     public class ThreeByThreeCubeFewestMovesPuzzle : ThreeByThreeCubePuzzle
     {
-        public ThreeByThreeCubeFewestMovesPuzzle() : base()
-        {
-        }
-
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
             // For fewest moves, we want to minimize the probability that the
@@ -66,8 +59,8 @@ namespace TNoodle.Puzzles
             // finger-tricky/reversible the current prefix is.)  Just my two cents,
             // 'tho.
             // END MICHAEL MESSSAGE
-            String[] scramblePrefix = AlgorithmBuilder.SplitAlgorithm("R' U' F");
-            String[] scrambleSuffix = AlgorithmBuilder.SplitAlgorithm("R' U' F");
+            var scramblePrefix = SplitAlgorithm("R' U' F");
+            var scrambleSuffix = SplitAlgorithm("R' U' F");
 
             // super.generateRandomMoves(...) will pick a random state S and find a solution:
             //  solution = sol_0, sol_1, ..., sol_n-1, sol_n
@@ -80,21 +73,21 @@ namespace TNoodle.Puzzles
             //
             // We don't want any moves to cancel here, so we need to make sure that
             // sol_n' doesn't cancel with the first move of scramblePrefix:
-            String solutionLastAxisRestriction = scramblePrefix[scramblePrefix.Length - 1].Substring(0, 1);
+            var solutionLastAxisRestriction = scramblePrefix[scramblePrefix.Length - 1].Substring(0, 1);
             // and we need to make sure that sol_0' doesn't cancel with the first move of
             // scrambleSuffix:
-            String solutionFirstAxisRestriction = scrambleSuffix[0].Substring(0, 1);
-            PuzzleStateAndGenerator psag = base.GenerateRandomMoves(r, solutionFirstAxisRestriction, solutionLastAxisRestriction);
-            AlgorithmBuilder ab = new AlgorithmBuilder(MergingMode.NoMerging, GetSolvedState());
+            var solutionFirstAxisRestriction = scrambleSuffix[0].Substring(0, 1);
+            var psag = GenerateRandomMoves(r, solutionFirstAxisRestriction, solutionLastAxisRestriction);
+            var ab = new AlgorithmBuilder(MergingMode.NoMerging, GetSolvedState());
             try
             {
                 ab.AppendAlgorithms(scramblePrefix);
                 ab.AppendAlgorithm(psag.Generator);
                 ab.AppendAlgorithms(scrambleSuffix);
             }
-            catch //(InvalidMoveException e)
+            catch (InvalidMoveException e)
             {
-                //azzert(false, e);
+                Assert(false, e.Message, e);
                 return null;
             }
             return ab.GetStateAndGenerator();
@@ -110,5 +103,4 @@ namespace TNoodle.Puzzles
             return "3x3x3 Fewest Moves";
         }
     }
-
 }

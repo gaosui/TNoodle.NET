@@ -20,7 +20,7 @@ namespace Test
             var tick = 0.0;
             const int count = 50;
 
-            var puzzle = new NoInspectionFiveByFiveCubePuzzle();
+            var puzzle = new ThreeByThreeCubeFewestMovesPuzzle();
 
             for (var i = 0; i < count; i++)
             {
