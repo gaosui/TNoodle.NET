@@ -1,84 +1,67 @@
 ﻿using System;
 using TNoodle.Solvers.Min2phase;
-using System.Threading;
 using static TNoodle.Utils.Assertion;
 using static TNoodle.Puzzles.AlgorithmBuilder;
 
 namespace TNoodle.Puzzles
 {
-	public class ThreeByThreeCubePuzzle : CubePuzzle
-	{
-		//private static final Logger l = Logger.getLogger(ThreeByThreeCubePuzzle.class.getName());
-		const int THREE_BY_THREE_MAX_SCRAMBLE_LENGTH = 21;
-		const int THREE_BY_THREE_TIMEMIN = 200; //milliseconds
-		const int THREE_BY_THREE_TIMEOUT = 60 * 1000; //milliseconds
+    public class ThreeByThreeCubePuzzle : CubePuzzle
+    {
+        private const int ThreeByThreeMaxScrambleLength = 21;
+        private const int ThreeByThreeTimemin = 200; //milliseconds
+        private const int ThreeByThreeTimeout = 60 * 1000; //milliseconds
 
-		ThreadLocal<Search> twoPhaseSearcher;
-		public ThreeByThreeCubePuzzle() : base(3)
-		{
-			//string newMinDistance = EnvGetter.getenv("TNOODLE_333_MIN_DISTANCE");
-			//if (newMinDistance != null)
-			//{
-			//wcaMinScrambleDistance = Integer.parseInt(newMinDistance);
-			//}
-			twoPhaseSearcher = new ThreadLocal<Search>(() => new Search());
-			//{
-			//protected Search initialValue()
-			// {/
-			// return new Search();
-			//};
-			//};
-		}
+        private readonly Search _twoPhaseSearcher = new Search();
+        public ThreeByThreeCubePuzzle() : base(3)
+        {
+        }
 
-		protected override string SolveIn(PuzzleState ps, int n)
-		{
-			return SolveIn(ps, n, null, null);
-		}
+        protected override string SolveIn(PuzzleState ps, int n)
+        {
+            return SolveIn(ps, n, null, null);
+        }
 
-		public string SolveIn(PuzzleState ps, int n, string firstAxisRestriction, string lastAxisRestriction)
-		{
-			var cs = (CubeState)ps;
-			if (Equals(GetSolvedState()))
-			{
-				// TODO - apparently min2phase can't solve the solved cube
-				return "";
-			}
-			var solution = twoPhaseSearcher.Value.Solution(cs.ToFaceCube(), n, THREE_BY_THREE_TIMEOUT, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
-			if ("Error 7".Equals(solution))
-			{
-				// No solution exists for given depth
-				return null;
-			}
-			if (solution.StartsWith("Error", StringComparison.Ordinal))
-			{
-				// TODO - Not really sure what to do here.
-				//l.severe(solution + " while searching for solution to " + cs.toFaceCube());
-				Assert(false);
-				return null;
-			}
-			return solution;
-		}
+        protected string SolveIn(PuzzleState ps, int n, string firstAxisRestriction, string lastAxisRestriction)
+        {
+            var cs = (CubeState)ps;
+            if (Equals(GetSolvedState()))
+            {
+                // TODO - apparently min2phase can't solve the solved cube
+                return "";
+            }
+            var solution = _twoPhaseSearcher.Solution(cs.ToFaceCube(), n, ThreeByThreeTimeout, 0, 0, firstAxisRestriction, lastAxisRestriction).Trim();
+            if ("Error 7".Equals(solution))
+            {
+                // No solution exists for given depth
+                return null;
+            }
+            if (!solution.StartsWith("Error", StringComparison.Ordinal)) return solution;
+            // TODO - Not really sure what to do here.
+            //l.severe(solution + " while searching for solution to " + cs.toFaceCube());
+            Assert(false);
+            return null;
+        }
 
-		public PuzzleStateAndGenerator GenerateRandomMoves(Random r, string firstAxisRestriction, string lastAxisRestriction)
-		{
-			var randomState = Tools.RandomCube(r);
-			var scramble = twoPhaseSearcher.Value.Solution(randomState, THREE_BY_THREE_MAX_SCRAMBLE_LENGTH, THREE_BY_THREE_TIMEOUT, THREE_BY_THREE_TIMEMIN, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
+        public PuzzleStateAndGenerator GenerateRandomMoves(Random r, string firstAxisRestriction, string lastAxisRestriction)
+        {
+            var randomState = Tools.RandomCube(r);
+            var scramble = _twoPhaseSearcher.Solution(randomState, ThreeByThreeMaxScrambleLength, ThreeByThreeTimeout, ThreeByThreeTimemin, Search.INVERSE_SOLUTION, firstAxisRestriction, lastAxisRestriction).Trim();
 
-			var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
-			try
-			{
-				ab.AppendAlgorithm(scramble);
-			}
-			catch (InvalidMoveException e)
-			{
-				Assert(false, e.Message, new InvalidScrambleException(scramble, e));
-			}
-			return ab.GetStateAndGenerator();
-		}
+            var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
+            try
+            {
+                ab.AppendAlgorithm(scramble);
+            }
+            catch (InvalidMoveException e)
+            {
+                Assert(false, e.Message, new InvalidScrambleException(scramble, e));
+            }
+            return ab.GetStateAndGenerator();
+        }
 
-		public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
-		{
-			return GenerateRandomMoves(r, null, null);
-		}
-	}
+        public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
+        {
+            return GenerateRandomMoves(r, null, null);
+        }
+    }
 }

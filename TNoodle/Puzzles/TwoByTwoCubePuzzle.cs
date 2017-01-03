@@ -7,8 +7,8 @@ namespace TNoodle.Puzzles
 {
 	public class TwoByTwoCubePuzzle : CubePuzzle
 	{
-		const int TWO_BY_TWO_MIN_SCRAMBLE_LENGTH = 11;
-		readonly TwoByTwoSolver twoSolver = new TwoByTwoSolver();
+	    private const int TwoByTwoMinScrambleLength = 11;
+	    private readonly TwoByTwoSolver _twoSolver = new TwoByTwoSolver();
 
 		public TwoByTwoCubePuzzle() : base(2)
 		{
@@ -17,13 +17,12 @@ namespace TNoodle.Puzzles
 
 		public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
 		{
-			var state = twoSolver.RandomState(r);
-			var scramble = twoSolver.GenerateExactly(state, TWO_BY_TWO_MIN_SCRAMBLE_LENGTH);
+			var state = _twoSolver.RandomState(r);
+			var scramble = _twoSolver.GenerateExactly(state, TwoByTwoMinScrambleLength);
 
 			var ab = new AlgorithmBuilder(this, MergingMode.CanonicalizeMoves);
 			try
 			{
-
 				ab.AppendAlgorithm(scramble);
 			}
 			catch (InvalidMoveException e)
@@ -36,7 +35,7 @@ namespace TNoodle.Puzzles
 		protected override string SolveIn(PuzzleState ps, int n)
 		{
 			var cs = (CubeState)ps;
-			var solution = twoSolver.SolveIn(cs.ToTwoByTwoState(), n);
+			var solution = _twoSolver.SolveIn(cs.ToTwoByTwoState(), n);
 			return solution;
 		}
 	}

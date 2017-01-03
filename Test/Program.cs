@@ -11,32 +11,31 @@ using System.Diagnostics;
 
 namespace Test
 {
-	public class Program
-	{
-		public static void Main()
-		{
-			var r = new Random(2017);
-			var watch = new Stopwatch();
-			double tick = 0;
-			int count = 50;
+    public class Program
+    {
+        public static void Main()
+        {
+            var r = new Random(2017);
+            var watch = new Stopwatch();
+            var tick = 0.0;
+            const int count = 50;
 
-			var puzzle = new ThreeByThreeCubePuzzle();
-			string result;
+            var puzzle = new FourByFourCubePuzzle();
 
-			for (int i = 0; i < count; i++)
-			{
-				watch.Start();
+            for (var i = 0; i < count; i++)
+            {
+                watch.Start();
 
-				result = puzzle.GenerateWcaScramble(r);
+                var result = puzzle.GenerateWcaScramble(r);
 
-				watch.Stop();
-				Console.WriteLine(result);
-				tick += watch.ElapsedTicks;
-				watch.Reset();
-			}
+                watch.Stop();
+                Console.WriteLine(result);
+                tick += watch.ElapsedTicks;
+                watch.Reset();
+            }
 
-			tick /= count;
-			Console.WriteLine($"{tick / TimeSpan.TicksPerMillisecond} ms");
-		}
-	}
+            tick /= count;
+            Console.WriteLine($"{tick / TimeSpan.TicksPerMillisecond} ms");
+        }
+    }
 }
