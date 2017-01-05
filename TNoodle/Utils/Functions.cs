@@ -9,7 +9,6 @@ namespace TNoodle.Utils
 {
     public static class Functions
     {
-        public static event Action<string> Log;
         public static T Choose<T>(Random r, IEnumerable<T> keySet)
         {
             var chosen = default(T);
@@ -59,71 +58,42 @@ namespace TNoodle.Utils
             return sb.ToString();
         }
 
-        public static bool DeepEquals(this int[] a, int[] b)
-        {
-            for (var i = 0; i < a.Length; i++)
-                if (a[i] != b[i]) return false;
-            return true;
-        }
-
-        public static bool DeepEquals(this int[,] a, int[,] b)
-        {
-            for (var i = 0; i < a.GetLength(0); i++)
-            for (var j = 0; j < a.GetLength(1); j++)
-                if (a[i, j] != b[i, j]) return false;
-            return true;
-        }
-
-
-        public static int DeepHashCode(this int[,] a)
-        {
-            if (a == null)
-                return 0;
-
-            var result = 1;
-            foreach (var element in a)
-                result = 31 * result + element;
-
-            return result;
-        }
-
-
         public static Face OppositeFace(this Face f)
         {
             return (Face) (((int) f + 3) % 6);
         }
 
         // TODO We could rename faces so we can just do +6 mod 12 here instead.
-        public static MegaminxPuzzle.Face? oppositeFace(this MegaminxPuzzle.Face face)
+        public static MegaminxPuzzle.Face OppositeFace(this MegaminxPuzzle.Face face)
         {
             switch (face)
             {
                 case MegaminxPuzzle.Face.U:
                     return MegaminxPuzzle.Face.D;
-                case MegaminxPuzzle.Face.BL:
-                    return MegaminxPuzzle.Face.DR;
-                case MegaminxPuzzle.Face.BR:
-                    return MegaminxPuzzle.Face.DL;
+                case MegaminxPuzzle.Face.Bl:
+                    return MegaminxPuzzle.Face.Dr;
+                case MegaminxPuzzle.Face.Br:
+                    return MegaminxPuzzle.Face.Dl;
                 case MegaminxPuzzle.Face.R:
-                    return MegaminxPuzzle.Face.DBL;
+                    return MegaminxPuzzle.Face.Dbl;
                 case MegaminxPuzzle.Face.F:
                     return MegaminxPuzzle.Face.B;
                 case MegaminxPuzzle.Face.L:
-                    return MegaminxPuzzle.Face.DBR;
+                    return MegaminxPuzzle.Face.Dbr;
                 case MegaminxPuzzle.Face.D:
                     return MegaminxPuzzle.Face.U;
-                case MegaminxPuzzle.Face.DR:
-                    return MegaminxPuzzle.Face.BL;
-                case MegaminxPuzzle.Face.DBR:
+                case MegaminxPuzzle.Face.Dr:
+                    return MegaminxPuzzle.Face.Bl;
+                case MegaminxPuzzle.Face.Dbr:
                     return MegaminxPuzzle.Face.L;
                 case MegaminxPuzzle.Face.B:
                     return MegaminxPuzzle.Face.F;
-                case MegaminxPuzzle.Face.DBL:
+                case MegaminxPuzzle.Face.Dbl:
                     return MegaminxPuzzle.Face.R;
-                case MegaminxPuzzle.Face.DL:
-                    return MegaminxPuzzle.Face.BR;
+                case MegaminxPuzzle.Face.Dl:
+                    return MegaminxPuzzle.Face.Br;
                 default:
-                    return null;
+                    throw new ArgumentOutOfRangeException(nameof(face), face, null);
             }
         }
     }

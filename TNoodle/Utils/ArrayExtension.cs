@@ -38,6 +38,17 @@ namespace TNoodle.Utils
                 Array.Copy(src[i], 0, dest[i], 0, src[i].Length);
         }
 
+        public static bool DeepEquals(this int[] a, int[] b)
+        {
+            for (var i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i]) return false;
+            }
+
+            return true;
+        }
+
+
         public static bool DeepEquals(this int[][] a1, int[][] a2)
         {
             for (var i = 0; i < a1.Length; i++)

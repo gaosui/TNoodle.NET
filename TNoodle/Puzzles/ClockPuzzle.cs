@@ -178,7 +178,7 @@ namespace TNoodle.Puzzles
             public override bool Equals(Object other)
             {
                 ClockState o = ((ClockState)other);
-                return Functions.DeepEquals(posit, o.posit);
+                return posit.DeepEquals(o.posit);
             }
 
             public override int GetHashCode()
