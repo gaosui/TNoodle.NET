@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using TNoodle.Utils;
+using static TNoodle.Utils.Assertion;
 
 namespace TNoodle.Puzzles
 {
@@ -11,42 +9,30 @@ namespace TNoodle.Puzzles
     {
         //private static final Logger l = Logger.getLogger(ClockPuzzle.class.getName());
 
-        private static readonly string[] turns = { "UR", "DR", "DL", "UL", "U", "R", "D", "L", "ALL" };
-        private const int STROKE_WIDTH = 2;
-        private const int radius = 70;
-        private const int clockRadius = 14;
-        private const int clockOuterRadius = 20;
-        private const int pointRadius = (clockRadius + clockOuterRadius) / 2;
-        private const int tickMarkRadius = 1;
-        private const int arrowHeight = 10;
-        private const int arrowRadius = 2;
-        private const int pinRadius = 4;
-        private static readonly double arrowAngle = Math.PI / 2 - Math.Acos((double)arrowRadius / (double)arrowHeight);
+        private static readonly string[] Turns = {"UR", "DR", "DL", "UL", "U", "R", "D", "L", "ALL"};
 
-        private const int gap = 5;
-
-        public override String GetLongName()
+        public override string GetLongName()
         {
             return "Clock";
         }
 
-        public override String GetShortName()
+        public override string GetShortName()
         {
             return "clock";
         }
 
-        private static readonly int[,] moves = {
-        {0,1,1,0,1,1,0,0,0,  -1, 0, 0, 0, 0, 0, 0, 0, 0},// UR
-        {0,0,0,0,1,1,0,1,1,   0, 0, 0, 0, 0, 0,-1, 0, 0},// DR
-        {0,0,0,1,1,0,1,1,0,   0, 0, 0, 0, 0, 0, 0, 0,-1},// DL
-        {1,1,0,1,1,0,0,0,0,   0, 0,-1, 0, 0, 0, 0, 0, 0},// UL
-        {1,1,1,1,1,1,0,0,0,  -1, 0,-1, 0, 0, 0, 0, 0, 0},// U
-        {0,1,1,0,1,1,0,1,1,  -1, 0, 0, 0, 0, 0,-1, 0, 0},// R
-        {0,0,0,1,1,1,1,1,1,   0, 0, 0, 0, 0, 0,-1, 0,-1},// D
-        {1,1,0,1,1,0,1,1,0,   0, 0,-1, 0, 0, 0, 0, 0,-1},// L
-        {1,1,1,1,1,1,1,1,1,  -1, 0,-1, 0, 0, 0,-1, 0,-1},// A
-    };
-
+        private static readonly int[][] Moves =
+        {
+            new[] {0, 1, 1, 0, 1, 1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0}, // UR
+            new[] {0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0}, // DR
+            new[] {0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1}, // DL
+            new[] {1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0}, // UL
+            new[] {1, 1, 1, 1, 1, 1, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0}, // U
+            new[] {0, 1, 1, 0, 1, 1, 0, 1, 1, -1, 0, 0, 0, 0, 0, -1, 0, 0}, // R
+            new[] {0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, -1, 0, -1}, // D
+            new[] {1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, -1, 0, 0, 0, 0, 0, -1}, // L
+            new[] {1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 0, -1, 0, 0, 0, -1, 0, -1}, // A
+        };
 
 
         public override PuzzleState GetSolvedState()
@@ -54,51 +40,51 @@ namespace TNoodle.Puzzles
             return new ClockState(this);
         }
 
-        protected  override int GetRandomMoveCount()
+        protected override int GetRandomMoveCount()
         {
             return 19;
         }
 
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            StringBuilder scramble = new StringBuilder();
+            var scramble = new StringBuilder();
 
-            for (int x = 0; x < 9; x++)
+            for (var x = 0; x < 9; x++)
             {
-                int turn = r.Next(12) - 5;
-                bool clockwise = (turn >= 0);
+                var turn = r.Next(12) - 5;
+                var clockwise = (turn >= 0);
                 turn = Math.Abs(turn);
-                scramble.Append(turns[x] + turn + (clockwise ? "+" : "-") + " ");
+                scramble.Append(Turns[x] + turn + (clockwise ? "+" : "-") + " ");
             }
             scramble.Append("y2 ");
-            for (int x = 4; x < 9; x++)
+            for (var x = 4; x < 9; x++)
             {
-                int turn = r.Next(12) - 5;
-                bool clockwise = (turn >= 0);
+                var turn = r.Next(12) - 5;
+                var clockwise = (turn >= 0);
                 turn = Math.Abs(turn);
-                scramble.Append(turns[x] + turn + (clockwise ? "+" : "-") + " ");
+                scramble.Append(Turns[x] + turn + (clockwise ? "+" : "-") + " ");
             }
 
-            bool isFirst = true;
-            for (int x = 0; x < 4; x++)
+            var isFirst = true;
+            for (var x = 0; x < 4; x++)
             {
                 if (r.Next(2) == 1)
                 {
-                    scramble.Append((isFirst ? "" : " ") + turns[x]);
+                    scramble.Append((isFirst ? "" : " ") + Turns[x]);
                     isFirst = false;
                 }
             }
 
-            String scrambleStr = scramble.ToString().Trim();
+            var scrambleStr = scramble.ToString().Trim();
 
-            PuzzleState state = GetSolvedState();
+            var state = GetSolvedState();
             try
             {
                 state = state.ApplyAlgorithm(scrambleStr);
             }
-            catch //(InvalidScrambleException e)
+            catch (InvalidScrambleException e)
             {
-                //azzert(false, e);
+                Assert(false, e.Message, e);
                 return null;
             }
             return new PuzzleStateAndGenerator(state, scrambleStr);
@@ -106,87 +92,86 @@ namespace TNoodle.Puzzles
 
         public class ClockState : PuzzleState
         {
-            private ClockPuzzle puzzle;
-            private bool[] pins;
-            private readonly int[] posit;
-            private bool rightSideUp;
+            private readonly ClockPuzzle _puzzle;
+            private readonly bool[] _pins;
+            private readonly int[] _posit;
+            private readonly bool _rightSideUp;
+
             public ClockState(ClockPuzzle p) : base(p)
             {
-                puzzle = p;
-                pins = new bool[] { false, false, false, false };
-                posit = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                rightSideUp = true;
+                _puzzle = p;
+                _pins = new[] {false, false, false, false};
+                _posit = new[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                _rightSideUp = true;
             }
 
             public ClockState(bool[] pins, int[] posit, bool rightSideUp, ClockPuzzle p) : base(p)
             {
-                puzzle = p;
-                this.pins = pins;
-                this.posit = posit;
-                this.rightSideUp = rightSideUp;
+                _puzzle = p;
+                _pins = pins;
+                _posit = posit;
+                _rightSideUp = rightSideUp;
             }
 
-            public override LinkedHashMap<String, PuzzleState> GetSuccessorsByName()
+            public override LinkedHashMap<string, PuzzleState> GetSuccessorsByName()
             {
-                LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
+                var successors = new LinkedHashMap<string, PuzzleState>();
 
-                for (int turn = 0; turn < turns.Length; turn++)
+                for (var turn = 0; turn < Turns.Length; turn++)
                 {
-                    for (int rot = 0; rot < 12; rot++)
+                    for (var rot = 0; rot < 12; rot++)
                     {
                         // Apply the move
-                        int[] positCopy1 = new int[18];
-                        bool[] pinsCopy1 = new bool[4];
-                        for (int p = 0; p < 18; p++)
+                        var positCopy1 = new int[18];
+                        var pinsCopy1 = new bool[4];
+                        for (var p = 0; p < 18; p++)
                         {
-                            positCopy1[p] = (posit[p] + rot * moves[turn, p] + 12) % 12;
+                            positCopy1[p] = (_posit[p] + rot * Moves[turn][p] + 12) % 12;
                         }
-                        Array.Copy(pins, 0, pinsCopy1, 0, 4);
+                        Array.Copy(_pins, 0, pinsCopy1, 0, 4);
 
                         // Build the move string
-                        bool clockwise = (rot < 7);
-                        String move = turns[turn] + (clockwise ? (rot + "+") : ((12 - rot) + "-"));
+                        var clockwise = (rot < 7);
+                        var move = Turns[turn] + (clockwise ? (rot + "+") : ((12 - rot) + "-"));
 
-                        successors[move] = new ClockState(pinsCopy1, positCopy1, rightSideUp, puzzle);
+                        successors[move] = new ClockState(pinsCopy1, positCopy1, _rightSideUp, _puzzle);
                     }
                 }
 
                 // Still y2 to implement
-                int[] positCopy = new int[18];
-                bool[] pinsCopy = new bool[4];
-                Array.Copy(posit, 0, positCopy, 9, 9);
-                Array.Copy(posit, 9, positCopy, 0, 9);
-                Array.Copy(pins, 0, pinsCopy, 0, 4);
-                successors["y2"] = new ClockState(pinsCopy, positCopy, !rightSideUp, puzzle);
+                var positCopy = new int[18];
+                var pinsCopy = new bool[4];
+                Array.Copy(_posit, 0, positCopy, 9, 9);
+                Array.Copy(_posit, 9, positCopy, 0, 9);
+                Array.Copy(_pins, 0, pinsCopy, 0, 4);
+                successors["y2"] = new ClockState(pinsCopy, positCopy, !_rightSideUp, _puzzle);
 
                 // Pins position moves
-                for (int pin = 0; pin < 4; pin++)
+                for (var pin = 0; pin < 4; pin++)
                 {
-                    int[] positC = new int[18];
-                    bool[] pinsC = new bool[4];
-                    Array.Copy(posit, 0, positC, 0, 18);
-                    Array.Copy(pins, 0, pinsC, 0, 4);
-                    int pinI = (pin == 0 ? 1 : (pin == 1 ? 3 : (pin == 2 ? 2 : 0)));
+                    var positC = new int[18];
+                    var pinsC = new bool[4];
+                    Array.Copy(_posit, 0, positC, 0, 18);
+                    Array.Copy(_pins, 0, pinsC, 0, 4);
+                    var pinI = (pin == 0 ? 1 : (pin == 1 ? 3 : (pin == 2 ? 2 : 0)));
                     pinsC[pinI] = true;
 
-                    successors[turns[pin]] = new ClockState(pinsC, positC, rightSideUp, puzzle);
+                    successors[Turns[pin]] = new ClockState(pinsC, positC, _rightSideUp, _puzzle);
                 }
 
                 return successors;
             }
 
-            public override bool Equals(Object other)
+            public override bool Equals(object other)
             {
-                ClockState o = ((ClockState)other);
-                return posit.DeepEquals(o.posit);
+                var o = ((ClockState) other);
+                return _posit.DeepEquals(o._posit);
             }
 
             public override int GetHashCode()
             {
-                return posit.DeepHashCode();
+                return _posit.DeepHashCode();
             }
-
         }
     }
-
 }
