@@ -11,9 +11,9 @@ namespace Test
             var r = new Random(2017);
             var watch = new Stopwatch();
             var tick = 0.0;
-            const int count = 5;
+            const int count = 50;
 
-            var puzzle = new SquareOnePuzzle();
+            var puzzle = new PyraminxPuzzle();
 
             for (var i = 0; i < count; i++)
             {

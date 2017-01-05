@@ -38,6 +38,18 @@ namespace TNoodle.Utils
                 Array.Copy(src[i], 0, dest[i], 0, src[i].Length);
         }
 
+        public static bool DeepEquals(this int[][] a1, int[][] a2)
+        {
+            for (var i = 0; i < a1.Length; i++)
+            {
+                for (var j = 0; j < a1[i].Length; j++)
+                {
+                    if (a1[i][j] != a2[i][j]) return false;
+                }
+            }
+            return true;
+        }
+
         public static bool DeepEquals(this int[][][] src, int[][][] dest)
         {
             for (var i = 0; i < src.Length; i++)
@@ -49,14 +61,44 @@ namespace TNoodle.Utils
 
         public static int DeepHashCode(this int[] a)
         {
-            return a.Aggregate(1, (current, t) => 31 * current + t);
+            if (a == null) return 0;
+
+            var result = 1;
+
+            foreach (var element in a)
+            {
+                result = 31 * result + element;
+            }
+
+            return result;
         }
 
-        public static int DeepHashCode(this int[][][] src)
+        public static int DeepHashCode(this int[][] a)
         {
-            return src.Aggregate(1,
-                (current2, t) =>
-                    t.Aggregate(current2, (current1, t1) => t1.Aggregate(current1, (current, t2) => 31 * current + t2)));
+            if (a == null) return 0;
+
+            var result = 1;
+
+            foreach (var element in a)
+            {
+                result = 31 * result + element.DeepHashCode();
+            }
+
+            return result;
+        }
+
+        public static int DeepHashCode(this int[][][] a)
+        {
+            if (a == null) return 0;
+
+            var result = 1;
+
+            foreach (var element in a)
+            {
+                result = 31 * result + element.DeepHashCode();
+            }
+
+            return result;
         }
 
         public static LinkedHashMap<TB, TA> ReverseHashMap<TA, TB>(this LinkedHashMap<TA, TB> map)
