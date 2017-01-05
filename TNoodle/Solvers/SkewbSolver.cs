@@ -3,51 +3,60 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TNoodle.Utils;
 
 namespace TNoodle.Solvers
 {
     public class SkewbSolver
     {
+        private const int NMoves = 4;
 
-        private const int N_MOVES = 4;
+        private static readonly int[] Fact = {1, 1, 1, 3, 12, 60, 360}; //fact[x] = x!/2
+        private static readonly char[][] Permmv = ArrayExtension.New<char>(4320, 4);
+        private static readonly char[][] Twstmv = ArrayExtension.New<char>(2187, 4);
+        private static readonly sbyte[] Permprun = new sbyte[4320];
+        private static readonly sbyte[] Twstprun = new sbyte[2187];
 
-        private static readonly int[] fact = { 1, 1, 1, 3, 12, 60, 360 };//fact[x] = x!/2
-        private static char[,] permmv = new char[4320, 4];
-        private static char[,] twstmv = new char[2187, 4];
-        private static sbyte[] permprun = new sbyte[4320];
-        private static sbyte[] twstprun = new sbyte[2187];
+        private const int MaxSolutionLength = 12;
 
-        private static readonly String[] move2str = { "R ", "R' ", "L ", "L' ", "D ",
-        "D' ", "B ", "B' " };
-
-        private const int MAX_SOLUTION_LENGTH = 12;
-
-        public SkewbSolver() { }
-
-        private static readonly sbyte[,] cornerpermmv = new sbyte[,] {
-        { 6, 5, 10, 1 }, { 9, 7, 4, 2 }, { 3, 11, 8, 0 }, { 10, 1, 6, 5 },
-        { 0, 8, 11, 3 }, { 7, 9, 2, 4 }, { 4, 2, 9, 7 }, { 11, 3, 0, 8 },
-        { 1, 10, 5, 6 }, { 8, 0, 3, 11 }, { 2, 4, 7, 9 }, { 5, 6, 1, 10 } };
-
-        private static readonly sbyte[] ori = new sbyte[] { 0, 1, 2, 0, 2, 1, 1, 2, 0,
-        2, 1, 0 };
-
-        private static int getpermmv(int idx, int move)
+        private static readonly sbyte[][] Cornerpermmv =
         {
-            int centerindex = idx / 12;
-            int cornerindex = idx % 12;
-            int val = 0x543210;
-            int parity = 0;
-            int[] centerperm = new int[6];
-            for (int i = 0; i < 5; i++)
+            new sbyte[] {6, 5, 10, 1},
+            new sbyte[] {9, 7, 4, 2},
+            new sbyte[] {3, 11, 8, 0},
+            new sbyte[] {10, 1, 6, 5},
+            new sbyte[] {0, 8, 11, 3},
+            new sbyte[] {7, 9, 2, 4},
+            new sbyte[] {4, 2, 9, 7},
+            new sbyte[] {11, 3, 0, 8},
+            new sbyte[] {1, 10, 5, 6},
+            new sbyte[] {8, 0, 3, 11},
+            new sbyte[] {2, 4, 7, 9},
+            new sbyte[] {5, 6, 1, 10}
+        };
+
+        private static readonly sbyte[] Ori =
+        {
+            0, 1, 2, 0, 2, 1, 1, 2, 0,
+            2, 1, 0
+        };
+
+        private static int Getpermmv(int idx, int move)
+        {
+            var centerindex = idx / 12;
+            var cornerindex = idx % 12;
+            var val = 0x543210;
+            var parity = 0;
+            var centerperm = new int[6];
+            for (var i = 0; i < 5; i++)
             {
-                int p = fact[5 - i];
-                int v = centerindex / p;
+                var p = Fact[5 - i];
+                var v = centerindex / p;
                 centerindex -= v * p;
                 parity ^= v;
                 v <<= 2;
                 centerperm[i] = (val >> v) & 0xf;
-                int m = (1 << v) - 1;
+                var m = (1 << v) - 1;
                 val = (val & m) + ((val >> 4) & ~m);
             }
             if ((parity & 1) == 0)
@@ -89,26 +98,26 @@ namespace TNoodle.Solvers
                 centerperm[4] = t;
             }
             val = 0x543210;
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
-                int v = centerperm[i] << 2;
+                var v = centerperm[i] << 2;
                 centerindex *= 6 - i;
                 centerindex += (val >> v) & 0xf;
-                val -= (int)(0x111110L << v);
+                val -= (int) (0x111110L << v);
             }
-            return centerindex * 12 + cornerpermmv[cornerindex, move];
+            return centerindex * 12 + Cornerpermmv[cornerindex][move];
         }
 
-        private static int gettwstmv(int idx, int move)
+        private static int Gettwstmv(int idx, int move)
         {
-            int[] fixedtwst = new int[4];
-            int[] twst = new int[4];
-            for (int i = 0; i < 4; i++)
+            var fixedtwst = new int[4];
+            var twst = new int[4];
+            for (var i = 0; i < 4; i++)
             {
                 fixedtwst[i] = idx % 3;
                 idx /= 3;
             }
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 twst[i] = idx % 3;
                 idx /= 3;
@@ -142,79 +151,79 @@ namespace TNoodle.Solvers
                     twst[2] = twst[3] + 2;
                     twst[3] = t + 2;
                     break;
-                default:
-                    break;
             }
-            for (int i = 2; i >= 0; i--)
+            for (var i = 2; i >= 0; i--)
             {
                 idx = idx * 3 + twst[i] % 3;
             }
-            for (int i = 3; i >= 0; i--)
+            for (var i = 3; i >= 0; i--)
             {
                 idx = idx * 3 + fixedtwst[i];
             }
             return idx;
         }
+
         static SkewbSolver()
         {
-            init();
+            Init();
         }
-        private static void init()
+
+        private static void Init()
         {
-            for (int i = 0; i < 4320; i++)
+            for (var i = 0; i < 4320; i++)
             {
-                permprun[i] = -1;
-                for (int j = 0; j < 4; j++)
+                Permprun[i] = -1;
+                for (var j = 0; j < 4; j++)
                 {
-                    permmv[i, j] = (char)getpermmv(i, j);
+                    Permmv[i][j] = (char) Getpermmv(i, j);
                 }
             }
-            for (int i = 0; i < 2187; i++)
+            for (var i = 0; i < 2187; i++)
             {
-                twstprun[i] = -1;
-                for (int j = 0; j < 4; j++)
+                Twstprun[i] = -1;
+                for (var j = 0; j < 4; j++)
                 {
-                    twstmv[i, j] = (char)gettwstmv(i, j);
+                    Twstmv[i][j] = (char) Gettwstmv(i, j);
                 }
             }
-            permprun[0] = 0;
-            for (int l = 0; l < 6; l++)
+            Permprun[0] = 0;
+            for (var l = 0; l < 6; l++)
             {
-                for (int p = 0; p < 4320; p++)
+                for (var p = 0; p < 4320; p++)
                 {
-                    if (permprun[p] == l)
+                    if (Permprun[p] == l)
                     {
-                        for (int m = 0; m < 4; m++)
+                        for (var m = 0; m < 4; m++)
                         {
-                            int q = p;
-                            for (int c = 0; c < 2; c++)
+                            var q = p;
+                            for (var c = 0; c < 2; c++)
                             {
-                                q = permmv[q, m];
-                                if (permprun[q] == -1)
+                                q = Permmv[q][m];
+                                if (Permprun[q] == -1)
                                 {
-                                    permprun[q] = (sbyte)(l + 1);
+                                    Permprun[q] = (sbyte) (l + 1);
                                 }
                             }
                         }
                     }
                 }
             }
-            twstprun[0] = 0;
-            for (int l = 0; l < 6; l++)
+            Twstprun[0] = 0;
+            for (var l = 0; l < 6; l++)
             {
-                for (int p = 0; p < 2187; p++)
+                for (var p = 0; p < 2187; p++)
                 {
-                    if (twstprun[p] == l)
+                    if (Twstprun[p] == l)
                     {
-                        for (int m = 0; m < 4; m++)
+                        for (var m = 0; m < 4; m++)
                         {
-                            int q = p;
-                            for (int c = 0; c < 2; c++)
+                            var q = p;
+                            for (var c = 0; c < 2; c++)
                             {
-                                q = twstmv[q, m];
-                                if (twstprun[q] == -1)
+                                q = Twstmv[q][m];
+                                if (Twstprun[q] == -1)
                                 {
-                                    twstprun[q] = (sbyte)(l + 1);
+                                    Twstprun[q] = (sbyte) (l + 1);
                                 }
                             }
                         }
@@ -223,31 +232,31 @@ namespace TNoodle.Solvers
             }
         }
 
-        protected bool search(int depth, int perm, int twst, int maxl, int lm, int[] sol, Random randomizeMoves)
+        protected bool Search(int depth, int perm, int twst, int maxl, int lm, int[] sol, Random randomizeMoves)
         {
             if (maxl == 0)
             {
-                solution_length = depth;
+                _solutionLength = depth;
                 return (perm == 0 && twst == 0);
             }
-            solution_length = -1;
-            if (permprun[perm] > maxl || twstprun[twst] > maxl)
+            _solutionLength = -1;
+            if (Permprun[perm] > maxl || Twstprun[twst] > maxl)
             {
                 return false;
             }
-            int randomOffset = randomizeMoves.Next(N_MOVES);
-            for (int m = 0; m < N_MOVES; m++)
+            var randomOffset = randomizeMoves.Next(NMoves);
+            for (var m = 0; m < NMoves; m++)
             {
-                int randomMove = (m + randomOffset) % N_MOVES;
+                var randomMove = (m + randomOffset) % NMoves;
                 if (randomMove != lm)
                 {
-                    int p = perm;
-                    int s = twst;
-                    for (int a = 0; a < 2; a++)
+                    var p = perm;
+                    var s = twst;
+                    for (var a = 0; a < 2; a++)
                     {
-                        p = permmv[p, randomMove];
-                        s = twstmv[s, randomMove];
-                        if (search(depth + 1, p, s, maxl - 1, randomMove, sol, randomizeMoves))
+                        p = Permmv[p][randomMove];
+                        s = Twstmv[s][randomMove];
+                        if (Search(depth + 1, p, s, maxl - 1, randomMove, sol, randomizeMoves))
                         {
                             sol[depth] = randomMove * 2 + a;
                             return true;
@@ -260,81 +269,79 @@ namespace TNoodle.Solvers
 
         public class SkewbSolverState
         {
-            public int perm;
-            public int twst;
-            public bool isSolvable()
+            public int Perm { get; set; }
+            public int Twst { get; set; }
+
+            public bool IsSolvable()
             {
-                return ori[perm % 12] == (twst + twst / 3 + twst / 9 + twst / 27) % 3;
+                return Ori[Perm % 12] == (Twst + Twst / 3 + Twst / 9 + Twst / 27) % 3;
             }
         }
 
-        public SkewbSolverState randomState(Random r)
+        public SkewbSolverState RandomState(Random r)
         {
-            SkewbSolverState state = new SkewbSolverState();
-            state.perm = r.Next(4320);
+            var state = new SkewbSolverState {Perm = r.Next(4320)};
             do
             {
-                state.twst = r.Next(2187);
-            } while (!state.isSolvable());
+                state.Twst = r.Next(2187);
+            } while (!state.IsSolvable());
             return state;
         }
 
-        public String solveIn(SkewbSolverState state, int length, Random randomizeMoves)
+        public string SolveIn(SkewbSolverState state, int length, Random randomizeMoves)
         {
-            int[] sol = new int[MAX_SOLUTION_LENGTH];
-            search(0, state.perm, state.twst, length, -1, sol, randomizeMoves);
-            if (solution_length != -1)
+            var sol = new int[MaxSolutionLength];
+            Search(0, state.Perm, state.Twst, length, -1, sol, randomizeMoves);
+            if (_solutionLength != -1)
             {
-                return getSolution(sol);
+                return GetSolution(sol);
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
-        public String generateExactly(SkewbSolverState state, int length, Random randomizeMoves)
+        public string GenerateExactly(SkewbSolverState state, int length, Random randomizeMoves)
         {
-            int[] sol = new int[MAX_SOLUTION_LENGTH];
-            search(0, state.perm, state.twst, length, -1, sol, randomizeMoves);
-            return getSolution(sol);
+            var sol = new int[MaxSolutionLength];
+            Search(0, state.Perm, state.Twst, length, -1, sol, randomizeMoves);
+            return GetSolution(sol);
         }
 
-        int solution_length = -1;
+        private int _solutionLength = -1;
+
 
         /**
-         * The solver is written in jaap's notation. Now we're going to convert the result to FCN(fixed corner notation):
-         * Step one, the puzzle is rotated by z2, which will bring "R L D B" (in jaap's notation) to "L R F U" (in FCN, F has not
-         *     been defined, now we define it as the opposite corner of B)
-         * Step two, convert F to B by rotation [F' B]. When an F found in the move sequence, it is replaced immediately by B and other 3 moves
-         *     should be swapped. For example, if the next move is R, we should turn U instead. Because the R corner is at U after rotation.
-         *     In another word, "F R" is converted to "B U". The correctness can be easily verified and the procedure is recursable.
-         */
-        private String getSolution(int[] sol)
+                 * The solver is written in jaap's notation. Now we're going to convert the result to FCN(fixed corner notation):
+                 * Step one, the puzzle is rotated by z2, which will bring "R L D B" (in jaap's notation) to "L R F U" (in FCN, F has not
+                 *     been defined, now we define it as the opposite corner of B)
+                 * Step two, convert F to B by rotation [F' B]. When an F found in the move sequence, it is replaced immediately by B and other 3 moves
+                 *     should be swapped. For example, if the next move is R, we should turn U instead. Because the R corner is at U after rotation.
+                 *     In another word, "F R" is converted to "B U". The correctness can be easily verified and the procedure is recursable.
+                 */
+
+        private string GetSolution(int[] sol)
         {
-            StringBuilder sb = new StringBuilder();
-            String[] move2str = { "L", "R", "B", "U" };//RLDB (in jaap's notation) rotated by z2
-            for (int i = 0; i < solution_length; i++)
+            var sb = new StringBuilder();
+            string[] move2Str = {"L", "R", "B", "U"}; //RLDB (in jaap's notation) rotated by z2
+            for (var i = 0; i < _solutionLength; i++)
             {
-                int axis = sol[i] >> 1;
-                int pow = sol[i] & 1;
+                var axis = sol[i] >> 1;
+                var pow = sol[i] & 1;
                 if (axis == 2)
-                {//step two.
-                    for (int p = 0; p <= pow; p++)
+                {
+                    //step two.
+                    for (var p = 0; p <= pow; p++)
                     {
-                        String temp = move2str[0];
-                        move2str[0] = move2str[1];
-                        move2str[1] = move2str[3];
-                        move2str[3] = temp;
+                        var temp = move2Str[0];
+                        move2Str[0] = move2Str[1];
+                        move2Str[1] = move2Str[3];
+                        move2Str[3] = temp;
                     }
                 }
-                sb.Append(move2str[axis] + ((pow == 1) ? "'" : ""));
+                sb.Append(move2Str[axis] + ((pow == 1) ? "'" : ""));
                 sb.Append(" ");
             }
-            String scrambleSequence = sb.ToString().Trim();
+            var scrambleSequence = sb.ToString().Trim();
             return scrambleSequence;
         }
-
     }
-
 }

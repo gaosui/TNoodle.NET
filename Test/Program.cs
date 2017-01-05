@@ -13,7 +13,7 @@ namespace Test
             var tick = 0.0;
             const int count = 50;
 
-            var puzzle = new PyraminxPuzzle();
+            var puzzle = new SkewbPuzzle();
 
             for (var i = 0; i < count; i++)
             {
