@@ -108,7 +108,7 @@ namespace TNoodle.Puzzles
         {
             private ClockPuzzle puzzle;
             private bool[] pins;
-            private int[] posit;
+            private readonly int[] posit;
             private bool rightSideUp;
             public ClockState(ClockPuzzle p) : base(p)
             {
@@ -183,7 +183,7 @@ namespace TNoodle.Puzzles
 
             public override int GetHashCode()
             {
-                return Functions.DeepHashCode(posit);
+                return posit.DeepHashCode();
             }
 
         }

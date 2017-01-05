@@ -52,7 +52,7 @@ namespace TNoodle.Solvers.Threephase
                 }
             }
 
-            Functions.Fill(Prun, (sbyte)-1);
+            ArrayExtension.Fill(Prun, (sbyte)-1);
 
             Prun[0] = 0;
             int depth = 0;

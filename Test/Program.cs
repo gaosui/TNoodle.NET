@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TNoodle.Solvers.Min2phase;
-using TNoodle.Solvers;
-using TNoodle.Puzzles;
-using TNoodle.Utils;
 using System.Diagnostics;
+using TNoodle.Puzzles;
 
 namespace Test
 {
@@ -18,20 +11,19 @@ namespace Test
             var r = new Random(2017);
             var watch = new Stopwatch();
             var tick = 0.0;
-            const int count = 50;
+            const int count = 5;
 
-            var puzzle = new ThreeByThreeCubeFewestMovesPuzzle();
+            var puzzle = new SquareOnePuzzle();
 
             for (var i = 0; i < count; i++)
             {
-                watch.Start();
+                watch.Restart();
 
                 var result = puzzle.GenerateWcaScramble(r);
 
                 watch.Stop();
                 Console.WriteLine(result);
                 tick += watch.ElapsedTicks;
-                watch.Reset();
             }
 
             tick /= count;

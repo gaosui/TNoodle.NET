@@ -1,151 +1,144 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TNoodle.Utils;
 
 namespace TNoodle.Solvers.sq12phase
 {
     internal class Shape
     {
-
+        public static event Action<string> Log;
         //1 = corner, 0 = edge.
-        internal static int[] halflayer = {0x00, 0x03, 0x06, 0x0c, 0x0f, 0x18, 0x1b, 0x1e,
-        0x30, 0x33, 0x36, 0x3c, 0x3f};
-
-        internal static int[] ShapeIdx = new int[3678];
-        internal static int[] ShapePrun = new int[3768 * 2];
-        internal static int[] ShapePrunOpt = new int[3768 * 2];
-
-        internal static int[] TopMove = new int[3678 * 2];
-        internal static int[] BottomMove = new int[3678 * 2];
-        internal static int[] TwistMove = new int[3678 * 2];
-
-        private Shape() { }
-
-        internal int top;
-        internal int bottom;
-        internal int parity;
-
-        internal static int getShape2Idx(int shp)
+        private static readonly int[] Halflayer =
         {
-            int ret = Array.BinarySearch(ShapeIdx, shp & 0xffffff) << 1 | shp >> 24;
+            0x00, 0x03, 0x06, 0x0c, 0x0f, 0x18, 0x1b, 0x1e,
+            0x30, 0x33, 0x36, 0x3c, 0x3f
+        };
+
+        private static bool _inited;
+        private int _bottom;
+        private int _parity;
+
+        private int _top;
+
+        private Shape()
+        {
+        }
+
+        internal static int[] ShapeIdx { get; } = new int[3678];
+        internal static int[] ShapePrun { get; } = new int[3768 * 2];
+        internal static int[] ShapePrunOpt { get; } = new int[3768 * 2];
+
+        internal static int[] TopMove { get; } = new int[3678 * 2];
+        internal static int[] BottomMove { get; } = new int[3678 * 2];
+        internal static int[] TwistMove { get; } = new int[3678 * 2];
+
+        internal static int GetShape2Idx(int shp)
+        {
+            var ret = (Array.BinarySearch(ShapeIdx, shp & 0xffffff) << 1) | (shp >> 24);
             return ret;
         }
 
-        internal int getIdx()
+        private int GetIdx()
         {
-            int ret = Array.BinarySearch(ShapeIdx, top << 12 | bottom) << 1 | parity;
+            var ret = (Array.BinarySearch(ShapeIdx, (_top << 12) | _bottom) << 1) | _parity;
             return ret;
         }
 
-        internal void setIdx(int idx)
+        private void SetIdx(int idx)
         {
-            parity = idx & 1;
-            top = ShapeIdx[idx >> 1];
-            bottom = top & 0xfff;
-            top >>= 12;
+            _parity = idx & 1;
+            _top = ShapeIdx[idx >> 1];
+            _bottom = _top & 0xfff;
+            _top >>= 12;
         }
 
-        internal int topMove()
+        private int TopMoveMth()
         {
-            int move = 0;
-            int moveParity = 0;
+            var move = 0;
+            var moveParity = 0;
             do
             {
-                if ((top & 0x800) == 0)
+                if ((_top & 0x800) == 0)
                 {
                     move += 1;
-                    top = top << 1;
+                    _top = _top << 1;
                 }
                 else
                 {
                     move += 2;
-                    top = (top << 2) ^ 0x3003;
+                    _top = (_top << 2) ^ 0x3003;
                 }
                 moveParity = 1 - moveParity;
-            } while ((Functions.BitCount(top & 0x3f) & 1) != 0);
-            if ((Functions.BitCount(top) & 2) == 0)
-            {
-                parity ^= moveParity;
-
-            }
+            } while ((Functions.BitCount(_top & 0x3f) & 1) != 0);
+            if ((Functions.BitCount(_top) & 2) == 0)
+                _parity ^= moveParity;
             return move;
         }
 
-        internal int bottomMove()
+        private int BottomMoveMth()
         {
-            int move = 0;
-            int moveParity = 0;
+            var move = 0;
+            var moveParity = 0;
             do
             {
-                if ((bottom & 0x800) == 0)
+                if ((_bottom & 0x800) == 0)
                 {
                     move += 1;
-                    bottom = bottom << 1;
+                    _bottom = _bottom << 1;
                 }
                 else
                 {
                     move += 2;
-                    bottom = (bottom << 2) ^ 0x3003;
+                    _bottom = (_bottom << 2) ^ 0x3003;
                 }
                 moveParity = 1 - moveParity;
-            } while ((Functions.BitCount(bottom & 0x3f) & 1) != 0);
-            if ((Functions.BitCount(bottom) & 2) == 0)
-            {
-                parity ^= moveParity;
-            }
+            } while ((Functions.BitCount(_bottom & 0x3f) & 1) != 0);
+            if ((Functions.BitCount(_bottom) & 2) == 0)
+                _parity ^= moveParity;
             return move;
         }
 
-        internal void twistMove()
+        private void TwistMoveMth()
         {
-            int temp = top & 0x3f;
-            int p1 = Functions.BitCount(temp);
-            int p3 = Functions.BitCount(bottom & 0xfc0);
-            parity ^= 1 & ((p1 & p3) >> 1);
+            var temp = _top & 0x3f;
+            var p1 = Functions.BitCount(temp);
+            var p3 = Functions.BitCount(_bottom & 0xfc0);
+            _parity ^= 1 & ((p1 & p3) >> 1);
 
-            top = (top & 0xfc0) | ((bottom >> 6) & 0x3f);
-            bottom = (bottom & 0x3f) | temp << 6;
+            _top = (_top & 0xfc0) | ((_bottom >> 6) & 0x3f);
+            _bottom = (_bottom & 0x3f) | (temp << 6);
         }
 
-        internal static bool inited = false;
-
-        internal static void init()
+        internal static void Init()
         {
-            if (inited)
-            {
+            if (_inited)
                 return;
-            }
-            int count = 0;
-            for (int i = 0; i < 13 * 13 * 13 * 13; i++)
+            var count = 0;
+            for (var i = 0; i < 13 * 13 * 13 * 13; i++)
             {
-                int dr = halflayer[i % 13];
-                int dl = halflayer[i / 13 % 13];
-                int ur = halflayer[i / 13 / 13 % 13];
-                int ul = halflayer[i / 13 / 13 / 13];
-                int value = ul << 18 | ur << 12 | dl << 6 | dr;
+                var dr = Halflayer[i % 13];
+                var dl = Halflayer[i / 13 % 13];
+                var ur = Halflayer[i / 13 / 13 % 13];
+                var ul = Halflayer[i / 13 / 13 / 13];
+                var value = (ul << 18) | (ur << 12) | (dl << 6) | dr;
                 if (Functions.BitCount(value) == 16)
-                {
                     ShapeIdx[count++] = value;
-                }
             }
             //System.out.println(count);
-            Shape s = new Shape();
-            for (int i = 0; i < 3678 * 2; i++)
+            Log?.Invoke(count.ToString());
+            var s = new Shape();
+            for (var i = 0; i < 3678 * 2; i++)
             {
-                s.setIdx(i);
-                TopMove[i] = s.topMove();
-                TopMove[i] |= s.getIdx() << 4;
-                s.setIdx(i);
-                BottomMove[i] = s.bottomMove();
-                BottomMove[i] |= s.getIdx() << 4;
-                s.setIdx(i);
-                s.twistMove();
-                TwistMove[i] = s.getIdx();
+                s.SetIdx(i);
+                TopMove[i] = s.TopMoveMth();
+                TopMove[i] |= s.GetIdx() << 4;
+                s.SetIdx(i);
+                BottomMove[i] = s.BottomMoveMth();
+                BottomMove[i] |= s.GetIdx() << 4;
+                s.SetIdx(i);
+                s.TwistMoveMth();
+                TwistMove[i] = s.GetIdx();
             }
-            for (int i = 0; i < 3768 * 2; i++)
+            for (var i = 0; i < 3768 * 2; i++)
             {
                 ShapePrun[i] = -1;
                 ShapePrunOpt[i] = -1;
@@ -155,61 +148,54 @@ namespace TNoodle.Solvers.sq12phase
             //1 110110110110 110110110110
             //1 011011011011 011011011011
             //0 011011011011 110110110110
-            ShapePrun[getShape2Idx(0x0db66db)] = 0;
-            ShapePrun[getShape2Idx(0x1db6db6)] = 0;
-            ShapePrun[getShape2Idx(0x16db6db)] = 0;
-            ShapePrun[getShape2Idx(0x06dbdb6)] = 0;
-            ShapePrunOpt[new FullCube().getShapeIdx()] = 0;
-            int done = 4;
-            int done0 = 0;
-            int depth = -1;
+            ShapePrun[GetShape2Idx(0x0db66db)] = 0;
+            ShapePrun[GetShape2Idx(0x1db6db6)] = 0;
+            ShapePrun[GetShape2Idx(0x16db6db)] = 0;
+            ShapePrun[GetShape2Idx(0x06dbdb6)] = 0;
+            ShapePrunOpt[new FullCube().GetShapeIdx()] = 0;
+            var done = 4;
+            var done0 = 0;
+            var depth = -1;
             while (done != done0)
             {
                 done0 = done;
                 ++depth;
                 //System.out.println(done);
-                for (int i = 0; i < 3768 * 2; i++)
+                Log?.Invoke(done.ToString());
+                for (var i = 0; i < 3768 * 2; i++)
                 {
-                    if (ShapePrun[i] == depth)
+                    if (ShapePrun[i] != depth) continue;
+                    // try top
+                    var m = 0;
+                    var idx = i;
+                    do
                     {
-                        // try top
-                        int m = 0;
-                        int idx = i;
-                        do
-                        {
-                            idx = TopMove[idx];
-                            m += idx & 0xf;
-                            idx >>= 4;
-                            if (ShapePrun[idx] == -1)
-                            {
-                                ++done;
-                                ShapePrun[idx] = depth + 1;
-                            }
-                        } while (m != 12);
+                        idx = TopMove[idx];
+                        m += idx & 0xf;
+                        idx >>= 4;
+                        if (ShapePrun[idx] != -1) continue;
+                        ++done;
+                        ShapePrun[idx] = depth + 1;
+                    } while (m != 12);
 
-                        // try bottom
-                        m = 0;
-                        idx = i;
-                        do
-                        {
-                            idx = BottomMove[idx];
-                            m += idx & 0xf;
-                            idx >>= 4;
-                            if (ShapePrun[idx] == -1)
-                            {
-                                ++done;
-                                ShapePrun[idx] = depth + 1;
-                            }
-                        } while (m != 12);
+                    // try bottom
+                    m = 0;
+                    idx = i;
+                    do
+                    {
+                        idx = BottomMove[idx];
+                        m += idx & 0xf;
+                        idx >>= 4;
+                        if (ShapePrun[idx] != -1) continue;
+                        ++done;
+                        ShapePrun[idx] = depth + 1;
+                    } while (m != 12);
 
-                        // try twist
-                        idx = TwistMove[i];
-                        if (ShapePrun[idx] == -1)
-                        {
-                            ++done;
-                            ShapePrun[idx] = depth + 1;
-                        }
-                    }
+                    // try twist
+                    idx = TwistMove[i];
+                    if (ShapePrun[idx] != -1) continue;
+                    ++done;
+                    ShapePrun[idx] = depth + 1;
                 }
             }
             done = 1;
@@ -220,53 +206,44 @@ namespace TNoodle.Solvers.sq12phase
                 done0 = done;
                 ++depth;
                 //System.out.println(done);
-                for (int i = 0; i < 3768 * 2; i++)
+                Log?.Invoke(done.ToString());
+                for (var i = 0; i < 3768 * 2; i++)
                 {
-                    if (ShapePrunOpt[i] == depth)
+                    if (ShapePrunOpt[i] != depth) continue;
+                    // try top
+                    var m = 0;
+                    var idx = i;
+                    do
                     {
-                        // try top
-                        int m = 0;
-                        int idx = i;
-                        do
-                        {
-                            idx = TopMove[idx];
-                            m += idx & 0xf;
-                            idx >>= 4;
-                            if (ShapePrunOpt[idx] == -1)
-                            {
-                                ++done;
-                                ShapePrunOpt[idx] = depth + 1;
-                            }
-                        } while (m != 12);
+                        idx = TopMove[idx];
+                        m += idx & 0xf;
+                        idx >>= 4;
+                        if (ShapePrunOpt[idx] != -1) continue;
+                        ++done;
+                        ShapePrunOpt[idx] = depth + 1;
+                    } while (m != 12);
 
-                        // try bottom
-                        m = 0;
-                        idx = i;
-                        do
-                        {
-                            idx = BottomMove[idx];
-                            m += idx & 0xf;
-                            idx >>= 4;
-                            if (ShapePrunOpt[idx] == -1)
-                            {
-                                ++done;
-                                ShapePrunOpt[idx] = depth + 1;
-                            }
-                        } while (m != 12);
+                    // try bottom
+                    m = 0;
+                    idx = i;
+                    do
+                    {
+                        idx = BottomMove[idx];
+                        m += idx & 0xf;
+                        idx >>= 4;
+                        if (ShapePrunOpt[idx] != -1) continue;
+                        ++done;
+                        ShapePrunOpt[idx] = depth + 1;
+                    } while (m != 12);
 
-                        // try twist
-                        idx = TwistMove[i];
-                        if (ShapePrunOpt[idx] == -1)
-                        {
-                            ++done;
-                            ShapePrunOpt[idx] = depth + 1;
-                        }
-                    }
+                    // try twist
+                    idx = TwistMove[i];
+                    if (ShapePrunOpt[idx] != -1) continue;
+                    ++done;
+                    ShapePrunOpt[idx] = depth + 1;
                 }
             }
-            inited = true;
+            _inited = true;
         }
-
     }
-
 }

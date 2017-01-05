@@ -1,17 +1,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TNoodle.Solvers.sq12phase;
 using TNoodle.Utils;
+using static TNoodle.Utils.Assertion;
 
 namespace TNoodle.Puzzles
 {
     public class SquareOnePuzzle : Puzzle
     {
+        private static readonly Dictionary<string, int> CostsByMove = new Dictionary<string, int>();
 
-        private const int radius = 32;
+        static SquareOnePuzzle()
+        {
+            for (var top = -5; top <= 6; top++)
+            for (var bottom = -5; bottom <= 6; bottom++)
+            {
+                if (top == 0 && bottom == 0)
+                    continue;
+                //int topCost = top % 12 == 0 ? 0 : 1;
+                //int bottomCost = bottom % 12 == 0 ? 0 : 1;
+                //int cost = topCost + bottomCost;
+                const int cost = 1;
+                var turn = "(" + top + "," + bottom + ")";
+                CostsByMove[turn] = cost;
+            }
+            CostsByMove["/"] = 1;
+        }
 
         public SquareOnePuzzle()
         {
@@ -23,28 +38,28 @@ namespace TNoodle.Puzzles
 
         public override PuzzleStateAndGenerator GenerateRandomMoves(Random r)
         {
-            Search s = new Search();
-            String scramble = s.solution(FullCube.randomCube(r)).Trim();
+            var s = new Search();
+            var scramble = s.Solution(FullCube.RandomCube(r)).Trim();
             PuzzleState state;
             try
             {
                 state = GetSolvedState().ApplyAlgorithm(scramble);
             }
-            catch //(InvalidScrambleException e)
+            catch (InvalidScrambleException e)
             {
-                //azzert(false, e);
+                Assert(false, e.Message, e);
                 return null;
             }
             return new PuzzleStateAndGenerator(state, scramble);
         }
 
 
-        public override String GetLongName()
+        public override string GetLongName()
         {
             return "Square-1";
         }
 
-        public override String GetShortName()
+        public override string GetShortName()
         {
             return "sq1";
         }
@@ -59,107 +74,50 @@ namespace TNoodle.Puzzles
             return 40;
         }
 
-        /*
-        // TODO - we can't filter super aggresively until
-        // Chen Shuang's optimal solver is fixed.
-        @Override
-        protected String solveIn(PuzzleState ps, int n) {
-            FullCube f = ((SquareOneState)ps).toFullCube();
-            Search s = new Search();
-            String scramble = s.solutionOpt(f, n);
-            return scramble == null ? null : scramble.trim();
-        }
-        */
-
-        internal static Dictionary<String, int> costsByMove = new Dictionary<string, int>();
-        static SquareOnePuzzle()
-        {
-            for (int top = -5; top <= 6; top++)
-            {
-                for (int bottom = -5; bottom <= 6; bottom++)
-                {
-                    if (top == 0 && bottom == 0)
-                    {
-                        // No use doing nothing =)
-                        continue;
-                    }
-                    //int topCost = top % 12 == 0 ? 0 : 1;
-                    //int bottomCost = bottom % 12 == 0 ? 0 : 1;
-                    //int cost = topCost + bottomCost;
-                    int cost = 1;
-                    String turn = "(" + top + "," + bottom + ")";
-                    costsByMove[turn] = cost;
-                }
-            }
-            costsByMove["/"] = 1;
-        }
-
         public class SquareOneState : PuzzleState
         {
-            private SquareOnePuzzle puzzle;
-            internal bool sliceSolved;
-            internal int[] pieces;
+            private readonly int[] _pieces;
+            private readonly SquareOnePuzzle _puzzle;
+            private readonly bool _sliceSolved;
 
             public SquareOneState(SquareOnePuzzle p) : base(p)
             {
-                puzzle = p;
-                sliceSolved = true;
-                pieces = new int[] { 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 15, 15 }; //piece array
+                _puzzle = p;
+                _sliceSolved = true;
+                _pieces = new[] {0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 15, 15};
+                //piece array
             }
 
             public SquareOneState(bool sliceSolved, int[] pieces, SquareOnePuzzle p) : base(p)
             {
-                puzzle = p;
-                this.sliceSolved = sliceSolved;
-                this.pieces = pieces;
+                _puzzle = p;
+                _sliceSolved = sliceSolved;
+                _pieces = pieces;
             }
 
-            FullCube toFullCube()
-            {
-                int[] map1 = new int[] { 3, 2, 1, 0, 7, 6, 5, 4, 0xa, 0xb, 8, 9, 0xe, 0xf, 0xc, 0xd };
-                int[] map2 = new int[] { 5, 4, 3, 2, 1, 0, 11, 10, 9, 8, 7, 6, 17, 16, 15, 14, 13, 12, 23, 22, 21, 20, 19, 18 };
-                FullCube f = FullCube.randomCube();
-                for (int i = 0; i < 24; i++)
-                {
-                    f.setPiece(map2[i], map1[pieces[i]]);
-                }
-                f.setPiece(24, sliceSolved ? 0 : 1);
-                return f;
-            }
-
-            private int[] doSlash()
+            private int[] DoSlash()
             {
                 //int[] newPieces = GwtSafeUtils.clone(pieces);
-                int[] newPieces = new int[pieces.Length];
-                pieces.CopyTo(newPieces, 0);
-                for (int i = 0; i < 6; i++)
+                var newPieces = new int[_pieces.Length];
+                _pieces.CopyTo(newPieces, 0);
+                for (var i = 0; i < 6; i++)
                 {
-                    int c = newPieces[i + 12];
+                    var c = newPieces[i + 12];
                     newPieces[i + 12] = newPieces[i + 6];
                     newPieces[i + 6] = c;
                 }
                 return newPieces;
             }
 
-            private bool canSlash()
+            private bool CanSlash()
             {
-                if (pieces[0] == pieces[11])
-                {
+                if (_pieces[0] == _pieces[11])
                     return false;
-                }
-                if (pieces[6] == pieces[5])
-                {
+                if (_pieces[6] == _pieces[5])
                     return false;
-                }
-                if (pieces[12] == pieces[23])
-                {
+                if (_pieces[12] == _pieces[23])
                     return false;
-                }
-                if (pieces[12 + 6] == pieces[(12 + 6) - 1])
-                {
-                    return false;
-                }
-                return true;
+                return _pieces[12 + 6] != _pieces[12 + 6 - 1];
             }
 
             /**
@@ -168,37 +126,30 @@ namespace TNoodle.Puzzles
              * @param bottom Amount to rotate bottom
              * @return A copy of pieces with (top, bottom) applied to it
              */
-            private int[] doRotateTopAndBottom(int top, int bottom)
+
+            private int[] DoRotateTopAndBottom(int top, int bottom)
             {
-                top = Functions.modulo(-top, 12);
+                top = Functions.Modulo(-top, 12);
                 //int[] newPieces = GwtSafeUtils.clone(pieces);
-                int[] newPieces = new int[pieces.Length];
-                pieces.CopyTo(newPieces, 0);
-                int[] t = new int[12];
-                for (int i = 0; i < 12; i++)
-                {
+                var newPieces = new int[_pieces.Length];
+                _pieces.CopyTo(newPieces, 0);
+                var t = new int[12];
+                for (var i = 0; i < 12; i++)
                     t[i] = newPieces[i];
-                }
-                for (int i = 0; i < 12; i++)
-                {
+                for (var i = 0; i < 12; i++)
                     newPieces[i] = t[(top + i) % 12];
-                }
 
-                bottom = Functions.modulo(-bottom, 12);
+                bottom = Functions.Modulo(-bottom, 12);
 
-                for (int i = 0; i < 12; i++)
-                {
+                for (var i = 0; i < 12; i++)
                     t[i] = newPieces[i + 12];
-                }
-                for (int i = 0; i < 12; i++)
-                {
+                for (var i = 0; i < 12; i++)
                     newPieces[i + 12] = t[(bottom + i) % 12];
-                }
 
                 return newPieces;
             }
 
-            public override int GetMoveCost(String move)
+            public override int GetMoveCost(string move)
             {
                 // TODO - We do a lookup here rather than string parsing because
                 // this is a very performance critical section of code.
@@ -206,67 +157,54 @@ namespace TNoodle.Puzzles
                 // api to return move costs as part of the object returned by
                 // getScrambleSuccessors(), then subclasses wouldn't have to do
                 // weird stuff like this for speed.
-                return costsByMove[move];
+                return CostsByMove[move];
             }
 
             public override LinkedHashMap<string, PuzzleState> GetScrambleSuccessors()
             {
-                LinkedHashMap<String, PuzzleState> successors = GetSuccessorsByName();
-                var iter = successors.Keys.GetEnumerator();
+                var successors = GetSuccessorsByName();
                 foreach (var key in successors.Keys)
                 {
                     //String key = iter.next();
-                    SquareOneState state = (SquareOneState)successors[key];
-                    if (!state.canSlash())
-                    {
-                        //iter.remove();
+                    var state = (SquareOneState) successors[key];
+                    if (!state.CanSlash())
                         successors.Remove(key);
-                    }
                 }
                 return successors;
             }
 
             public override LinkedHashMap<string, PuzzleState> GetSuccessorsByName()
             {
-                LinkedHashMap<String, PuzzleState> successors = new LinkedHashMap<String, PuzzleState>();
-                for (int top = -5; top <= 6; top++)
+                var successors = new LinkedHashMap<string, PuzzleState>();
+                for (var top = -5; top <= 6; top++)
+                for (var bottom = -5; bottom <= 6; bottom++)
                 {
-                    for (int bottom = -5; bottom <= 6; bottom++)
-                    {
-                        if (top == 0 && bottom == 0)
-                        {
-                            // No use doing nothing =)
-                            continue;
-                        }
-                        int[] newPieces = doRotateTopAndBottom(top, bottom);
-                        String turn = "(" + top + "," + bottom + ")";
-                        successors[turn] = new SquareOneState(sliceSolved, newPieces, puzzle);
-                    }
+                    if (top == 0 && bottom == 0)
+                        continue;
+                    var newPieces = DoRotateTopAndBottom(top, bottom);
+                    var turn = "(" + top + "," + bottom + ")";
+                    successors[turn] = new SquareOneState(_sliceSolved, newPieces, _puzzle);
                 }
-                if (canSlash())
-                {
-                    successors["/"] = new SquareOneState(!sliceSolved, doSlash(), puzzle);
-                }
+                if (CanSlash())
+                    successors["/"] = new SquareOneState(!_sliceSolved, DoSlash(), _puzzle);
                 return successors;
             }
 
-            public override bool Equals(Object other)
+            public override bool Equals(object other)
             {
-                SquareOneState o = ((SquareOneState)other);
-                return pieces.SequenceEqual(o.pieces) && sliceSolved == o.sliceSolved;
+                var o = (SquareOneState) other;
+                return _pieces.SequenceEqual(o._pieces) && _sliceSolved == o._sliceSolved;
             }
 
             public override int GetHashCode()
             {
-                return pieces.DeepHashCode() ^ (sliceSolved ? 1 : 0);
+                return _pieces.DeepHashCode() ^ (_sliceSolved ? 1 : 0);
             }
 
             public override string ToString()
             {
-                return "sliceSolved: " + sliceSolved + " " + pieces.ToString();
+                return "sliceSolved: " + _sliceSolved + " " + _pieces;
             }
-
         }
     }
-
 }

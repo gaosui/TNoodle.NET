@@ -61,7 +61,7 @@ namespace TNoodle.Solvers.Threephase
 
         public static void CreatePrun()
         {
-            Functions.Fill(Csprun, (sbyte)-1);
+            ArrayExtension.Fill(Csprun, (sbyte)-1);
             Csprun[0] = 0;
             int depth = 0;
             int done = 1;

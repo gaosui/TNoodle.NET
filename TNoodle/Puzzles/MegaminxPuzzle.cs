@@ -37,7 +37,7 @@ namespace TNoodle.Puzzles
 
         private static void turn(int[,] image, Face side, int dir)
         {
-            dir = Functions.modulo(dir, 5);
+            dir = Functions.Modulo(dir, 5);
             for (int i = 0; i < dir; i++)
             {
                 turn(image, side);
@@ -102,7 +102,7 @@ namespace TNoodle.Puzzles
 
         private static void bigTurn(int[,] image, Face side, int dir)
         {
-            dir = Functions.modulo(dir, 5);
+            dir = Functions.Modulo(dir, 5);
             for (int i = 0; i < dir; i++)
             {
                 bigTurn(image, side);

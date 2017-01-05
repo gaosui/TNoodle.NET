@@ -1,97 +1,74 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TNoodle.Solvers.sq12phase
 {
     public class FullCube : IComparable<FullCube>
     {
+        private readonly int[] _arr = new int[16];
 
-        internal int ul = 0x011233;
-        internal int ur = 0x455677;
-        internal int dl = 0x998bba;
-        internal int dr = 0xddcffe;
-        internal int ml = 0;
+        private readonly sbyte[] _prm = new sbyte[8];
+        internal int Ul { get; set; } = 0x011233;
+        internal int Ur { get; set; } = 0x455677;
+        internal int Dl { get; set; } = 0x998bba;
+        internal int Dr { get; set; } = 0xddcffe;
+        internal int Ml { get; set; }
 
         public int CompareTo(FullCube f)
         {
-            if (ul != f.ul)
-            {
-                return ul - f.ul;
-            }
-            if (ur != f.ur)
-            {
-                return ur - f.ur;
-            }
-            if (dl != f.dl)
-            {
-                return dl - f.dl;
-            }
-            if (dr != f.dr)
-            {
-                return dr - f.dr;
-            }
-            return ml - f.ml;
+            if (Ul != f.Ul)
+                return Ul - f.Ul;
+            if (Ur != f.Ur)
+                return Ur - f.Ur;
+            if (Dl != f.Dl)
+                return Dl - f.Dl;
+            if (Dr != f.Dr)
+                return Dr - f.Dr;
+            return Ml - f.Ml;
         }
 
-        internal FullCube(string s)
+        public static FullCube RandomCube(Random r)
         {
-            //TODO
-        }
-
-        public FullCube()
-        {
-
-        }
-
-        internal static Random r = new Random();
-        public static FullCube randomCube()
-        {
-            return randomCube(r);
-        }
-
-        public static FullCube randomCube(Random r)
-        {
-            int shape = Shape.ShapeIdx[r.Next(3678)];
-            FullCube f = new FullCube();
-            int corner = 0x01234567 << 1 | 0x11111111;
-            int edge = 0x01234567 << 1;
-            int n_corner = 8, n_edge = 8;
-            int rnd, m;
-            for (int i = 0; i < 24; i++)
+            var shape = Shape.ShapeIdx[r.Next(3678)];
+            var f = new FullCube();
+            var corner = (0x01234567 << 1) | 0x11111111;
+            var edge = 0x01234567 << 1;
+            int nCorner = 8, nEdge = 8;
+            for (var i = 0; i < 24; i++)
             {
+                int rnd;
+                int m;
                 if (((shape >> i) & 1) == 0)
-                {//edge
-                    rnd = r.Next(n_edge) << 2;
-                    f.setPiece(23 - i, (edge >> rnd) & 0xf);
+                {
+//edge
+                    rnd = r.Next(nEdge) << 2;
+                    f.SetPiece(23 - i, (edge >> rnd) & 0xf);
                     m = (1 << rnd) - 1;
                     edge = (edge & m) + ((edge >> 4) & ~m);
-                    --n_edge;
+                    --nEdge;
                 }
                 else
-                {//corner
-                    rnd = r.Next(n_corner) << 2;
-                    f.setPiece(23 - i, (corner >> rnd) & 0xf);
-                    f.setPiece(22 - i, (corner >> rnd) & 0xf);
+                {
+//corner
+                    rnd = r.Next(nCorner) << 2;
+                    f.SetPiece(23 - i, (corner >> rnd) & 0xf);
+                    f.SetPiece(22 - i, (corner >> rnd) & 0xf);
                     m = (1 << rnd) - 1;
                     corner = (corner & m) + ((corner >> 4) & ~m);
-                    --n_corner;
+                    --nCorner;
                     ++i;
                 }
             }
-            f.ml = r.Next(2);
+            f.Ml = r.Next(2);
             return f;
         }
 
-        internal void copy(FullCube c)
+        internal void Copy(FullCube c)
         {
-            this.ul = c.ul;
-            this.ur = c.ur;
-            this.dl = c.dl;
-            this.dr = c.dr;
-            this.ml = c.ml;
+            Ul = c.Ul;
+            Ur = c.Ur;
+            Dl = c.Dl;
+            Dr = c.Dr;
+            Ml = c.Ml;
         }
 
         /**
@@ -101,181 +78,145 @@ namespace TNoodle.Solvers.sq12phase
          * [-1, -11] = bottom move
          * for example, 6 == (6, 0), 9 == (-3, 0), -4 == (0, 4)
          */
-        internal void doMove(int move)
+
+        internal void DoMove(int move)
         {
             move <<= 2;
             if (move > 24)
             {
                 move = 48 - move;
-                int temp = ul;
-                ul = (ul >> move | ur << (24 - move)) & 0xffffff;
-                ur = (ur >> move | temp << (24 - move)) & 0xffffff;
+                var temp = Ul;
+                Ul = ((Ul >> move) | (Ur << (24 - move))) & 0xffffff;
+                Ur = ((Ur >> move) | (temp << (24 - move))) & 0xffffff;
             }
             else if (move > 0)
             {
-                int temp = ul;
-                ul = (ul << move | ur >> (24 - move)) & 0xffffff;
-                ur = (ur << move | temp >> (24 - move)) & 0xffffff;
+                var temp = Ul;
+                Ul = ((Ul << move) | (Ur >> (24 - move))) & 0xffffff;
+                Ur = ((Ur << move) | (temp >> (24 - move))) & 0xffffff;
             }
             else if (move == 0)
             {
-                int temp = ur;
-                ur = dl;
-                dl = temp;
-                ml = 1 - ml;
+                var temp = Ur;
+                Ur = Dl;
+                Dl = temp;
+                Ml = 1 - Ml;
             }
             else if (move >= -24)
             {
                 move = -move;
-                int temp = dl;
-                dl = (dl << move | dr >> (24 - move)) & 0xffffff;
-                dr = (dr << move | temp >> (24 - move)) & 0xffffff;
+                var temp = Dl;
+                Dl = ((Dl << move) | (Dr >> (24 - move))) & 0xffffff;
+                Dr = ((Dr << move) | (temp >> (24 - move))) & 0xffffff;
             }
             else if (move < -24)
             {
                 move = 48 + move;
-                int temp = dl;
-                dl = (dl >> move | dr << (24 - move)) & 0xffffff;
-                dr = (dr >> move | temp << (24 - move)) & 0xffffff;
+                var temp = Dl;
+                Dl = ((Dl >> move) | (Dr << (24 - move))) & 0xffffff;
+                Dr = ((Dr >> move) | (temp << (24 - move))) & 0xffffff;
             }
         }
 
-        private byte pieceAt(int idx)
+        private sbyte PieceAt(int idx)
         {
             int ret;
             if (idx < 6)
-            {
-                ret = ul >> ((5 - idx) << 2);
-            }
+                ret = Ul >> ((5 - idx) << 2);
             else if (idx < 12)
-            {
-                ret = ur >> ((11 - idx) << 2);
-            }
+                ret = Ur >> ((11 - idx) << 2);
             else if (idx < 18)
-            {
-                ret = dl >> ((17 - idx) << 2);
-            }
+                ret = Dl >> ((17 - idx) << 2);
             else
-            {
-                ret = dr >> ((23 - idx) << 2);
-            }
-            return (byte)(ret & 0x0f);
+                ret = Dr >> ((23 - idx) << 2);
+            return (sbyte) (ret & 0x0f);
         }
 
-        public void setPiece(int idx, int value)
+        private void SetPiece(int idx, int value)
         {
             if (idx < 6)
             {
-                ul &= ~(0xf << ((5 - idx) << 2));
-                ul |= value << ((5 - idx) << 2);
+                Ul &= ~(0xf << ((5 - idx) << 2));
+                Ul |= value << ((5 - idx) << 2);
             }
             else if (idx < 12)
             {
-                ur &= ~(0xf << ((11 - idx) << 2));
-                ur |= value << ((11 - idx) << 2);
+                Ur &= ~(0xf << ((11 - idx) << 2));
+                Ur |= value << ((11 - idx) << 2);
             }
             else if (idx < 18)
             {
-                dl &= ~(0xf << ((17 - idx) << 2));
-                dl |= value << ((17 - idx) << 2);
+                Dl &= ~(0xf << ((17 - idx) << 2));
+                Dl |= value << ((17 - idx) << 2);
             }
             else if (idx < 24)
             {
-                dr &= ~(0xf << ((23 - idx) << 2));
-                dr |= value << ((23 - idx) << 2);
+                Dr &= ~(0xf << ((23 - idx) << 2));
+                Dr |= value << ((23 - idx) << 2);
             }
             else
             {
-                ml = value;
+                Ml = value;
             }
         }
 
-        internal int[] arr = new int[16];
-
-        internal int getParity()
+        private int GetParity()
         {
-            int cnt = 0;
-            arr[0] = pieceAt(0);
-            for (int i = 1; i < 24; i++)
-            {
-                if (pieceAt(i) != arr[cnt])
-                {
-                    arr[++cnt] = pieceAt(i);
-                }
-            }
-            int p = 0;
-            for (int a = 0; a < 16; a++)
-            {
-                for (int b = a + 1; b < 16; b++)
-                {
-                    if (arr[a] > arr[b])
-                    {
-                        p ^= 1;
-                    }
-                }
-            }
+            var cnt = 0;
+            _arr[0] = PieceAt(0);
+            for (var i = 1; i < 24; i++)
+                if (PieceAt(i) != _arr[cnt])
+                    _arr[++cnt] = PieceAt(i);
+            var p = 0;
+            for (var a = 0; a < 16; a++)
+            for (var b = a + 1; b < 16; b++)
+                if (_arr[a] > _arr[b])
+                    p ^= 1;
             return p;
         }
 
-        internal int getShapeIdx()
+        internal int GetShapeIdx()
         {
-            int urx = ur & 0x111111;
+            var urx = Ur & 0x111111;
             urx |= urx >> 3;
             urx |= urx >> 6;
             urx = (urx & 0xf) | ((urx >> 12) & 0x30);
-            int ulx = ul & 0x111111;
+            var ulx = Ul & 0x111111;
             ulx |= ulx >> 3;
             ulx |= ulx >> 6;
             ulx = (ulx & 0xf) | ((ulx >> 12) & 0x30);
-            int drx = dr & 0x111111;
+            var drx = Dr & 0x111111;
             drx |= drx >> 3;
             drx |= drx >> 6;
             drx = (drx & 0xf) | ((drx >> 12) & 0x30);
-            int dlx = dl & 0x111111;
+            var dlx = Dl & 0x111111;
             dlx |= dlx >> 3;
             dlx |= dlx >> 6;
             dlx = (dlx & 0xf) | ((dlx >> 12) & 0x30);
-            return Shape.getShape2Idx(getParity() << 24 | ulx << 18 | urx << 12 | dlx << 6 | drx);
+            return Shape.GetShape2Idx((GetParity() << 24) | (ulx << 18) | (urx << 12) | (dlx << 6) | drx);
         }
 
-        //void print()
-        //{
-        //    System.out.println(Integer.toHexString(ul));
-        //    System.out.println(Integer.toHexString(ur));
-        //    System.out.println(Integer.toHexString(dl));
-        //    System.out.println(Integer.toHexString(dr));
-        //}
-
-        internal sbyte[] prm = new sbyte[8];
-
-        internal void getSquare(Square sq)
+        internal void GetSquare(Square sq)
         {
-            for (int i = 0; i < 8; i++)
-            {
-                prm[i] = (sbyte)(pieceAt(i * 3 + 1) >> 1);
-            }
+            for (var i = 0; i < 8; i++)
+                _prm[i] = (sbyte) (PieceAt(i * 3 + 1) >> 1);
             //convert to number
-            sq.cornperm = Square.get8Perm(prm);
+            sq.Cornperm = Square.Get8Perm(_prm);
 
             int a, b;
             //Strip top layer edges
-            sq.topEdgeFirst = pieceAt(0) == pieceAt(1);
-            a = sq.topEdgeFirst ? 2 : 0;
+            sq.TopEdgeFirst = PieceAt(0) == PieceAt(1);
+            a = sq.TopEdgeFirst ? 2 : 0;
             for (b = 0; b < 4; a += 3, b++)
-            {
-                prm[b] = (sbyte)(pieceAt(a) >> 1);
-            }
+                _prm[b] = (sbyte) (PieceAt(a) >> 1);
 
-            sq.botEdgeFirst = pieceAt(12) == pieceAt(13);
-            a = sq.botEdgeFirst ? 14 : 12;
+            sq.BotEdgeFirst = PieceAt(12) == PieceAt(13);
+            a = sq.BotEdgeFirst ? 14 : 12;
 
             for (; b < 8; a += 3, b++)
-            {
-                prm[b] = (sbyte)(pieceAt(a) >> 1);
-            }
-            sq.edgeperm = Square.get8Perm(prm);
-            sq.ml = ml;
+                _prm[b] = (sbyte) (PieceAt(a) >> 1);
+            sq.Edgeperm = Square.Get8Perm(_prm);
+            sq.Ml = Ml;
         }
     }
-
 }

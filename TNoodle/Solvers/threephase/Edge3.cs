@@ -195,7 +195,7 @@ namespace TNoodle.Solvers.Threephase
             Edge3 f = new Edge3();
             Edge3 g = new Edge3();
 
-            Functions.Fill(eprun, -1);
+            ArrayExtension.Fill(eprun, -1);
 
             int depth = 0;
             done = 1;

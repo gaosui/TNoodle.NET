@@ -81,7 +81,7 @@ namespace TNoodle.Solvers.Threephase
                 }
             }
 
-            Functions.Fill(Ctprun, (sbyte)-1);
+            ArrayExtension.Fill(Ctprun, (sbyte)-1);
 
             Ctprun[0] = Ctprun[18] = Ctprun[28] = Ctprun[46] = Ctprun[54] = Ctprun[56] = 0;
             int depth = 0;
